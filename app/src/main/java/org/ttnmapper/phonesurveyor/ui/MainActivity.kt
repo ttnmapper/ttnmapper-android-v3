@@ -1,15 +1,20 @@
 package org.ttnmapper.phonesurveyor.ui
 
+import android.Manifest
 import android.app.ActivityManager
+import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
 import android.os.IBinder
 import android.support.design.widget.BottomNavigationView
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
@@ -21,11 +26,14 @@ import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.utils.getBackgroundNotification
 import android.view.MenuInflater
 import android.view.MenuItem
+import kotlinx.android.synthetic.main.fragment_map.*
 
 
 class MainActivity : SettingsFragment.OnFragmentInteractionListener, StatsFragment.OnFragmentInteractionListener, MapFragment.OnFragmentInteractionListener, AppCompatActivity() {
 
     private val TAG = MainActivity::class.java.getName()
+
+    private val RECORD_REQUEST_CODE = 101
 
     val settingsFragment: SettingsFragment = SettingsFragment.newInstance("one", "two");
     val mapFragment: MapFragment = MapFragment.newInstance("one", "two");
@@ -74,6 +82,7 @@ class MainActivity : SettingsFragment.OnFragmentInteractionListener, StatsFragme
         navigation.getMenu().getItem(1).setChecked(true);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
+        setupPermissions()
     }
 
     override fun onDestroy() {
@@ -119,5 +128,56 @@ class MainActivity : SettingsFragment.OnFragmentInteractionListener, StatsFragme
             // Invoke the superclass to handle it.
             super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun setupPermissions() {
+        val permission = ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.WAKE_LOCK)
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            Log.i(TAG, "Permission to phone state denied")
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                            android.Manifest.permission.WAKE_LOCK)) {
+                val builder = AlertDialog.Builder(this)
+                builder.setMessage("Permission to read phone state is required to make a background MQTT connection.")
+                        .setTitle("Permission required")
+
+                builder.setPositiveButton("OK"
+                ) { dialog, id ->
+                    Log.i(TAG, "Clicked")
+                    makeRequest()
+                }
+
+                val dialog = builder.create()
+                dialog.show()
+            } else {
+                makeRequest()
+            }
+        }
+    }
+
+    private fun makeRequest() {
+        ActivityCompat.requestPermissions(this,
+                arrayOf(android.Manifest.permission.WAKE_LOCK),
+                RECORD_REQUEST_CODE)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            RECORD_REQUEST_CODE -> {
+
+                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+
+                    Log.i(TAG, "Permission has been denied by user")
+                } else {
+                    Log.i(TAG, "Permission has been granted by user")
+                }
+            }
+        }
+    }
+
+    fun setMQTTConnectionMessage(message: String) {
+        textViewMQTTStatus.setText(message)
     }
 }

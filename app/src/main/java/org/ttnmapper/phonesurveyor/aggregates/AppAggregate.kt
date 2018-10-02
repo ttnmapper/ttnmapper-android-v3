@@ -86,6 +86,10 @@ object AppAggregate {
         return false
     }
 
+    fun setMQTTConnectionMessage(message: String) {
+        mainActivity?.setMQTTConnectionMessage(message)
+    }
+
     // Extension function to show toast message
     fun toast(message:String){
         Toast.makeText(SurveyorApp.instance.applicationContext, message, Toast.LENGTH_SHORT).show()
