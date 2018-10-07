@@ -1,17 +1,20 @@
 package org.ttnmapper.phonesurveyor.ui
 
 import android.Manifest
+import android.Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.app.ActivityManager
 import android.app.AlertDialog
+import android.app.Notification
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.AsyncTask
-import android.os.Bundle
-import android.os.IBinder
+import android.os.*
+import android.provider.Settings
+import android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -86,7 +89,7 @@ class MainActivity : SettingsFragment.OnFragmentInteractionListener, StatsFragme
     }
 
     override fun onDestroy() {
-        AppAggregate.stopService()
+        //AppAggregate.stopService()
         super.onDestroy()
     }
 
@@ -132,14 +135,14 @@ class MainActivity : SettingsFragment.OnFragmentInteractionListener, StatsFragme
 
     private fun setupPermissions() {
         val permission = ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.WAKE_LOCK)
+                Manifest.permission.WAKE_LOCK)
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Permission to phone state denied")
+            Log.i(TAG, "Permission to wakelock denied")
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                            android.Manifest.permission.WAKE_LOCK)) {
+                            Manifest.permission.WAKE_LOCK)) {
                 val builder = AlertDialog.Builder(this)
-                builder.setMessage("Permission to read phone state is required to make a background MQTT connection.")
+                builder.setMessage("Permission to wakelock is required to make a background MQTT connection.")
                         .setTitle("Permission required")
 
                 builder.setPositiveButton("OK"
@@ -154,6 +157,23 @@ class MainActivity : SettingsFragment.OnFragmentInteractionListener, StatsFragme
                 makeRequest()
             }
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            var packageName = packageName;
+
+            val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+
+            if (pm.isIgnoringBatteryOptimizations(packageName))
+                //intent.setAction(ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+            else {
+                var intent = Intent()
+                intent.setAction(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + packageName));
+                startActivity(intent);
+            }
+        }
+
     }
 
     private fun makeRequest() {

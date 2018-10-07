@@ -9,37 +9,40 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.AsyncTask
 import android.os.Build
+import android.util.Log
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.ui.MainActivity
 
 class getBackgroundNotification(private val context: Context, private var myService: MyService?) : AsyncTask<Long, Void, Any>() {
+    private val TAG = getBackgroundNotification::class.java.getName()
 
     private lateinit var mNotification: Notification
     private val mNotificationId: Int = 1000
 
     override fun doInBackground(vararg params: Long?): Any? {
+        Log.e(TAG, "Adding notification in Background")
 
         //Create Channel
         createChannel(context)
 
-        var notificationManager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notifyIntent = Intent(context, MainActivity::class.java)
 
-        val title = "Sample Notification"
-        val message = "You have received a sample notification. This notification will take you to the details page."
+        val title = "TTN Mapper running"
+        val message = "Coverage surveying in progress"
 
         notifyIntent.putExtra("title", title)
         notifyIntent.putExtra("message", message)
         notifyIntent.putExtra("notification", true)
 
-        notifyIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        notifyIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 
 
         val pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
+            Log.w(TAG, "Building notification for >=O")
             mNotification = Notification.Builder(context, CHANNEL_ID)
                     // Set the intent that will fire when the user taps the notification
                     .setContentIntent(pendingIntent)
@@ -51,6 +54,7 @@ class getBackgroundNotification(private val context: Context, private var myServ
                     .setContentText(message).build()
         } else {
 
+            Log.w(TAG, "Building notification for <O")
             mNotification = Notification.Builder(context)
                     // Set the intent that will fire when the user taps the notification
                     .setContentIntent(pendingIntent)
@@ -63,7 +67,10 @@ class getBackgroundNotification(private val context: Context, private var myServ
 
         }
 
-        myService?.startForeground(999, mNotification)
+        if(myService == null) {
+            Log.e(TAG, "Service is null")
+        }
+        myService?.startForeground(mNotificationId, mNotification)
 
         return null
     }
@@ -72,8 +79,8 @@ class getBackgroundNotification(private val context: Context, private var myServ
 
 
     companion object {
-        const val CHANNEL_ID = "samples.notification.devdeeds.com.CHANNEL_ID"
-        const val CHANNEL_NAME = "Sample Notification"
+        const val CHANNEL_ID = "org.ttnmapper.phonesurveyor.channel"
+        const val CHANNEL_NAME = "TTN Mapper"
     }
 
     private fun createChannel(context: Context) {
@@ -85,7 +92,7 @@ class getBackgroundNotification(private val context: Context, private var myServ
 
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            val importance = NotificationManager.IMPORTANCE_NONE
+            val importance = NotificationManager.IMPORTANCE_LOW
             val notificationChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance)
             notificationChannel.enableVibration(true)
             notificationChannel.setShowBadge(true)
@@ -97,4 +104,6 @@ class getBackgroundNotification(private val context: Context, private var myServ
         }
 
     }
+
+
 }

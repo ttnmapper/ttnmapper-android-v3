@@ -1,14 +1,19 @@
 package org.ttnmapper.phonesurveyor.aggregates
 
 import android.app.ActivityManager
+import android.app.Notification
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.AsyncTask
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
+import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.ui.MainActivity
@@ -88,10 +93,59 @@ object AppAggregate {
 
     fun setMQTTConnectionMessage(message: String) {
         mainActivity?.setMQTTConnectionMessage(message)
+        if(isServiceRunning(MyService::class.java)) {
+            updateNotificationText(message)
+        }
     }
 
     // Extension function to show toast message
     fun toast(message:String){
         Toast.makeText(SurveyorApp.instance.applicationContext, message, Toast.LENGTH_SHORT).show()
+    }
+
+    fun updateNotificationText(message: String) {
+        var mNotification: Notification
+        val notificationManager = SurveyorApp.instance.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val notifyIntent = Intent(SurveyorApp.instance, MainActivity::class.java)
+
+        val title = "TTN Mapper running"
+
+        notifyIntent.putExtra("title", title)
+        notifyIntent.putExtra("message", message)
+        notifyIntent.putExtra("notification", true)
+
+        notifyIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+
+        val pendingIntent = PendingIntent.getActivity(SurveyorApp.instance, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            Log.w(TAG, "Building notification for >=O")
+            mNotification = Notification.Builder(SurveyorApp.instance, getBackgroundNotification.CHANNEL_ID)
+                    // Set the intent that will fire when the user taps the notification
+                    .setContentIntent(pendingIntent)
+                    .setSmallIcon(R.drawable.ic__ionicons_svg_md_map)
+                    .setAutoCancel(true)
+                    .setContentTitle(title)
+                    .setStyle(Notification.BigTextStyle()
+                            .bigText(message))
+                    .setContentText(message).build()
+        } else {
+
+            Log.w(TAG, "Building notification for <O")
+            mNotification = Notification.Builder(SurveyorApp.instance)
+                    // Set the intent that will fire when the user taps the notification
+                    .setContentIntent(pendingIntent)
+                    .setSmallIcon(R.drawable.ic__ionicons_svg_md_map)
+                    .setAutoCancel(true)
+                    .setContentTitle(title)
+                    .setStyle(Notification.BigTextStyle()
+                            .bigText(message))
+                    .setContentText(message).build()
+
+        }
+
+        notificationManager.notify(1000, mNotification)
     }
 }
