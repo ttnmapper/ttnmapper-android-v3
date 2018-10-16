@@ -14,12 +14,22 @@
             android:layout_height="fill_parent" />
 
         <TextView
+            android:id="@+id/textViewGPSStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_above="@+id/textViewMQTTStatus"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="8dp"/>
+        <TextView
             android:id="@+id/textViewMQTTStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
             android:paddingStart="8dp"
+            android:paddingEnd="8dp"
             android:paddingBottom="8dp"/>
 
     </RelativeLayout>

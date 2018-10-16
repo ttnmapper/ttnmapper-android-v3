@@ -1,134 +1,149 @@
 package org.ttnmapper.phonesurveyor.ui
 
-import android.content.Context
-import android.net.Uri
+import android.app.Fragment
+import android.graphics.Paint
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.views.MapView
-import android.preference.PreferenceManager
-import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Polyline
+import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
+import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
+import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
 import org.ttnmapper.phonesurveyor.R
+import org.osmdroid.events.ScrollEvent
+import org.osmdroid.events.ZoomEvent
+import org.osmdroid.events.MapListener
+import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [MapFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [MapFragment.newInstance] factory method to
- * create an instance of this fragment.
- *
- */
 class MapFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-    private var listener: OnFragmentInteractionListener? = null
+    private val TAG = MapFragment::class.java.getName()
+
     private lateinit var map: MapView
+    private lateinit var textViewMQTTStatus: TextView
+    private lateinit var textViewGPSStatus: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
 
-        //handle permissions first, before map is created. not depicted here
-
-        //load/initialize the osmdroid configuration, this can be done
-        //val ctx = getApplicationContext()
-        Configuration.getInstance().load(activity, PreferenceManager.getDefaultSharedPreferences(activity))
-        //setting this before the layout is inflated is a good idea
-        //it 'should' ensure that the map has a writable location for the map cache, even without permissions
-        //if no tiles are displayed, you can try overriding the cache path using Configuration.getInstance().setCachePath
-        //see also StorageUtils
-        //note, the load method also sets the HTTP User Agent to your application's package name, abusing osm's tile servers will get you banned based on this string
-
+        Log.e(TAG, "onCreate")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        Log.e(TAG, "onCreateView")
+
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_map, container, false)
         map = view.findViewById(R.id.map)
+        textViewMQTTStatus = view.findViewById(R.id.textViewMQTTStatus)
+        textViewGPSStatus = view.findViewById(R.id.textViewGPSStatus)
+
+
         map.setTileSource(TileSourceFactory.MAPNIK)
         map.setTilesScaledToDpi(true)
         map.setMultiTouchControls(true)
 
+        map.addMapListener(object : MapListener {
+            override fun onZoom(zoomEvent: ZoomEvent): Boolean {
+                MapAggregate.zoom = zoomEvent.zoomLevel
+                return false
+            }
+
+            override fun onScroll(scrollEvent: ScrollEvent): Boolean {
+                if(scrollEvent.x == 0 && scrollEvent.y == 0) {
+                    //Ignore onScroll that is called onCreate and on screen rotate
+                } else {
+                    MapAggregate.latitude = map.mapCenter.latitude
+                    MapAggregate.longitude = map.mapCenter.longitude
+                }
+                return false
+            }
+        })
+
         // get map controller
         val controller = map.controller
 
-        val position = GeoPoint(-33.5, 18.9)
+        Log.e(TAG, "Restoring map location to: "+MapAggregate.latitude+","+MapAggregate.longitude)
+        val position = GeoPoint(MapAggregate.latitude, MapAggregate.longitude)
         controller.setCenter(position)
-        controller.setZoom(6.0)
+        controller.setZoom(MapAggregate.zoom)
         //MapUtils.addMarker(activity, map, -34, 19)
+
+        redrawMap()
+
+        textViewGPSStatus.setText(MapAggregate.gpsStatusMessage)
+        textViewMQTTStatus.setText(MapAggregate.mqttStatusMessage)
 
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        listener?.onFragmentInteraction(uri)
+    fun addGateway() {
+
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        if (context is OnFragmentInteractionListener) {
-            listener = context
-        } else {
-            throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
-        }
+    fun drawLineOnMap(startLat: Double, startLon: Double, endLat: Double, endLon: Double, colour: Long) {
+        val geoPoints: List<GeoPoint> = listOf(GeoPoint(startLat, startLon), GeoPoint(endLat, endLon))
+        val line = Polyline()
+        line.setPoints(geoPoints)
+//        line.setOnClickListener { polyline, mapView, eventPos ->
+//            Toast.makeText(mapView.context, "polyline with " + polyline.points.size + "pts was tapped", Toast.LENGTH_LONG).show()
+//            false
+//        }
+        MapAggregate.lineList.add(line)
+        map.overlayManager.add(line)
+        map.invalidate()
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        listener = null
+    fun drawPointOnMap(lat: Double, lon: Double, colour: Long) {
+        val points: List<GeoPoint> = listOf(GeoPoint(lat, lon))
+        val pt = SimplePointTheme(points, false)
+
+        var mPointStyle = Paint()
+        mPointStyle.setStyle(Paint.Style.FILL)
+        mPointStyle.setColor(colour.toInt())
+
+// set some visual options for the overlay
+// we use here MAXIMUM_OPTIMIZATION algorithm, which works well with >100k points
+        val opt = SimpleFastPointOverlayOptions.getDefaultStyle()
+                .setPointStyle(mPointStyle)
+                .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION)
+                .setRadius(7f).setIsClickable(true).setCellSize(15)
+
+        val sfpo = SimpleFastPointOverlay(pt, opt)
+
+        //sfpo.setOnClickListener { points, point -> Toast.makeText(map.getContext(), "You clicked " + (points.get(point!!) as LabelledGeoPoint).label, Toast.LENGTH_SHORT).show() }
+
+        MapAggregate.pointList.add(sfpo)
+        map.getOverlays().add(sfpo)
+        map.invalidate()
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments]
-     * (http://developer.android.com/training/basics/fragments/communicating.html)
-     * for more information.
-     */
-    interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        fun onFragmentInteraction(uri: Uri)
+    fun redrawMap() {
+        map.overlays.clear()
+
+        map.overlays.addAll(MapAggregate.pointList)
+        map.overlays.addAll(MapAggregate.lineList)
+        map.invalidate()
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment MapFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-                MapFragment().apply {
-                    arguments = Bundle().apply {
-                        putString(ARG_PARAM1, param1)
-                        putString(ARG_PARAM2, param2)
-                    }
-                }
+    fun refreshGatewaysOnMap() {
+        map.invalidate()
+    }
+
+    fun setMQTTStatusMessage(message: String) {
+        MapAggregate.mqttStatusMessage = message
+        textViewMQTTStatus.setText(message)
+    }
+
+    fun setGPSStatusMessage(message: String) {
+        MapAggregate.gpsStatusMessage = message
+        textViewGPSStatus.setText(message)
     }
 }

@@ -1,65 +1,54 @@
 package org.ttnmapper.phonesurveyor.ui
 
-import android.Manifest
-import android.Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-import android.app.ActivityManager
-import android.app.AlertDialog
-import android.app.Notification
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.*
-import android.provider.Settings
-import android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+import android.os.Build
+import android.os.Bundle
+import android.os.PowerManager
 import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
-import android.widget.Toast
+import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.services.MyService
-import org.ttnmapper.phonesurveyor.utils.getBackgroundNotification
-import android.view.MenuInflater
-import android.view.MenuItem
-import kotlinx.android.synthetic.main.fragment_map.*
 
 
-class MainActivity : SettingsFragment.OnFragmentInteractionListener, StatsFragment.OnFragmentInteractionListener, MapFragment.OnFragmentInteractionListener, AppCompatActivity() {
+class MainActivity: AppCompatActivity() {
 
     private val TAG = MainActivity::class.java.getName()
 
     private val RECORD_REQUEST_CODE = 101
+    val PERMISSION_ALL = 1
 
-    val settingsFragment: SettingsFragment = SettingsFragment.newInstance("one", "two");
-    val mapFragment: MapFragment = MapFragment.newInstance("one", "two");
-    val statsFragment: StatsFragment = StatsFragment.newInstance("one", "two");
+    val settingsFragment = SettingsFragment()
+    val mapFragment = MapFragment()
+    val statsFragment = StatsFragment()
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_settings -> {
-                getSupportFragmentManager()
+                fragmentManager
                         .beginTransaction()
                         .replace(R.id.frame_fragmentholder, settingsFragment, "Settings")
                         .commit();
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_map -> {
-                getSupportFragmentManager()
+                fragmentManager
                         .beginTransaction()
                         .replace(R.id.frame_fragmentholder, mapFragment, "Map")
                         .commit();
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_stats -> {
-                getSupportFragmentManager()
+                fragmentManager
                         .beginTransaction()
                         .replace(R.id.frame_fragmentholder, statsFragment, "Stats")
                         .commit();
@@ -77,7 +66,7 @@ class MainActivity : SettingsFragment.OnFragmentInteractionListener, StatsFragme
         // Needed to send updates to UI from service
         AppAggregate.mainActivity = this
 
-        getSupportFragmentManager()
+        fragmentManager
                 .beginTransaction()
                 .replace(R.id.frame_fragmentholder, mapFragment, "Map")
                 .commit();
@@ -108,11 +97,6 @@ class MainActivity : SettingsFragment.OnFragmentInteractionListener, StatsFragme
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onFragmentInteraction(uri: Uri) {
-        // save some data from the fragment...
-        // other business logic...
-    }
-
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_start_stop -> {
             val serviceClass = MyService::class.java
@@ -133,29 +117,22 @@ class MainActivity : SettingsFragment.OnFragmentInteractionListener, StatsFragme
         }
     }
 
-    private fun setupPermissions() {
-        val permission = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WAKE_LOCK)
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Permission to wakelock denied")
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                            Manifest.permission.WAKE_LOCK)) {
-                val builder = AlertDialog.Builder(this)
-                builder.setMessage("Permission to wakelock is required to make a background MQTT connection.")
-                        .setTitle("Permission required")
-
-                builder.setPositiveButton("OK"
-                ) { dialog, id ->
-                    Log.i(TAG, "Clicked")
-                    makeRequest()
+    fun hasPermissions(context: Context?, permissions: List<String>): Boolean {
+        if (context != null && permissions != null) {
+            for (permission in permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false
                 }
-
-                val dialog = builder.create()
-                dialog.show()
-            } else {
-                makeRequest()
             }
+        }
+        return true
+    }
+
+    private fun setupPermissions() {
+        val PERMISSIONS = listOf(android.Manifest.permission.WAKE_LOCK, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.ACCESS_FINE_LOCATION)
+
+        if (!hasPermissions(this, PERMISSIONS)) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS.toTypedArray(), PERMISSION_ALL)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -176,12 +153,6 @@ class MainActivity : SettingsFragment.OnFragmentInteractionListener, StatsFragme
 
     }
 
-    private fun makeRequest() {
-        ActivityCompat.requestPermissions(this,
-                arrayOf(android.Manifest.permission.WAKE_LOCK),
-                RECORD_REQUEST_CODE)
-    }
-
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
@@ -194,10 +165,44 @@ class MainActivity : SettingsFragment.OnFragmentInteractionListener, StatsFragme
                     Log.i(TAG, "Permission has been granted by user")
                 }
             }
+
+            PERMISSION_ALL -> {
+                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Log.i(TAG, "Permission has been denied by user")
+                } else {
+                    Log.i(TAG, "Permission has been granted by user")
+                }
+            }
         }
     }
 
-    fun setMQTTConnectionMessage(message: String) {
-        textViewMQTTStatus.setText(message)
+    fun setMQTTStatusMessage(message: String) {
+        mapFragment.setMQTTStatusMessage(message)
+    }
+
+    fun setGPSStatusMessage(message: String) {
+        mapFragment.setGPSStatusMessage(message)
+    }
+
+    fun drawLineOnMap(startLat: Double, startLon: Double, endLat: Double, endLon: Double, colour: Long) {
+        runOnUiThread(
+                {
+                    mapFragment.drawLineOnMap(startLat, startLon, endLat, endLon, colour)
+                }
+        )
+    }
+
+    fun drawPointOnMap(lat: Double, lon: Double, colour: Long) {
+        runOnUiThread({
+            mapFragment.drawPointOnMap(lat, lon, colour)
+        })
+    }
+
+    fun refreshGatewaysOnMap() {
+        Log.e(TAG, "Refreshing gateways on map")
+        runOnUiThread({
+            mapFragment.refreshGatewaysOnMap()
+        })
+
     }
 }

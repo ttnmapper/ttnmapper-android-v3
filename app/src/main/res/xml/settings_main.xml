@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+    <CheckBoxPreference
+        android:key="pref_screen_on"
+        android:title="Keep screen on"
+        android:summary="When selected keeps your phones screen on while the app is open"
+        android:defaultValue="true" />
+</PreferenceScreen>

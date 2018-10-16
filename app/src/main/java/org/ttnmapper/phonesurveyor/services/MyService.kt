@@ -1,26 +1,25 @@
 package org.ttnmapper.phonesurveyor.services
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
-import android.os.Binder
-import android.os.Handler
-import android.os.IBinder
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.*
+import android.support.v4.content.ContextCompat
 import android.util.Log
 import org.eclipse.paho.android.service.MqttAndroidClient
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
-import org.eclipse.paho.client.mqttv3.MqttMessage
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
+import org.eclipse.paho.client.mqttv3.*
 import org.ttnmapper.phonesurveyor.SurveyorApp
-import org.eclipse.paho.client.mqttv3.MqttException
-import org.eclipse.paho.client.mqttv3.IMqttToken
-import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions
-import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import java.util.*
+import kotlin.concurrent.thread
 
 
 class MyService: Service() {
+    private val TAG = MyService::class.java.getName()
 
     private val myBinder = MyLocalBinder()
 
@@ -34,7 +33,11 @@ class MyService: Service() {
     val username = "jpm_ttgo"
     val password = "ttn-account-v2.zFhflrXwHYwAY2Tqb1KkRyx0xWz8M_f6p2lm7zzl87A"
 
-    var handler = Handler()
+    var handlerMqttStatus = Handler()
+    var handlerGpsStatus = Handler()
+
+    var locationManager: LocationManager? = null
+    var locationListener: LocationListener? = null
 
     override fun onBind(intent: Intent): IBinder? {
         return myBinder
@@ -42,11 +45,13 @@ class MyService: Service() {
 
     override fun onCreate() {
         super.onCreate()
+        startLocationTracking()
         startMQTTConnection()
     }
 
     override fun onDestroy() {
         stopMQTTConnection()
+        stopLocationTracking()
         super.onDestroy()
     }
 
@@ -72,8 +77,13 @@ class MyService: Service() {
 
             @Throws(Exception::class)
             override fun messageArrived(topic: String, mqttMessage: MqttMessage) {
-                Log.w("Mqtt", mqttMessage.toString())
+                Log.w("Mqtt", topic+": "+mqttMessage.toString())
                 setMQTTCountupMessage(Date())
+
+                Log.e(TAG, "Processing new message")
+                thread(start = true) {
+                    AppAggregate.processMessage(topic, mqttMessage.toString())
+                }
             }
 
             override fun deliveryComplete(iMqttDeliveryToken: IMqttDeliveryToken) {
@@ -157,20 +167,42 @@ class MyService: Service() {
     }
 
     fun setMQTTStatusMessage(message: String) {
-        handler.removeCallbacksAndMessages(null);
-        AppAggregate.setMQTTConnectionMessage(message)
+        handlerMqttStatus.removeCallbacksAndMessages(null);
+        AppAggregate.setMQTTStatusMessage(message)
     }
 
     fun setMQTTCountupMessage(date: Date) {
-        handler.removeCallbacksAndMessages(null);
-        AppAggregate.setMQTTConnectionMessage("Last message received now")
+        handlerMqttStatus.removeCallbacksAndMessages(null);
+        AppAggregate.setMQTTStatusMessage("TTN message received now")
         val r = object : Runnable {
             override fun run() {
-                AppAggregate.setMQTTConnectionMessage("Last message received "+datesToDurationString(date, Date()))
-                handler.postDelayed(this, 1000) //ms
+                AppAggregate.setMQTTStatusMessage("TTN message received "+datesToDurationString(date, Date()))
+                handlerMqttStatus.postDelayed(this, 1000) //ms
             }
         }
-        handler.postDelayed(r, 1000);
+        handlerMqttStatus.postDelayed(r, 1000);
+    }
+
+    fun setGPSStatusMessage(message: String) {
+        handlerGpsStatus.removeCallbacksAndMessages(null)
+        AppAggregate.setGPSStatusMessage(message)
+    }
+
+    fun setGPSCountupStatus(date: Date, accuracy: Float) {
+        if((Date().time - date.time) > 5000) {
+            setGPSStatusMessage("GPS location too old. Obtained "+datesToDurationString(date, Date()))
+        } else if(accuracy > 10.0 ) {
+            setGPSStatusMessage("GPS location not accurate enough (>10m)")
+        } else {
+            setGPSStatusMessage("GPS location valid")
+        }
+
+        val r = object : Runnable {
+            override fun run() {
+                setGPSCountupStatus(date, accuracy)
+            }
+        }
+        handlerGpsStatus.postDelayed(r, 1000);
     }
 
     fun datesToDurationString(first: Date, second: Date): String {
@@ -189,6 +221,48 @@ class MyService: Service() {
         diff = diff / 60
 
         return diff.toString() + " hours ago"
+    }
+
+    private fun startLocationTracking() {
+
+        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "Location permission not granted by user")
+            setGPSStatusMessage("Location permission not granted by user")
+            return
+        }
+
+        Log.e(TAG, "startLocationTracking()")
+
+
+        locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        locationListener = object : LocationListener {
+            override fun onLocationChanged(location: Location) {
+                Log.e(TAG, "New location")
+                AppAggregate.phoneLocation = location
+
+                setGPSCountupStatus(Date(), location.accuracy)
+            }
+
+            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+            override fun onProviderEnabled(provider: String) {}
+            override fun onProviderDisabled(provider: String) {}
+        }
+
+        // Register the listener with the Location Manager to receive location updates
+        locationManager!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, locationListener)
+        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0f, locationListener)
+
+    }
+
+
+    private fun stopLocationTracking() {
+        Log.e(TAG, "stopLocationTracking()")
+        if (locationManager != null && locationListener != null) {
+            locationManager!!.removeUpdates(locationListener)
+            setGPSStatusMessage("GPS stopped")
+        } else {
+            Log.e(TAG, "locationManager or locationListener is null")
+        }
     }
 
     inner class MyLocalBinder : Binder() {
