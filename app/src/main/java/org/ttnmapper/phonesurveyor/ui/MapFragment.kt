@@ -22,6 +22,10 @@ import org.osmdroid.views.overlay.*
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 import org.ttnmapper.phonesurveyor.model.Gateway
 import org.ttnmapper.phonesurveyor.model.MapLine
+import org.osmdroid.util.MapTileIndex
+import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
+
+
 
 
 class MapFragment : Fragment() {
@@ -46,9 +50,22 @@ class MapFragment : Fragment() {
         map = view.findViewById(R.id.map)
         textViewMQTTStatus = view.findViewById(R.id.textViewMQTTStatus)
         textViewGPSStatus = view.findViewById(R.id.textViewGPSStatus)
+        
+        map.setTileSource(object : OnlineTileSourceBase("Stamen Toner Light",
+                0, 20, 256, ".png",
+                arrayOf("http://stamen-tiles-a.a.ssl.fastly.net/toner-lite/",
+                        "http://stamen-tiles-b.a.ssl.fastly.net/toner-lite/",
+                        "http://stamen-tiles-c.a.ssl.fastly.net/toner-lite/",
+                        "http://stamen-tiles-d.a.ssl.fastly.net/toner-lite/")) {
+            override fun getTileURLString(pMapTileIndex: Long): String {
+                return (baseUrl
+                        + MapTileIndex.getZoom(pMapTileIndex)
+                        + "/" + MapTileIndex.getX(pMapTileIndex)
+                        + "/" + MapTileIndex.getY(pMapTileIndex)
+                        + mImageFilenameEnding)
+            }
+        })
 
-
-        map.setTileSource(TileSourceFactory.MAPNIK)
         map.setTilesScaledToDpi(true)
         map.setMultiTouchControls(true)
 
