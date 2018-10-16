@@ -17,6 +17,7 @@ import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
+import org.ttnmapper.phonesurveyor.model.Gateway
 import org.ttnmapper.phonesurveyor.services.MyService
 
 
@@ -198,10 +199,9 @@ class MainActivity: AppCompatActivity() {
         })
     }
 
-    fun refreshGatewaysOnMap() {
-        Log.e(TAG, "Refreshing gateways on map")
+    fun addGatewayToMap(gateway: Gateway) {
         runOnUiThread({
-            mapFragment.refreshGatewaysOnMap()
+            mapFragment.addGatewayToMap(gateway)
         })
 
     }

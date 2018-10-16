@@ -11,7 +11,6 @@ import android.widget.TextView
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
 import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
@@ -19,7 +18,10 @@ import org.ttnmapper.phonesurveyor.R
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
 import org.osmdroid.events.MapListener
+import org.osmdroid.views.overlay.*
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
+import org.ttnmapper.phonesurveyor.model.Gateway
+import org.ttnmapper.phonesurveyor.model.MapLine
 
 
 class MapFragment : Fragment() {
@@ -91,12 +93,9 @@ class MapFragment : Fragment() {
     fun drawLineOnMap(startLat: Double, startLon: Double, endLat: Double, endLon: Double, colour: Long) {
         val geoPoints: List<GeoPoint> = listOf(GeoPoint(startLat, startLon), GeoPoint(endLat, endLon))
         val line = Polyline()
+        line.color = colour.toInt()
+        line.width = 2.0f
         line.setPoints(geoPoints)
-//        line.setOnClickListener { polyline, mapView, eventPos ->
-//            Toast.makeText(mapView.context, "polyline with " + polyline.points.size + "pts was tapped", Toast.LENGTH_LONG).show()
-//            false
-//        }
-        MapAggregate.lineList.add(line)
         map.overlayManager.add(line)
         map.invalidate()
     }
@@ -109,8 +108,6 @@ class MapFragment : Fragment() {
         mPointStyle.setStyle(Paint.Style.FILL)
         mPointStyle.setColor(colour.toInt())
 
-// set some visual options for the overlay
-// we use here MAXIMUM_OPTIMIZATION algorithm, which works well with >100k points
         val opt = SimpleFastPointOverlayOptions.getDefaultStyle()
                 .setPointStyle(mPointStyle)
                 .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION)
@@ -118,9 +115,6 @@ class MapFragment : Fragment() {
 
         val sfpo = SimpleFastPointOverlay(pt, opt)
 
-        //sfpo.setOnClickListener { points, point -> Toast.makeText(map.getContext(), "You clicked " + (points.get(point!!) as LabelledGeoPoint).label, Toast.LENGTH_SHORT).show() }
-
-        MapAggregate.pointList.add(sfpo)
         map.getOverlays().add(sfpo)
         map.invalidate()
     }
@@ -128,13 +122,30 @@ class MapFragment : Fragment() {
     fun redrawMap() {
         map.overlays.clear()
 
-        map.overlays.addAll(MapAggregate.pointList)
-        map.overlays.addAll(MapAggregate.lineList)
+        for(gateway in MapAggregate.seenGateways) {
+            addGatewayToMap(gateway.value)
+        }
+
+        // Workaround as map.overlays.addAll(Polyline) didn't work
+        for(line in MapAggregate.lineList) {
+            drawLineOnMap(line.startLatitude, line.startLongitude, line.endLatitude, line.endLongitude, line.colour)
+        }
+
+        for(point in MapAggregate.pointList) {
+            drawPointOnMap(point.lat, point.lon, point.colour)
+        }
+
         map.invalidate()
     }
 
-    fun refreshGatewaysOnMap() {
-        map.invalidate()
+    fun addGatewayToMap(gateway: Gateway) {
+        if(gateway.latitude != null && gateway.longitude!=null) {
+            var startMarker = Marker(map);
+            startMarker.setPosition(GeoPoint(gateway.latitude!!, gateway.longitude!!));
+            startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            map.getOverlays().add(startMarker);
+            map.invalidate()
+        }
     }
 
     fun setMQTTStatusMessage(message: String) {

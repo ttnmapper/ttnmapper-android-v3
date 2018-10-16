@@ -19,6 +19,8 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.model.Gateway
+import org.ttnmapper.phonesurveyor.model.MapLine
+import org.ttnmapper.phonesurveyor.model.MapPoint
 import org.ttnmapper.phonesurveyor.model.TTNMessage
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.ui.MainActivity
@@ -36,9 +38,6 @@ object AppAggregate {
     var isBound = false
 
     var phoneLocation: Location? = null
-
-    var seenGateways: MutableMap<String, Gateway> = HashMap();
-    var receivedMessages: MutableList<TTNMessage> = ArrayList();
 
 
     val moshi = Moshi.Builder()
@@ -192,15 +191,15 @@ object AppAggregate {
 //            val ttnMessage = jsonAdapter.fromJson(data)
         val moshi = Moshi.Builder().build()
         val jsonAdapter = moshi.adapter<TTNMessage>(TTNMessage::class.java!!)
-Log.e(TAG, "Just before parsing")
+//        Log.e(TAG, "Just before parsing")
         val ttnMessage = jsonAdapter.fromJson(data)
-        Log.e(TAG, "Just after parsing")
+//        Log.e(TAG, "Just after parsing")
 
-        if(ttnMessage == null) {
-            Log.e(TAG, "Message not parsed")
-        } else {
-            Log.e(TAG, "Parsed")
-        }
+//        if(ttnMessage == null) {
+//            Log.e(TAG, "Message not parsed")
+//        } else {
+//            Log.e(TAG, "Parsed")
+//        }
 
         //TODO: Save to file if saving is enabled - but first add location!
         // "mqtt_topic":"jpm_sodaq_one\/devices\/sodaq-one-v3-box\/up","phone_lat":-34.0480438,"phone_lon":18.8220624,"phone_alt":182.8053986682576,"phone_loc_acc":10,"phone_loc_provider":"fused","phone_time":"2018-03-18T10:04:43Z","user_agent":"Android7.0 App30:2018.03.04"
@@ -213,7 +212,7 @@ Log.e(TAG, "Just before parsing")
         ttnMessage.phoneTime = getISO8601StringForDate(Date())
         //TODO: message.userAgent = Android7.0 App30:2018.03.04
 
-        Log.e(TAG, ttnMessage.toString())
+//        Log.e(TAG, ttnMessage.toString())
 
         if(phoneLocation == null) {
             //TODO: No location information yet message
@@ -237,14 +236,7 @@ Log.e(TAG, "Just before parsing")
         var maxLevel: Double? = null
 
         for( gateway in ttnMessage.metadata?.gateways!!) {
-            Log.e(TAG, "Processing gateway: "+gateway.toString())
-            if(!seenGateways.containsKey(gateway!!.gtwId)) {
-                Log.e(TAG, "Gateway ID: " + gateway.gtwId)
-                if(gateway.gtwId != null) {
-                    seenGateways.put(gateway.gtwId!!, gateway)
-                    refreshGatewaysOnMap()
-                }
-            }
+            addGatewayToMap(gateway!!)
 
             var level: Double = gateway.rssi!!
             if(gateway.snr != null) {
@@ -270,17 +262,22 @@ Log.e(TAG, "Just before parsing")
     }
 
     fun drawLineOnMap(startLat: Double, startLon: Double, endLat: Double, endLon: Double, colour: Long) {
-        Log.e(TAG, "Drawing line")
+        MapAggregate.lineList.add(MapLine(startLat, startLon, endLat, endLon, colour))
         mainActivity?.drawLineOnMap(startLat, startLon, endLat, endLon, colour)
     }
 
     fun drawPointOnMap(lat: Double, lon: Double, colour: Long) {
-        Log.e(TAG, "Drawing point")
+        MapAggregate.pointList.add(MapPoint(lat, lon, colour))
         mainActivity?.drawPointOnMap(lat, lon, colour)
     }
 
-    fun refreshGatewaysOnMap() {
-        mainActivity?.refreshGatewaysOnMap()
+    fun addGatewayToMap(gateway: Gateway) {
+        if(!MapAggregate.seenGateways.containsKey(gateway.gtwId)) {
+            if(gateway.gtwId != null) {
+                MapAggregate.seenGateways.put(gateway.gtwId!!, gateway)
+                mainActivity?.addGatewayToMap(gateway)
+            }
+        }
     }
 
     fun getColorForSignal(level: Double): Long {

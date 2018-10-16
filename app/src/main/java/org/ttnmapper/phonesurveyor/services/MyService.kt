@@ -237,7 +237,7 @@ class MyService: Service() {
         locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         locationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
-                Log.e(TAG, "New location")
+//                Log.e(TAG, "New location")
                 AppAggregate.phoneLocation = location
 
                 setGPSCountupStatus(Date(), location.accuracy)
