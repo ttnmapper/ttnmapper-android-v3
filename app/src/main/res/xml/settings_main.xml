@@ -2,9 +2,118 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
-    <CheckBoxPreference
-        android:key="pref_screen_on"
-        android:title="Keep screen on"
-        android:summary="When selected keeps your phones screen on while the app is open"
-        android:defaultValue="true" />
+    <PreferenceCategory
+        android:key="category_general_preference"
+        android:title="General">
+        <CheckBoxPreference
+            android:key="pref_screen_on"
+            android:title="Keep screen on"
+            android:summary="Screen will not dim and lock while the app is open"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="pref_play_sound"
+            android:title="Play sound"
+            android:summary="Play a notification sound when a new packet is received"
+            android:defaultValue="false" />
+        <RingtonePreference
+            android:key="pref_sound"
+            android:title="Notification sound"
+            android:summary="The sound that should be played when a packet is received"
+            android:dependency="pref_play_sound"
+            android:ringtoneType="notification" />
+        <CheckBoxPreference
+            android:key="pref_save_file"
+            android:title="Save to file"
+            android:summary="Save mapping data to a local logfile on your phone"
+            android:defaultValue="true" />
+        <Preference
+            android:key="pref_file_name"
+            android:title="Log file name"
+            android:summary="ttnmapper-date.log"
+            android:dependency="pref_save_file" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="map_preference_screen"
+        android:title="Map settings">
+        <CheckBoxPreference
+            android:key="auto_center"
+            android:title="Auto center"
+            android:summary="Keep the map centred around your location"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="auto_zoom"
+            android:title="Auto zoom"
+            android:summary="Zoom the map to always keep all points in view"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="lordrive"
+            android:title="LoRdrive mode"
+            android:summary="Show gateways and signal path on map"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="coverage"
+            android:title="Coverage"
+            android:summary="Show all previously mapped coverage from TTNMapper.org"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="category_upload_preference"
+        android:title="Data upload">
+
+        <CheckBoxPreference
+            android:key="pref_upload"
+            android:title="Upload data"
+            android:summary="Upload all measured points to ttnmapper.org"
+            android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="pref_experiment"
+            android:dependency="pref_upload"
+            android:title="Experiment"
+            android:summary="Mark uploaded data as experimental to exclude it from the main global map of coverage"
+            android:defaultValue="false" />
+        <EditTextPreference
+            android:key="pref_experiment_name"
+            android:dependency="pref_experiment"
+            android:title="Experiment name"
+            android:summary="The name under which this experiment will be saved on ttnmapper.org"
+            android:dialogTitle="Exepriment name" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="device_preference_screen"
+        android:title="Linked device"
+        android:summary="Modify the linked device">
+        <EditTextPreference
+            android:key="pref_app_id"
+            android:title="TTN Application ID"
+            android:summary="The ID of the application. This is also the MQTT username."
+            android:dialogTitle="Application ID" />
+        <EditTextPreference
+            android:key="pref_app_key"
+            android:title="TTN Application Key"
+            android:summary="The Access Key of the application. This is also the MQTT password."
+            android:dialogTitle="Application Key" />
+        <EditTextPreference
+            android:key="pref_dev_id"
+            android:title="TTN Device ID"
+            android:summary="The ID of the device you are mapping with."
+            android:dialogTitle="Device ID" />
+        <Preference android:title="Log in to TTN and choose a device"
+            android:icon="@drawable/ic__ionicons_svg_md_map">
+            <intent android:action="android.intent.action.VIEW"
+                android:data="http://www.example.com" />
+        </Preference>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="about"
+        android:title="About">
+        <Preference
+            android:title="App Version"
+            android:summary="3" />
+    </PreferenceCategory>
 </PreferenceScreen>

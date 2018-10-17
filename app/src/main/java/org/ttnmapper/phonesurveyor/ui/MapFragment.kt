@@ -50,7 +50,7 @@ class MapFragment : Fragment() {
         map = view.findViewById(R.id.map)
         textViewMQTTStatus = view.findViewById(R.id.textViewMQTTStatus)
         textViewGPSStatus = view.findViewById(R.id.textViewGPSStatus)
-        
+
         map.setTileSource(object : OnlineTileSourceBase("Stamen Toner Light",
                 0, 20, 256, ".png",
                 arrayOf("http://stamen-tiles-a.a.ssl.fastly.net/toner-lite/",

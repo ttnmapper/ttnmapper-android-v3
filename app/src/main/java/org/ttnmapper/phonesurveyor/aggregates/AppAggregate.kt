@@ -24,6 +24,7 @@ import org.ttnmapper.phonesurveyor.model.MapPoint
 import org.ttnmapper.phonesurveyor.model.TTNMessage
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.ui.MainActivity
+import org.ttnmapper.phonesurveyor.utils.CommonFunctions
 import org.ttnmapper.phonesurveyor.utils.getBackgroundNotification
 import java.text.SimpleDateFormat
 import java.util.*
@@ -209,7 +210,7 @@ object AppAggregate {
         ttnMessage.phoneAlt = phoneLocation?.altitude
         ttnMessage.phoneLocAcc = phoneLocation?.accuracy?.toDouble()
         ttnMessage.phoneLocProvider = phoneLocation?.provider
-        ttnMessage.phoneTime = getISO8601StringForDate(Date())
+        ttnMessage.phoneTime = CommonFunctions.getISO8601StringForDate(Date())
         //TODO: message.userAgent = Android7.0 App30:2018.03.04
 
 //        Log.e(TAG, ttnMessage.toString())
@@ -248,15 +249,15 @@ object AppAggregate {
             if(level>maxLevel) maxLevel = level
 
             if(gateway.latitude != null && gateway.longitude != null) {
-                drawLineOnMap(gateway.latitude!!, gateway.longitude!!, ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, getColorForSignal(level))
+                drawLineOnMap(gateway.latitude!!, gateway.longitude!!, ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(level))
             }
 
         }
 
         if(maxLevel!=null) {
-            drawPointOnMap(ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, getColorForSignal(maxLevel))
+            drawPointOnMap(ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(maxLevel))
         } else {
-            drawPointOnMap(ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, getColorForSignal(0.0))
+            drawPointOnMap(ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(0.0))
         }
 
     }
@@ -279,57 +280,5 @@ object AppAggregate {
             }
         }
     }
-
-    fun getColorForSignal(level: Double): Long {
-
-        if (level == 0.0) {
-            return 0x7f000000
-        } else if (level > -100) {
-            return 0x7fff0000
-        } else if (level > -105) {
-            return 0x7fff7f00
-        } else if (level > -110) {
-            return 0x7fffff00
-        } else if (level > -115) {
-            return 0x7f00ff00
-        } else if (level > -120) {
-            return 0x7f00ffff;
-        } else if (level > -140) {
-            return 0x7f0000ff;
-        } else {
-            return 0x7f000000
-        }
-
-    }
-
-    private fun getISO8601StringForDate(date: Date): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
-        return dateFormat.format(date)
-    }
-
-//    fun pointmarker() {
-//        // wrap them in a theme
-//        val pt = SimplePointTheme(points, true)
-//
-//// create label style
-//        val textStyle = Paint()
-//        textStyle.setStyle(Paint.Style.FILL)
-//        textStyle.setColor(Color.parseColor("#0000ff"))
-//        textStyle.setTextAlign(Paint.Align.CENTER)
-//        textStyle.setTextSize(24)
-//
-//// set some visual options for the overlay
-//// we use here MAXIMUM_OPTIMIZATION algorithm, which works well with >100k points
-//        val opt = SimpleFastPointOverlayOptions.getDefaultStyle()
-//                .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION)
-//                .setRadius(7f).setIsClickable(true).setCellSize(15).setTextStyle(textStyle)
-//
-//// create the overlay with the theme
-//        val sfpo = SimpleFastPointOverlay(pt, opt)
-//
-//// onClick callback
-//        sfpo.setOnClickListener { points, point -> Toast.makeText(mMapView.getContext(), "You clicked " + (points.get(point!!) as LabelledGeoPoint).label, Toast.LENGTH_SHORT).show() }
-//    }
 
 }
