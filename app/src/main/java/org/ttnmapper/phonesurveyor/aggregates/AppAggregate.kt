@@ -77,6 +77,8 @@ object AppAggregate {
             toast("Service already running.")
             SurveyorApp.instance.bindService(serviceIntent, myConnection, Context.BIND_AUTO_CREATE)
         }
+
+        mainActivity?.updateStartStopButton(true)
     }
 
     fun stopService() {
@@ -96,6 +98,8 @@ object AppAggregate {
         } else {
             toast("Service already stopped.")
         }
+
+        mainActivity?.updateStartStopButton(false)
     }
 
     // Custom method to determine whether a service is running

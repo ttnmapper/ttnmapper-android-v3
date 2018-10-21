@@ -2,7 +2,6 @@ package org.ttnmapper.phonesurveyor.ui
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.preference.Preference
 import android.preference.PreferenceFragment
 import android.util.Log
 import org.ttnmapper.phonesurveyor.R
@@ -12,7 +11,7 @@ class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPrefere
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        addPreferencesFromResource(R.xml.settings_main)
+        addPreferencesFromResource(R.xml.preferences)
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {

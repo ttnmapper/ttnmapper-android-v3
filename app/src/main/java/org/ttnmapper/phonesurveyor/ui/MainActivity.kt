@@ -1,5 +1,6 @@
 package org.ttnmapper.phonesurveyor.ui
 
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -7,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.preference.PreferenceManager
 import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.ActivityCompat
@@ -14,6 +16,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
@@ -31,6 +34,8 @@ class MainActivity: AppCompatActivity() {
     val settingsFragment = SettingsFragment()
     val mapFragment = MapFragment()
     val statsFragment = StatsFragment()
+
+    var startStopButton: MenuItem? = null
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -67,6 +72,8 @@ class MainActivity: AppCompatActivity() {
         // Needed to send updates to UI from service
         AppAggregate.mainActivity = this
 
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
+
         fragmentManager
                 .beginTransaction()
                 .replace(R.id.frame_fragmentholder, mapFragment, "Map")
@@ -87,12 +94,13 @@ class MainActivity: AppCompatActivity() {
         // Inflate the menu items for use in the action bar
         val inflater = menuInflater
         inflater.inflate(R.menu.action_bar_options, menu)
+        startStopButton = menu.findItem(R.id.action_start_stop)
 
         val serviceClass = MyService::class.java
         if(AppAggregate.isServiceRunning(serviceClass)) {
-            menu.findItem(R.id.action_start_stop).setTitle("Stop")
+            startStopButton?.setTitle("Stop")
         } else {
-            menu.findItem(R.id.action_start_stop).setTitle("Start")
+            startStopButton?.setTitle("Start")
         }
 
         return super.onCreateOptionsMenu(menu)
@@ -115,6 +123,18 @@ class MainActivity: AppCompatActivity() {
             // If we got here, the user's action was not recognized.
             // Invoke the superclass to handle it.
             super.onOptionsItemSelected(item)
+        }
+    }
+
+    /*
+    If the service stops itself, first trigger an update of the buttons.
+    running is the new state after the service stops = false
+     */
+    fun updateStartStopButton(running: Boolean) {
+        if(running) {
+            startStopButton?.setTitle("Stop")
+        } else {
+            startStopButton?.setTitle("Start")
         }
     }
 

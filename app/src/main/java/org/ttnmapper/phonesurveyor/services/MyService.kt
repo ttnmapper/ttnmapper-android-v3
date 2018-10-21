@@ -3,15 +3,18 @@ package org.ttnmapper.phonesurveyor.services
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.*
+import android.preference.PreferenceManager
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
+import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import java.util.*
@@ -25,13 +28,13 @@ class MyService: Service() {
 
     var mqttAndroidClient: MqttAndroidClient? = null
 
-    val serverUri = "tcp://eu.thethings.network:1883"
+    lateinit var sharedPref: SharedPreferences
 
-    val clientId = "ExampleAndroidClient"
-    val subscriptionTopic = "#"
-
-    val username = "jpm_ttgo"
-    val password = "ttn-account-v2.zFhflrXwHYwAY2Tqb1KkRyx0xWz8M_f6p2lm7zzl87A"
+    var serverUri = ""
+    var clientId = ""
+    var deviceId = ""
+    var appId = ""
+    var appKey = ""
 
     var handlerMqttStatus = Handler()
     var handlerGpsStatus = Handler()
@@ -39,12 +42,15 @@ class MyService: Service() {
     var locationManager: LocationManager? = null
     var locationListener: LocationListener? = null
 
+    var selfStop = false
+
     override fun onBind(intent: Intent): IBinder? {
         return myBinder
     }
 
     override fun onCreate() {
         super.onCreate()
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         startLocationTracking()
         startMQTTConnection()
     }
@@ -56,6 +62,11 @@ class MyService: Service() {
     }
 
     fun startMQTTConnection() {
+        setMQTTStatusMessage("MQTT connecting")
+
+        serverUri = sharedPref.getString(getString(R.string.PREF_BROKER), serverUri)
+        clientId = MqttClient.generateClientId()
+
         mqttAndroidClient = MqttAndroidClient(SurveyorApp.instance, serverUri, clientId)
         mqttAndroidClient?.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(b: Boolean, s: String) {
@@ -108,8 +119,10 @@ class MyService: Service() {
             }
 
             override fun connectionLost(throwable: Throwable?) {
-                Log.w("mqtt", "Connection lost")
-                setMQTTStatusMessage("MQTT disconnected - mapping stopped")
+                if(!selfStop) {
+                    Log.w("mqtt", "Connection lost")
+                    setMQTTStatusMessage("MQTT disconnected - mapping stopped")
+                }
             }
         })
         mqttAndroidClient?.disconnect()
@@ -120,11 +133,17 @@ class MyService: Service() {
     }
 
     private fun connect() {
+        appId = sharedPref.getString(getString(R.string.PREF_APP_ID), appId)
+        appKey = sharedPref.getString(getString(R.string.PREF_APP_KEY), appKey)
+
+        Log.e(TAG, "Using appId: "+appId)
+        Log.e(TAG, "Using appKey: "+appKey)
+
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isAutomaticReconnect = true
         mqttConnectOptions.isCleanSession = true
-        mqttConnectOptions.userName = username
-        mqttConnectOptions.password = password.toCharArray()
+        mqttConnectOptions.userName = appId
+        mqttConnectOptions.password = appKey.toCharArray()
 
         try {
 
@@ -134,8 +153,40 @@ class MyService: Service() {
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                    Log.w("Mqtt", "Failed to connect to: " + serverUri + exception.toString())
-                    setMQTTStatusMessage("MQTT failed to connect - check your internet connection")
+                    Log.w("Mqtt", "Failed to connect: " + exception.toString())
+
+                    if(asyncActionToken.exception != null) {
+                        val errorReason: Short = asyncActionToken.exception.reasonCode.toShort()
+                        when (errorReason) {
+                            MqttException.REASON_CODE_CLIENT_EXCEPTION -> {
+                                setMQTTStatusMessage("MQTT failed to connect - client exception")
+                            }
+                            MqttException.REASON_CODE_INVALID_PROTOCOL_VERSION -> {
+                                setMQTTStatusMessage("MQTT failed to connect - invalid protocol version")
+                            }
+                            MqttException.REASON_CODE_INVALID_CLIENT_ID -> {
+                                setMQTTStatusMessage("MQTT failed to connect - invalid client id")
+                            }
+                            MqttException.REASON_CODE_BROKER_UNAVAILABLE -> {
+                                setMQTTStatusMessage("MQTT failed to connect - broker unavailable")
+                            }
+                            MqttException.REASON_CODE_FAILED_AUTHENTICATION -> {
+                                setMQTTStatusMessage("MQTT failed to connect - authentication failed")
+                            }
+                            MqttException.REASON_CODE_NOT_AUTHORIZED -> {
+                                setMQTTStatusMessage("MQTT failed to connect - not authorised")
+                            }
+                            else -> {
+                                setMQTTStatusMessage("MQTT failed to connect - unexpected error")
+                            }
+                        }
+                    } else {
+                        setMQTTStatusMessage("MQTT failed to connect - "+exception.toString())
+                    }
+
+                    selfStop = true
+                    stopLocationTracking()
+                    AppAggregate.stopService()
                 }
             })
 
@@ -147,6 +198,10 @@ class MyService: Service() {
     }
 
     private fun subscribeToTopic() {
+        deviceId = sharedPref.getString(getString(R.string.PREF_DEV_ID), deviceId)
+
+        val subscriptionTopic = appId+"/devices/"+deviceId+"/up"
+
         try {
             mqttAndroidClient?.subscribe(subscriptionTopic, 0, null, object : IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken) {
@@ -224,6 +279,7 @@ class MyService: Service() {
     }
 
     private fun startLocationTracking() {
+        setGPSStatusMessage("GPS finding fix")
 
         if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.e(TAG, "Location permission not granted by user")
@@ -259,10 +315,11 @@ class MyService: Service() {
         Log.e(TAG, "stopLocationTracking()")
         if (locationManager != null && locationListener != null) {
             locationManager!!.removeUpdates(locationListener)
-            setGPSStatusMessage("GPS stopped")
+//            setGPSStatusMessage("GPS stopped")
         } else {
             Log.e(TAG, "locationManager or locationListener is null")
         }
+        setGPSStatusMessage("GPS stopped")
     }
 
     inner class MyLocalBinder : Binder() {
