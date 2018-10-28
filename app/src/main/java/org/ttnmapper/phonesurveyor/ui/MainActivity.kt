@@ -1,9 +1,7 @@
 package org.ttnmapper.phonesurveyor.ui
 
-import android.content.ClipData
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -17,14 +15,15 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
+import com.crashlytics.android.Crashlytics
+import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.activity_main.*
+import org.ttnmapper.phonesurveyor.BuildConfig
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.model.Gateway
 import org.ttnmapper.phonesurveyor.services.MyService
-import android.R.id.edit
 import java.util.*
 
 
@@ -70,6 +69,11 @@ class MainActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (BuildConfig.BUILD_TYPE.equals("release")) {
+            Fabric.with(this, Crashlytics())
+        }
+        
         setContentView(R.layout.activity_main)
 
         // Save a handle to the main activity in the app aggregate singleton
