@@ -4,4 +4,12 @@
     <string name="PREF_APP_ID">PREF_APP_ID</string>
     <string name="PREF_APP_KEY">PREF_APP_KEY</string>
     <string name="PREF_DEV_ID">PREF_DEV_ID</string>
+
+    <string name="PREF_UPLOAD">PREF_UPLOAD</string>
+    <string name="PREF_CUSTOM_SERVER_ENABLED">PREF_CUSTOM_SERVER_ENABLED</string>
+    <string name="PREF_CUSTOM_SERVER_ADDRESS">PREF_CUSTOM_SERVER_ADDRESS</string>
+
+    <string name="PREF_MAPPER_IID">PREF_MAPPER_IID</string>
+
+    <string name="TTN_MAPPER_UPLOAD_API">https://ttnmapper.org/appapi/v3/</string>
 </resources>

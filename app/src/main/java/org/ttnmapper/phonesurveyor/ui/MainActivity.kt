@@ -3,6 +3,7 @@ package org.ttnmapper.phonesurveyor.ui
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -19,9 +20,12 @@ import android.view.MenuItem
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import org.ttnmapper.phonesurveyor.R
+import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.model.Gateway
 import org.ttnmapper.phonesurveyor.services.MyService
+import android.R.id.edit
+import java.util.*
 
 
 class MainActivity: AppCompatActivity() {
@@ -73,6 +77,13 @@ class MainActivity: AppCompatActivity() {
         AppAggregate.mainActivity = this
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
+        var sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        val editor = sharedPref.edit()
+        if(sharedPref.contains(getString(R.string.PREF_MAPPER_IID))) {
+            // pass
+        } else {
+            editor.putString(getString(R.string.PREF_MAPPER_IID), UUID.randomUUID().toString())
+        }
 
         fragmentManager
                 .beginTransaction()

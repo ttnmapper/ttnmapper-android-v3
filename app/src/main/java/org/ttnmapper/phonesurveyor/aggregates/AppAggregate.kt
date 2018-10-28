@@ -4,14 +4,12 @@ import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.location.Location
 import android.os.AsyncTask
 import android.os.Build
 import android.os.IBinder
+import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.Toast
 import com.squareup.moshi.Moshi
@@ -26,15 +24,17 @@ import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.ui.MainActivity
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
 import org.ttnmapper.phonesurveyor.utils.getBackgroundNotification
-import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
+
+
 
 
 object AppAggregate {
     private val TAG = AppAggregate::class.java.getName()
 
     var mainActivity: MainActivity? = null
+    var sharedPref: SharedPreferences? = null
+
     var myService: MyService? = null
     var isBound = false
 
@@ -78,7 +78,7 @@ object AppAggregate {
             SurveyorApp.instance.bindService(serviceIntent, myConnection, Context.BIND_AUTO_CREATE)
         }
 
-        mainActivity?.updateStartStopButton(true)
+        mainActivity!!.updateStartStopButton(true)
     }
 
     fun stopService() {
@@ -115,6 +115,8 @@ object AppAggregate {
         }
         return false
     }
+
+
 
     fun setMQTTStatusMessage(message: String) {
         mainActivity?.setMQTTStatusMessage(message)
@@ -154,7 +156,7 @@ object AppAggregate {
             mNotification = Notification.Builder(SurveyorApp.instance, getBackgroundNotification.CHANNEL_ID)
                     // Set the intent that will fire when the user taps the notification
                     .setContentIntent(pendingIntent)
-                    .setSmallIcon(R.drawable.ic__ionicons_svg_md_map)
+                    .setSmallIcon(R.drawable.ic_silhouette)
                     .setAutoCancel(true)
                     .setContentTitle(title)
                     .setStyle(Notification.BigTextStyle()
@@ -166,7 +168,7 @@ object AppAggregate {
             mNotification = Notification.Builder(SurveyorApp.instance)
                     // Set the intent that will fire when the user taps the notification
                     .setContentIntent(pendingIntent)
-                    .setSmallIcon(R.drawable.ic__ionicons_svg_md_map)
+                    .setSmallIcon(R.drawable.ic_silhouette)
                     .setAutoCancel(true)
                     .setContentTitle(title)
                     .setStyle(Notification.BigTextStyle()
@@ -180,6 +182,7 @@ object AppAggregate {
 
     fun processMessage(topic: String, data: String) {
         Log.e(TAG, "Processing new message")
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
 
         if(!topic.endsWith("up")) {
             //TODO: Not an uplink message
@@ -215,7 +218,11 @@ object AppAggregate {
         ttnMessage.phoneLocAcc = phoneLocation?.accuracy?.toDouble()
         ttnMessage.phoneLocProvider = phoneLocation?.provider
         ttnMessage.phoneTime = CommonFunctions.getISO8601StringForDate(Date())
-        //TODO: message.userAgent = Android7.0 App30:2018.03.04
+        val pInfo = SurveyorApp.instance.getPackageManager().getPackageInfo(SurveyorApp.instance.getPackageName(), 0)
+        val version = pInfo.versionName
+        val verCode = pInfo.versionCode
+        ttnMessage.userAgent = "Android" + android.os.Build.VERSION.RELEASE + " App" + verCode + ":" + version
+        ttnMessage.iid = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), "")
 
 //        Log.e(TAG, ttnMessage.toString())
 
@@ -225,17 +232,17 @@ object AppAggregate {
             return
         }
 
-        if(System.currentTimeMillis() - phoneLocation!!.time > 10000) {
-            //TODO: Fix older than 10 seconds - notify
-            Log.e(TAG, "Location older than 10 seconds")
-            return
-        }
-
-        if(phoneLocation!!.accuracy > 10) {
-            //TODO: too low accuracy
-            Log.e(TAG, "Location accuracy too low")
-            return
-        }
+//        if(System.currentTimeMillis() - phoneLocation!!.time > 10000) {
+//            //TODO: Fix older than 10 seconds - notify
+//            Log.e(TAG, "Location older than 10 seconds")
+//            return
+//        }
+//
+//        if(phoneLocation!!.accuracy > 10) {
+//            //TODO: too low accuracy
+//            Log.e(TAG, "Location accuracy too low")
+//            return
+//        }
 
 
         var maxLevel: Double? = null
@@ -264,23 +271,34 @@ object AppAggregate {
             drawPointOnMap(ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(0.0))
         }
 
+
+
+        // And upload to TTN Mapper
+        if(sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_UPLOAD), true)) {
+            NetworkAggregate.postToTTNMapper(ttnMessage)
+        }
+        if(sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ENABLED), false)) {
+            var serverUri = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ADDRESS), "")
+            NetworkAggregate.postToCustomServer(ttnMessage, serverUri)
+        }
+
     }
 
     fun drawLineOnMap(startLat: Double, startLon: Double, endLat: Double, endLon: Double, colour: Long) {
         MapAggregate.lineList.add(MapLine(startLat, startLon, endLat, endLon, colour))
-        mainActivity?.drawLineOnMap(startLat, startLon, endLat, endLon, colour)
+        mainActivity!!.drawLineOnMap(startLat, startLon, endLat, endLon, colour)
     }
 
     fun drawPointOnMap(lat: Double, lon: Double, colour: Long) {
         MapAggregate.pointList.add(MapPoint(lat, lon, colour))
-        mainActivity?.drawPointOnMap(lat, lon, colour)
+        mainActivity!!.drawPointOnMap(lat, lon, colour)
     }
 
     fun addGatewayToMap(gateway: Gateway) {
         if(!MapAggregate.seenGateways.containsKey(gateway.gtwId)) {
             if(gateway.gtwId != null) {
                 MapAggregate.seenGateways.put(gateway.gtwId!!, gateway)
-                mainActivity?.addGatewayToMap(gateway)
+                mainActivity!!.addGatewayToMap(gateway)
             }
         }
     }

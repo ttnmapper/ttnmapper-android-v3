@@ -53,10 +53,10 @@ class MapFragment : Fragment() {
 
         map.setTileSource(object : OnlineTileSourceBase("Stamen Toner Light",
                 0, 20, 256, ".png",
-                arrayOf("http://stamen-tiles-a.a.ssl.fastly.net/toner-lite/",
-                        "http://stamen-tiles-b.a.ssl.fastly.net/toner-lite/",
-                        "http://stamen-tiles-c.a.ssl.fastly.net/toner-lite/",
-                        "http://stamen-tiles-d.a.ssl.fastly.net/toner-lite/")) {
+                arrayOf("https://stamen-tiles-a.a.ssl.fastly.net/toner-lite/",
+                        "https://stamen-tiles-b.a.ssl.fastly.net/toner-lite/",
+                        "https://stamen-tiles-c.a.ssl.fastly.net/toner-lite/",
+                        "https://stamen-tiles-d.a.ssl.fastly.net/toner-lite/")) {
             override fun getTileURLString(pMapTileIndex: Long): String {
                 return (baseUrl
                         + MapTileIndex.getZoom(pMapTileIndex)

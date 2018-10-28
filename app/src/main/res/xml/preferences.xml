@@ -6,27 +6,32 @@
         android:key="category_general_preference"
         android:title="General">
         <CheckBoxPreference
+            android:enabled="false"
             android:key="pref_screen_on"
             android:title="Keep screen on"
             android:summary="Screen will not dim and lock while the app is open"
             android:defaultValue="true" />
         <CheckBoxPreference
+            android:enabled="false"
             android:key="pref_play_sound"
             android:title="Play sound"
             android:summary="Play a notification sound when a new packet is received"
             android:defaultValue="false" />
         <RingtonePreference
+            android:enabled="false"
             android:key="pref_sound"
             android:title="Notification sound"
             android:summary="The sound that should be played when a packet is received"
             android:dependency="pref_play_sound"
             android:ringtoneType="notification" />
         <CheckBoxPreference
+            android:enabled="false"
             android:key="pref_save_file"
             android:title="Save to file"
             android:summary="Save mapping data to a local logfile on your phone"
             android:defaultValue="true" />
         <Preference
+            android:enabled="false"
             android:key="pref_file_name"
             android:title="Log file name"
             android:summary="ttnmapper-date.log"
@@ -38,21 +43,25 @@
         android:key="map_preference_screen"
         android:title="Map settings">
         <CheckBoxPreference
+            android:enabled="false"
             android:key="auto_center"
             android:title="Auto center"
             android:summary="Keep the map centred around your location"
             android:defaultValue="true" />
         <CheckBoxPreference
+            android:enabled="false"
             android:key="auto_zoom"
             android:title="Auto zoom"
             android:summary="Zoom the map to always keep all points in view"
             android:defaultValue="true" />
         <CheckBoxPreference
+            android:enabled="false"
             android:key="lordrive"
             android:title="LoRdrive mode"
             android:summary="Show gateways and signal path on map"
             android:defaultValue="true" />
         <CheckBoxPreference
+            android:enabled="false"
             android:key="coverage"
             android:title="Coverage"
             android:summary="Show all previously mapped coverage from TTNMapper.org"
@@ -64,22 +73,36 @@
         android:title="Data upload">
 
         <CheckBoxPreference
-            android:key="pref_upload"
+            android:key="@string/PREF_UPLOAD"
             android:title="Upload data"
             android:summary="Upload all measured points to ttnmapper.org"
             android:defaultValue="true" />
         <CheckBoxPreference
+            android:enabled="false"
             android:key="pref_experiment"
-            android:dependency="pref_upload"
+            android:dependency="@string/PREF_UPLOAD"
             android:title="Experiment"
             android:summary="Mark uploaded data as experimental to exclude it from the main global map of coverage"
             android:defaultValue="false" />
         <EditTextPreference
+            android:enabled="false"
             android:key="pref_experiment_name"
             android:dependency="pref_experiment"
             android:title="Experiment name"
             android:summary="The name under which this experiment will be saved on ttnmapper.org"
             android:dialogTitle="Exepriment name" />
+        <CheckBoxPreference
+            android:key="@string/PREF_CUSTOM_SERVER_ENABLED"
+            android:title="Custom server"
+            android:summary="When selected also uploads data to your own server using an HTTP POST"
+            android:defaultValue="false" />
+        <EditTextPreference
+            android:key="@string/PREF_CUSTOM_SERVER_ADDRESS"
+            android:dependency="@string/PREF_CUSTOM_SERVER_ENABLED"
+            android:title="Custom server address"
+            android:summary="The URL of the API endpoint where you want to POST data to"
+            android:dialogTitle="Server address"
+            android:defaultValue="https://example.com/upload.php"/>
 
     </PreferenceCategory>
 
@@ -88,19 +111,19 @@
         android:title="Linked device"
         android:summary="Modify the linked device">
         <EditTextPreference
-            android:key="PREF_APP_ID"
+            android:key="@string/PREF_APP_ID"
             android:title="TTN Application ID"
             android:summary="The ID of the application. This is also the MQTT username."
             android:dialogTitle="Application ID"
             android:defaultValue="app_id" />
         <EditTextPreference
-            android:key="PREF_APP_KEY"
+            android:key="@string/PREF_APP_KEY"
             android:title="TTN Application Key"
             android:summary="The Access Key of the application. This is also the MQTT password."
             android:dialogTitle="Application Key"
             android:defaultValue="ttn-account-v2.zFhflrXwHYwAY2Tqb1KkRyx0xWz8M_f6p2lm7zzl87A" />
         <EditTextPreference
-            android:key="PREF_DEV_ID"
+            android:key="@string/PREF_DEV_ID"
             android:title="TTN Device ID"
             android:summary="The ID of the device you are mapping with."
             android:dialogTitle="Device ID"
@@ -112,6 +135,7 @@
             android:dialogTitle="TTN MQTT URL"
             android:defaultValue="tcp://eu.thethings.network:1883" />
         <Preference android:title="Log in to TTN and choose a device"
+            android:enabled="false"
             android:icon="@drawable/ic__ionicons_svg_md_map">
             <intent android:action="android.intent.action.VIEW"
                 android:data="http://www.example.com" />
@@ -121,8 +145,9 @@
     <PreferenceCategory
         android:key="about"
         android:title="About">
-        <Preference
-            android:title="App Version"
-            android:summary="3" />
+        <!--<Preference-->
+            <!--android:title="App Version"-->
+            <!--android:summary="3" />-->
+        <org.ttnmapper.phonesurveyor.utils.VersionPreference android:title="Version" />
     </PreferenceCategory>
 </PreferenceScreen>

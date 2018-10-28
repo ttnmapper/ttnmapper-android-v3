@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Phone Surveyor</string>
+    <string name="app_name">TTN Mapper</string>
     <string name="title_settings">Settings</string>
     <string name="title_map">Map</string>
     <string name="title_stats">Stats</string>

@@ -46,7 +46,7 @@ class getBackgroundNotification(private val context: Context, private var myServ
             mNotification = Notification.Builder(context, CHANNEL_ID)
                     // Set the intent that will fire when the user taps the notification
                     .setContentIntent(pendingIntent)
-                    .setSmallIcon(R.drawable.ic__ionicons_svg_md_map)
+                    .setSmallIcon(R.drawable.ic_silhouette)
                     .setAutoCancel(true)
                     .setContentTitle(title)
                     .setStyle(Notification.BigTextStyle()
@@ -58,7 +58,7 @@ class getBackgroundNotification(private val context: Context, private var myServ
             mNotification = Notification.Builder(context)
                     // Set the intent that will fire when the user taps the notification
                     .setContentIntent(pendingIntent)
-                    .setSmallIcon(R.drawable.ic__ionicons_svg_md_map)
+                    .setSmallIcon(R.drawable.ic_silhouette)
                     .setAutoCancel(true)
                     .setContentTitle(title)
                     .setStyle(Notification.BigTextStyle()

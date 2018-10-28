@@ -3,6 +3,44 @@
   <component name="WizardSettings">
     <option name="children">
       <map>
+        <entry key="imageWizard">
+          <value>
+            <PersistentState>
+              <option name="children">
+                <map>
+                  <entry key="imageAssetPanel">
+                    <value>
+                      <PersistentState>
+                        <option name="children">
+                          <map>
+                            <entry key="notification">
+                              <value>
+                                <PersistentState>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="assetType" value="IMAGE" />
+                                      <entry key="imageAsset" value="$USER_HOME$/Dropbox/Projects/TTN Mapper/TTN Mapper logo/ic_silhouette.png" />
+                                      <entry key="outputName" value="ic_silhouette" />
+                                    </map>
+                                  </option>
+                                </PersistentState>
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
+                        <option name="values">
+                          <map>
+                            <entry key="outputIconType" value="NOTIFICATION" />
+                          </map>
+                        </option>
+                      </PersistentState>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </PersistentState>
+          </value>
+        </entry>
         <entry key="vectorWizard">
           <value>
             <PersistentState>
@@ -14,8 +52,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic__ionicons_svg_md_stats" />
-                            <entry key="sourceFile" value="$USER_HOME$/Downloads/_ionicons_svg_md-stats.svg" />
+                            <entry key="outputName" value="ic_ttn_mapper_20180116" />
+                            <entry key="sourceFile" value="$USER_HOME$/Dropbox/Projects/TTN Mapper/TTN Mapper logo/Modified by Claudia/TTN Mapper-20180116.svg" />
                           </map>
                         </option>
                       </PersistentState>

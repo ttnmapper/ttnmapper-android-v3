@@ -31,5 +31,7 @@ data class TTNMessage(
         @field:Json(name = "phone_time")
         var phoneTime: String?, // 2018-03-18T10:05:44Z
         @field:Json(name = "user_agent")
-        var userAgent: String? // Android7.0 App30:2018.03.04
+        var userAgent: String?, // Android7.0 App30:2018.03.04
+        @field:Json(name = "iid")
+        var iid: String? //some random number
 )
