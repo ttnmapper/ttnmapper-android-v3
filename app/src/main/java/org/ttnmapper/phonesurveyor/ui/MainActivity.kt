@@ -2,6 +2,7 @@ package org.ttnmapper.phonesurveyor.ui
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -15,6 +16,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.WindowManager
 import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.activity_main.*
@@ -27,7 +29,7 @@ import org.ttnmapper.phonesurveyor.services.MyService
 import java.util.*
 
 
-class MainActivity: AppCompatActivity() {
+class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     private val TAG = MainActivity::class.java.getName()
 
@@ -67,13 +69,19 @@ class MainActivity: AppCompatActivity() {
         false
     }
 
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        Log.e(TAG, "Setting changed")
+        setScreenAlwaysOn()
+        //TODO: handle any other runtime changable settings
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         if (BuildConfig.BUILD_TYPE.equals("release")) {
             Fabric.with(this, Crashlytics())
         }
-        
+
         setContentView(R.layout.activity_main)
 
         // Save a handle to the main activity in the app aggregate singleton
@@ -82,6 +90,9 @@ class MainActivity: AppCompatActivity() {
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         var sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        sharedPref.registerOnSharedPreferenceChangeListener(this)
+
+        // At first run create a new installation instance ID
         val editor = sharedPref.edit()
         if(sharedPref.contains(getString(R.string.PREF_MAPPER_IID))) {
             // pass
@@ -98,6 +109,7 @@ class MainActivity: AppCompatActivity() {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
         setupPermissions()
+        setScreenAlwaysOn()
     }
 
     override fun onDestroy() {
@@ -138,6 +150,17 @@ class MainActivity: AppCompatActivity() {
             // If we got here, the user's action was not recognized.
             // Invoke the superclass to handle it.
             super.onOptionsItemSelected(item)
+        }
+    }
+
+    fun setScreenAlwaysOn() {
+        var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        if(sharedPreferences.getBoolean(getString(R.string.PREF_SCREEN_ON), true)) {
+            Log.e(TAG, "Screen always on")
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            Log.e(TAG, "Screen NOT always on")
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
     }
 

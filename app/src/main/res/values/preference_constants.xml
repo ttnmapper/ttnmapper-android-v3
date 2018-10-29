@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="PREF_SCREEN_ON">PREF_SCREEN_ON</string>
+
     <string name="PREF_BROKER">PREF_BROKER</string>
     <string name="PREF_APP_ID">PREF_APP_ID</string>
     <string name="PREF_APP_KEY">PREF_APP_KEY</string>

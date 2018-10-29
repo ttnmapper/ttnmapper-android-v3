@@ -6,8 +6,7 @@
         android:key="category_general_preference"
         android:title="General">
         <CheckBoxPreference
-            android:enabled="false"
-            android:key="pref_screen_on"
+            android:key="@string/PREF_SCREEN_ON"
             android:title="Keep screen on"
             android:summary="Screen will not dim and lock while the app is open"
             android:defaultValue="true" />
