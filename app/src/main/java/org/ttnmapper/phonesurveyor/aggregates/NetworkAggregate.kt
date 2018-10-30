@@ -3,15 +3,15 @@ package org.ttnmapper.phonesurveyor.aggregates
 import android.content.SharedPreferences
 import android.content.res.Resources
 import android.preference.PreferenceManager
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import okhttp3.MediaType
-import okhttp3.RequestBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.ttnmapper.phonesurveyor.model.TTNMessage
 import java.io.IOException
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
+import okhttp3.*
+import org.json.JSONException
+import org.json.JSONObject
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 
@@ -49,5 +49,25 @@ object NetworkAggregate {
 
     fun postToCustomServer(packet: TTNMessage, serverUri: String) {
         postPacket(serverUri, packet)
+    }
+
+    fun getMqttUriFromHandler(handler: String): String {
+        val request = Request.Builder()
+                .url("http://discovery.thethingsnetwork.org:8080/announcements/handler/$handler")
+                .build()
+
+        client.newCall(request).execute().use { response ->
+            val responseData = response.body()!!.string()
+            try {
+                val handlerData = JSONObject(responseData)
+                if (handlerData.has("mqtt_address")) {
+                    val broker = handlerData.getString("mqtt_address")
+                    return broker
+                }
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+        return "none"
     }
 }

@@ -32,9 +32,24 @@
             android:name=".services.MyService"
             android:enabled="true"
             android:exported="true" />
-        <service android:name="org.eclipse.paho.android.service.MqttService"></service>
+        <service android:name="org.eclipse.paho.android.service.MqttService" />
 
-        <activity android:name=".ui.RequestPermissionsActivity"></activity>
+        <activity android:name=".ui.RequestPermissionsActivity" />
+        <activity android:name=".ui.DeepLinkConfigureActivity">
+            <intent-filter>
+                <!-- http://app.ttnmapper.org/?appid=tech-day-la&handler=ttn-handler-us-west&accesskey=ttn-account-v2.YaG7ZktRIgfmDIOk0Ec649IivZasqQNSNlRRDWFAZKY&devid=tdla-1 -->
+                <data
+                    android:host="app.ttnmapper.org"
+                    android:scheme="https" />
+                <data
+                    android:host="app.ttnmapper.org"
+                    android:scheme="http" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter></activity>
     </application>
 
 </manifest>

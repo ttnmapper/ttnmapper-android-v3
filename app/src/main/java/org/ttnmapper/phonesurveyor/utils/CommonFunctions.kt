@@ -35,5 +35,28 @@ class CommonFunctions {
             return dateFormat.format(date)
         }
 
+        fun sanitiseMqttUri(handler: String): String {
+            var mqttUri = handler
+
+            // Assume a handler name will never contain a dot
+            if(!mqttUri.contains(".")) {
+                mqttUri = mqttUri + ".thethings.network"
+            }
+
+            if(mqttUri.startsWith("mqtt://")) {
+                mqttUri = mqttUri.substring(7)
+            }
+
+            if(mqttUri.startsWith("mqtts://")) {
+                mqttUri = mqttUri.substring(8)
+            }
+
+            if(!mqttUri.startsWith("tcp://")) {
+                mqttUri = "tcp://" + mqttUri
+            }
+
+            return mqttUri
+        }
+
     }
 }

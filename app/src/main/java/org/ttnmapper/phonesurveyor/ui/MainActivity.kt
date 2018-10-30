@@ -26,6 +26,7 @@ import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.model.Gateway
 import org.ttnmapper.phonesurveyor.services.MyService
+import org.ttnmapper.phonesurveyor.utils.CommonFunctions
 import java.util.*
 
 
@@ -73,10 +74,20 @@ class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceCha
         Log.e(TAG, "Setting changed")
         setScreenAlwaysOn()
         //TODO: handle any other runtime changable settings
+
+        // Sanitise the handler address
+        if(key == getString(R.string.PREF_BROKER)) {
+            val mqttUri = CommonFunctions.sanitiseMqttUri(sharedPreferences!!.getString(key, "eu.tehtings.network")!!)
+            val editor = sharedPreferences.edit()
+            editor.putString(key, mqttUri)
+            editor.apply()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Log.e(TAG, "Creating main activity")
 
         if (BuildConfig.BUILD_TYPE.equals("release")) {
             Fabric.with(this, Crashlytics())
@@ -99,6 +110,7 @@ class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceCha
         } else {
             editor.putString(getString(R.string.PREF_MAPPER_IID), UUID.randomUUID().toString())
         }
+        editor.apply()
 
         fragmentManager
                 .beginTransaction()
