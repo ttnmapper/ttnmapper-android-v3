@@ -2,6 +2,9 @@
 <resources>
     <string name="PREF_SCREEN_ON">PREF_SCREEN_ON</string>
 
+    <string name="PREF_AUTO_CENTER">PREF_AUTO_CENTER</string>
+    <string name="PREF_LORDRIVE">PREF_LORDRIVE</string>
+
     <string name="PREF_BROKER">PREF_BROKER</string>
     <string name="PREF_APP_ID">PREF_APP_ID</string>
     <string name="PREF_APP_KEY">PREF_APP_KEY</string>

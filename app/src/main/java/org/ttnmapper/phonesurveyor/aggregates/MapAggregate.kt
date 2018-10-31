@@ -1,5 +1,9 @@
 package org.ttnmapper.phonesurveyor.aggregates
 
+import android.location.Location
+import android.util.Log
+import kotlinx.android.synthetic.main.fragment_map.*
+import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 import org.ttnmapper.phonesurveyor.model.Gateway
@@ -20,4 +24,13 @@ object MapAggregate {
 
     var gpsStatusMessage: String = "GPS stopped"
     var mqttStatusMessage: String = "MQTT disconnected"
+
+    fun centerMap(location: Location) {
+        latitude = location.latitude
+        longitude = location.longitude
+        val position = GeoPoint(latitude, longitude)
+
+        val controller = AppAggregate.mainActivity?.mapFragment?.map?.controller
+        controller?.animateTo(position)
+    }
 }

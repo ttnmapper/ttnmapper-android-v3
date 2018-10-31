@@ -1,8 +1,10 @@
 package org.ttnmapper.phonesurveyor.ui
 
 import android.app.Fragment
+import android.content.SharedPreferences
 import android.graphics.Paint
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,8 +26,7 @@ import org.ttnmapper.phonesurveyor.model.Gateway
 import org.ttnmapper.phonesurveyor.model.MapLine
 import org.osmdroid.util.MapTileIndex
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
-
-
+import org.ttnmapper.phonesurveyor.SurveyorApp
 
 
 class MapFragment : Fragment() {
@@ -108,16 +109,28 @@ class MapFragment : Fragment() {
     }
 
     fun drawLineOnMap(startLat: Double, startLon: Double, endLat: Double, endLon: Double, colour: Long) {
-        val geoPoints: List<GeoPoint> = listOf(GeoPoint(startLat, startLon), GeoPoint(endLat, endLon))
-        val line = Polyline()
-        line.color = colour.toInt()
-        line.width = 2.0f
-        line.setPoints(geoPoints)
-        map.overlayManager.add(line)
-        map.invalidate()
+        if(!isAdded() || activity == null) {
+            return
+        }
+
+        var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        if(sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
+
+            val geoPoints: List<GeoPoint> = listOf(GeoPoint(startLat, startLon), GeoPoint(endLat, endLon))
+            val line = Polyline()
+            line.color = colour.toInt()
+            line.width = 2.0f
+            line.setPoints(geoPoints)
+            map.overlayManager.add(line)
+            map.invalidate()
+        }
     }
 
     fun drawPointOnMap(lat: Double, lon: Double, colour: Long) {
+        if(!isAdded() || activity == null) {
+            return
+        }
+
         val points: List<GeoPoint> = listOf(GeoPoint(lat, lon))
         val pt = SimplePointTheme(points, false)
 
@@ -137,15 +150,23 @@ class MapFragment : Fragment() {
     }
 
     fun redrawMap() {
-        map.overlays.clear()
-
-        for(gateway in MapAggregate.seenGateways) {
-            addGatewayToMap(gateway.value)
+        if(!isAdded() || activity == null) {
+            return
         }
 
-        // Workaround as map.overlays.addAll(Polyline) didn't work
-        for(line in MapAggregate.lineList) {
-            drawLineOnMap(line.startLatitude, line.startLongitude, line.endLatitude, line.endLongitude, line.colour)
+        map.overlays.clear()
+
+        var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        if(sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
+
+            for (gateway in MapAggregate.seenGateways) {
+                addGatewayToMap(gateway.value)
+            }
+
+            // Workaround as map.overlays.addAll(Polyline) didn't work
+            for (line in MapAggregate.lineList) {
+                drawLineOnMap(line.startLatitude, line.startLongitude, line.endLatitude, line.endLongitude, line.colour)
+            }
         }
 
         for(point in MapAggregate.pointList) {
@@ -156,12 +177,20 @@ class MapFragment : Fragment() {
     }
 
     fun addGatewayToMap(gateway: Gateway) {
-        if(gateway.latitude != null && gateway.longitude!=null) {
-            var startMarker = Marker(map);
-            startMarker.setPosition(GeoPoint(gateway.latitude!!, gateway.longitude!!));
-            startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            map.getOverlays().add(startMarker);
-            map.invalidate()
+        if(!isAdded() || activity == null) {
+            return
+        }
+        
+        var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        if(sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
+
+            if (gateway.latitude != null && gateway.longitude != null) {
+                var startMarker = Marker(map);
+                startMarker.setPosition(GeoPoint(gateway.latitude!!, gateway.longitude!!));
+                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                map.getOverlays().add(startMarker);
+                map.invalidate()
+            }
         }
     }
 

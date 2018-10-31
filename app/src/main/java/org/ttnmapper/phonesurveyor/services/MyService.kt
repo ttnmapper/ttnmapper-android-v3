@@ -17,6 +17,7 @@ import org.eclipse.paho.client.mqttv3.*
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
+import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -297,6 +298,10 @@ class MyService: Service() {
                 AppAggregate.phoneLocation = location
 
                 setGPSCountupStatus(Date(), location.accuracy)
+
+                if(sharedPref.getBoolean(getString(R.string.PREF_AUTO_CENTER), true)) {
+                    MapAggregate.centerMap(location)
+                }
             }
 
             override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
