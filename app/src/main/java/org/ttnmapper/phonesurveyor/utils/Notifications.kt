@@ -37,7 +37,6 @@ class getBackgroundNotification(private val context: Context, private var myServ
 
         notifyIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 
-
         val pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.*
 import android.location.Location
+import android.media.RingtoneManager
 import android.os.AsyncTask
 import android.os.Build
 import android.os.IBinder
@@ -25,8 +26,9 @@ import org.ttnmapper.phonesurveyor.ui.MainActivity
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
 import org.ttnmapper.phonesurveyor.utils.getBackgroundNotification
 import java.util.*
-
-
+import android.media.Ringtone
+import android.net.Uri
+import java.net.URI
 
 
 object AppAggregate {
@@ -188,6 +190,14 @@ object AppAggregate {
             //TODO: Not an uplink message
             Log.e(TAG, "Not an uplink message")
             return
+        }
+
+        // Play a ringtone if enabled
+        if(sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_PLAY_SOUND), false)) {
+            val defaultNotification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val notification = Uri.parse(sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_SOUND_URI), defaultNotification.toString()))
+            val r = RingtoneManager.getRingtone(mainActivity, notification)
+            r.play()
         }
 
         /*

@@ -180,7 +180,7 @@ class MapFragment : Fragment() {
         if(!isAdded() || activity == null) {
             return
         }
-        
+
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
         if(sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
 

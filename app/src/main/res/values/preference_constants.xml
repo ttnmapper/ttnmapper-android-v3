@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="PREF_SCREEN_ON">PREF_SCREEN_ON</string>
+    <string name="PREF_PLAY_SOUND">PREF_PLAY_SOUND</string>
+    <string name="PREF_SOUND_URI">PREF_SOUND_URI</string>
 
     <string name="PREF_AUTO_CENTER">PREF_AUTO_CENTER</string>
     <string name="PREF_LORDRIVE">PREF_LORDRIVE</string>

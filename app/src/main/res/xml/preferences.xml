@@ -11,17 +11,15 @@
             android:summary="Screen will not dim and lock while the app is open"
             android:defaultValue="true" />
         <CheckBoxPreference
-            android:enabled="false"
-            android:key="pref_play_sound"
+            android:key="@string/PREF_PLAY_SOUND"
             android:title="Play sound"
             android:summary="Play a notification sound when a new packet is received"
             android:defaultValue="false" />
         <RingtonePreference
-            android:enabled="false"
-            android:key="pref_sound"
+            android:key="@string/PREF_SOUND_URI"
             android:title="Notification sound"
             android:summary="The sound that should be played when a packet is received"
-            android:dependency="pref_play_sound"
+            android:dependency="@string/PREF_PLAY_SOUND"
             android:ringtoneType="notification" />
         <CheckBoxPreference
             android:enabled="false"
