@@ -27,6 +27,7 @@ import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.model.Gateway
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -110,6 +111,16 @@ class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceCha
         } else {
             editor.putString(getString(R.string.PREF_MAPPER_IID), UUID.randomUUID().toString())
         }
+
+        // At startup set the logfile and experiment names to the current time
+        val tz = TimeZone.getTimeZone("UTC")
+        val df = SimpleDateFormat("yyyyMMddHHmm", Locale.ENGLISH) // Quoted "Z" to indicate UTC, no timezone offset
+        df.timeZone = tz
+        val nowAsISO = df.format(Date())
+        val fileName = "ttnmapper-$nowAsISO.log"
+        //TODO: experimentName = myPrefs.getString(SettingConstants.EXPERIMENT_NAME, "experiment_" + nowAsISO);
+        editor.putString(getString(R.string.PREF_SAVE_FILE_NAME), fileName)
+
         editor.apply()
 
         fragmentManager

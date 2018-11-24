@@ -22,17 +22,16 @@
             android:dependency="@string/PREF_PLAY_SOUND"
             android:ringtoneType="notification" />
         <CheckBoxPreference
-            android:enabled="false"
-            android:key="pref_save_file"
+            android:key="@string/PREF_SAVE_TO_FILE"
             android:title="Save to file"
             android:summary="Save mapping data to a local logfile on your phone"
             android:defaultValue="true" />
         <Preference
             android:enabled="false"
-            android:key="pref_file_name"
+            android:key="@string/PREF_SAVE_FILE_NAME"
             android:title="Log file name"
-            android:summary="ttnmapper-date.log"
-            android:dependency="pref_save_file" />
+            android:summary=""
+            android:dependency="@string/PREF_SAVE_TO_FILE" />
 
     </PreferenceCategory>
 

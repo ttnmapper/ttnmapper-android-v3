@@ -2,9 +2,15 @@ package org.ttnmapper.phonesurveyor.ui
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.preference.Preference
 import android.preference.PreferenceFragment
 import android.util.Log
 import org.ttnmapper.phonesurveyor.R
+import android.preference.PreferenceGroup
+
+
+
+
 
 class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener {
     private val TAG = SettingsFragment::class.java.getName()
@@ -12,38 +18,43 @@ class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPrefere
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         addPreferencesFromResource(R.xml.preferences)
+        preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        for (i in 0 until preferenceScreen.preferenceCount) {
+            val preference = preferenceScreen.getPreference(i)
+            if (preference is PreferenceGroup) {
+                for (j in 0 until preference.preferenceCount) {
+                    val singlePref = preference.getPreference(j)
+                    updatePreference(singlePref, singlePref.key)
+                }
+            } else {
+                updatePreference(preference, preference.key)
+            }
+        }
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         Log.e(TAG, "Preference changed: "+key)
 
-        when(key) {
-            /*
-        android:key="category_general_preference"
-            android:key="pref_screen_on"
-            android:key="pref_play_sound"
-            android:key="pref_sound"
-            android:key="pref_save_file"
-            android:key="pref_file_name"
-        android:key="map_preference_screen"
-            android:key="auto_center"
-            android:key="auto_zoom"
-            android:key="lordrive"
-            android:key="coverage"
-        android:key="category_upload_preference"
-            android:key="pref_upload"
-            android:key="pref_experiment"
-            android:key="pref_experiment_name"
-            android:key="pref_app_id"
-            android:key="pref_app_key"
-            android:key="pref_dev_id"
-             */
-            "pref_screen_on" -> {
-//                val connectionPref: Preference = findPreference(key)
-//                // Set summary to be the user-description for the selected value
-//                connectionPref.summary = sharedPreferences!!.getString(key, "")
-            }
+        updatePreference(findPreference(key), key)
+    }
 
+    private fun updatePreference(preference: Preference?, key: String?) {
+        if (preference == null) return
+
+//        if (preference is ListPreference) {
+//            val listPreference = preference as ListPreference?
+//            listPreference!!.summary = listPreference.entry
+//            return
+//        }
+
+        val sharedPrefs = preferenceManager.sharedPreferences
+
+        if(key == getString(R.string.PREF_SAVE_FILE_NAME)) {
+            preference.summary = sharedPrefs.getString(key, "")
         }
     }
 

@@ -28,6 +28,9 @@ import org.ttnmapper.phonesurveyor.utils.getBackgroundNotification
 import java.util.*
 import android.media.Ringtone
 import android.net.Uri
+import java.io.File
+import java.io.FileOutputStream
+import java.io.PrintWriter
 import java.net.URI
 
 
@@ -219,7 +222,7 @@ object AppAggregate {
 //            Log.e(TAG, "Parsed")
 //        }
 
-        //TODO: Save to file if saving is enabled - but first add location!
+        // add location and other local info
         // "mqtt_topic":"jpm_sodaq_one\/devices\/sodaq-one-v3-box\/up","phone_lat":-34.0480438,"phone_lon":18.8220624,"phone_alt":182.8053986682576,"phone_loc_acc":10,"phone_loc_provider":"fused","phone_time":"2018-03-18T10:04:43Z","user_agent":"Android7.0 App30:2018.03.04"
         ttnMessage!!.mqttTopic = topic
         ttnMessage.phoneLat = phoneLocation?.latitude
@@ -234,7 +237,29 @@ object AppAggregate {
         ttnMessage.userAgent = "Android" + android.os.Build.VERSION.RELEASE + " App" + verCode + ":" + version
         ttnMessage.iid = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), "")
 
-//        Log.e(TAG, ttnMessage.toString())
+        // Save to file if enabled
+        if(sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_SAVE_TO_FILE), false)) {
+            val fileName = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_SAVE_FILE_NAME), "ttnmapper.log")
+
+            // Find the root of the external storage.
+            // See http://developer.android.com/guide/topics/data/data-storage.html#filesExternal
+            val root = android.os.Environment.getExternalStorageDirectory()
+
+            // See http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
+            val dir = File(root.absolutePath + "/ttnmapper_logs")
+            dir.mkdirs()
+            val file = File(dir, fileName)
+
+            val f = FileOutputStream(file, true)
+            val pw = PrintWriter(f)
+            pw.println(ttnMessage.toString())
+
+            pw.flush()
+            pw.close()
+            f.close()
+
+            CommonFunctions.scanFile(file.absolutePath)
+        }
 
         if(phoneLocation == null) {
             //TODO: No location information yet message

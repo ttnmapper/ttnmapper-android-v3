@@ -2,10 +2,18 @@ package org.ttnmapper.phonesurveyor.utils
 
 import java.text.SimpleDateFormat
 import java.util.*
+import android.media.MediaScannerConnection
+import android.net.Uri
+import android.util.Log
+import org.ttnmapper.phonesurveyor.SurveyorApp
+import org.ttnmapper.phonesurveyor.ui.MainActivity
+
+
 
 class CommonFunctions {
 
     companion object {
+        private val TAG = CommonFunctions::class.java.getName()
 
         fun getColorForSignal(level: Double): Long {
 
@@ -56,6 +64,18 @@ class CommonFunctions {
             }
 
             return mqttUri
+        }
+
+        fun scanFile(path: String) {
+
+            MediaScannerConnection.scanFile(SurveyorApp.instance,
+                    arrayOf(path), null,
+                    object : MediaScannerConnection.OnScanCompletedListener {
+
+                        override fun onScanCompleted(path: String, uri: Uri) {
+                            Log.i(TAG, "Finished scanning $path")
+                        }
+                    })
         }
 
     }
