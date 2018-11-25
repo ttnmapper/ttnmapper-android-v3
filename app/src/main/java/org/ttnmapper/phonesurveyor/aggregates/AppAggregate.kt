@@ -252,7 +252,8 @@ object AppAggregate {
 
             val f = FileOutputStream(file, true)
             val pw = PrintWriter(f)
-            pw.println(ttnMessage.toString())
+
+            pw.println(jsonAdapter.toJson(ttnMessage))
 
             pw.flush()
             pw.close()
