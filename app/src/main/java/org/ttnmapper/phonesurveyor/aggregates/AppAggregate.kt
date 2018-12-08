@@ -237,6 +237,11 @@ object AppAggregate {
         ttnMessage.userAgent = "Android" + android.os.Build.VERSION.RELEASE + " App" + verCode + ":" + version
         ttnMessage.iid = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), "")
 
+        // Mark as experiment
+        if(sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_EXPERIMENT), false)) {
+            ttnMessage.experiment = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_EXPERIMENT_NAME), "experiment_"+sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), ""))
+        }
+
         // Save to file if enabled
         if(sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_SAVE_TO_FILE), false)) {
             val fileName = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_SAVE_FILE_NAME), "ttnmapper.log")

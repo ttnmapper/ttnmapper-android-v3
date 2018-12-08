@@ -55,11 +55,10 @@
             android:summary="Show gateways and signal path on map"
             android:defaultValue="true" />
         <CheckBoxPreference
-            android:enabled="false"
-            android:key="coverage"
+            android:key="@string/PREF_COVERAGE"
             android:title="Coverage"
             android:summary="Show all previously mapped coverage from TTNMapper.org"
-            android:defaultValue="true" />
+            android:defaultValue="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -72,16 +71,14 @@
             android:summary="Upload all measured points to ttnmapper.org"
             android:defaultValue="true" />
         <CheckBoxPreference
-            android:enabled="false"
-            android:key="pref_experiment"
+            android:key="@string/PREF_EXPERIMENT"
             android:dependency="@string/PREF_UPLOAD"
             android:title="Experiment"
             android:summary="Mark uploaded data as experimental to exclude it from the main global map of coverage"
             android:defaultValue="false" />
         <EditTextPreference
-            android:enabled="false"
-            android:key="pref_experiment_name"
-            android:dependency="pref_experiment"
+            android:key="@string/PREF_EXPERIMENT_NAME"
+            android:dependency="@string/PREF_EXPERIMENT"
             android:title="Experiment name"
             android:summary="The name under which this experiment will be saved on ttnmapper.org"
             android:dialogTitle="Exepriment name" />

@@ -33,5 +33,7 @@ data class TTNMessage(
         @field:Json(name = "user_agent")
         var userAgent: String?, // Android7.0 App30:2018.03.04
         @field:Json(name = "iid")
-        var iid: String? //some random number
+        var iid: String?, //some random number
+        @field:Json(name = "experiment")
+        var experiment: String? // experiment name
 )

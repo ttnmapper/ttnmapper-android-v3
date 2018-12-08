@@ -2,7 +2,7 @@ package org.ttnmapper.phonesurveyor.ui
 
 import android.app.Fragment
 import android.content.SharedPreferences
-import android.graphics.Paint
+import android.graphics.*
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
@@ -20,12 +20,15 @@ import org.ttnmapper.phonesurveyor.R
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
 import org.osmdroid.events.MapListener
+import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.views.overlay.*
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 import org.ttnmapper.phonesurveyor.model.Gateway
 import org.ttnmapper.phonesurveyor.model.MapLine
 import org.osmdroid.util.MapTileIndex
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
+import org.osmdroid.tileprovider.tilesource.XYTileSource
+import org.osmdroid.util.BoundingBox
 import org.ttnmapper.phonesurveyor.SurveyorApp
 
 
@@ -35,11 +38,34 @@ class MapFragment : Fragment() {
     private lateinit var map: MapView
     private lateinit var textViewMQTTStatus: TextView
     private lateinit var textViewGPSStatus: TextView
+    private lateinit var tmsSource: OnlineTileSourceBase
+    private lateinit var tmsProvider: MapTileProviderBasic
+    private lateinit var tmsLayer: TilesOverlay
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         Log.e(TAG, "onCreate")
+
+        tmsSource = object: OnlineTileSourceBase("TTN Mapper TMS",3,15,256,"png", arrayOf("")) {
+            override fun getTileURLString(pMapTileIndex: Long): String {
+                return "https://ttnmapper.org/tms/?tile="+MapTileIndex.getZoom(pMapTileIndex)+"/"+MapTileIndex.getX(pMapTileIndex)+"/"+MapTileIndex.getY(pMapTileIndex)+""
+            }
+        }
+        tmsProvider = MapTileProviderBasic(activity, tmsSource)
+        tmsLayer = TilesOverlay(tmsProvider, activity)
+        tmsLayer.setLoadingBackgroundColor(Color.TRANSPARENT)
+        tmsLayer.setLoadingLineColor(Color.TRANSPARENT)
+        tmsLayer.setColorFilter(
+                ColorMatrixColorFilter(
+                        floatArrayOf(
+                                1f, 0f, 0f, 0f, 0f,
+                                0f, 1f, 0f, 0f, 0f,
+                                0f, 0f, 1f, 0f, 0f,
+                                0f, 0f, 0f, 1f, -127f
+                        )
+                )
+        )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -66,6 +92,7 @@ class MapFragment : Fragment() {
                         + mImageFilenameEnding)
             }
         })
+
 
         map.setTilesScaledToDpi(true)
         map.setMultiTouchControls(true)
@@ -157,6 +184,13 @@ class MapFragment : Fragment() {
         map.overlays.clear()
 
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+
+        // Add tiles layer with custom tile source
+        if(sharedPreferences.getBoolean(getString(R.string.PREF_COVERAGE), false)) {
+            map.getOverlays().add(tmsLayer)
+        }
+
+
         if(sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
 
             for (gateway in MapAggregate.seenGateways) {

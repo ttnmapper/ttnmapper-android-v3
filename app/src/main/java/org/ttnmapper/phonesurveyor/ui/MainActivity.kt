@@ -106,10 +106,17 @@ class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceCha
 
         // At first run create a new installation instance ID
         val editor = sharedPref.edit()
-        if(sharedPref.contains(getString(R.string.PREF_MAPPER_IID))) {
+        if(sharedPref.contains(getString(R.string.PREF_MAPPER_IID)) && !( sharedPref.getString(getString(R.string.PREF_MAPPER_IID), "").equals("") ) ) {
             // pass
         } else {
             editor.putString(getString(R.string.PREF_MAPPER_IID), UUID.randomUUID().toString())
+        }
+
+        // Experiment default name
+        if(sharedPref.contains(getString(R.string.PREF_EXPERIMENT_NAME)) && !( sharedPref.getString(getString(R.string.PREF_EXPERIMENT_NAME), "").equals("") ) ) {
+            // pass
+        } else {
+            editor.putString(getString(R.string.PREF_EXPERIMENT_NAME), "experiment_"+sharedPref.getString(getString(R.string.PREF_MAPPER_IID), ""))
         }
 
         // At startup set the logfile and experiment names to the current time
@@ -118,7 +125,6 @@ class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceCha
         df.timeZone = tz
         val nowAsISO = df.format(Date())
         val fileName = "ttnmapper-$nowAsISO.log"
-        //TODO: experimentName = myPrefs.getString(SettingConstants.EXPERIMENT_NAME, "experiment_" + nowAsISO);
         editor.putString(getString(R.string.PREF_SAVE_FILE_NAME), fileName)
 
         editor.apply()

@@ -8,6 +8,7 @@
 
     <string name="PREF_AUTO_CENTER">PREF_AUTO_CENTER</string>
     <string name="PREF_LORDRIVE">PREF_LORDRIVE</string>
+    <string name="PREF_COVERAGE">PREF_COVERAGE</string>
 
     <string name="PREF_BROKER">PREF_BROKER</string>
     <string name="PREF_APP_ID">PREF_APP_ID</string>
@@ -15,6 +16,8 @@
     <string name="PREF_DEV_ID">PREF_DEV_ID</string>
 
     <string name="PREF_UPLOAD">PREF_UPLOAD</string>
+    <string name="PREF_EXPERIMENT">PREF_EXPERIMENT</string>
+    <string name="PREF_EXPERIMENT_NAME">PREF_EXPERIMENT_NAME</string>
     <string name="PREF_CUSTOM_SERVER_ENABLED">PREF_CUSTOM_SERVER_ENABLED</string>
     <string name="PREF_CUSTOM_SERVER_ADDRESS">PREF_CUSTOM_SERVER_ADDRESS</string>
 
