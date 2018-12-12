@@ -66,15 +66,13 @@ class getBackgroundNotification(private val context: Context, private var myServ
 
         }
 
-        if(myService == null) {
+        if (myService == null) {
             Log.e(TAG, "Service is null")
         }
         myService?.startForeground(mNotificationId, mNotification)
 
         return null
     }
-
-
 
 
     companion object {

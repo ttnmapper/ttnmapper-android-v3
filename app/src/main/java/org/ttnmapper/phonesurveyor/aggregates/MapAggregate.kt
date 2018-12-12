@@ -1,15 +1,15 @@
 package org.ttnmapper.phonesurveyor.aggregates
 
 import android.location.Location
-import android.util.Log
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.overlay.Polyline
-import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 import org.ttnmapper.phonesurveyor.model.Gateway
 import org.ttnmapper.phonesurveyor.model.MapLine
 import org.ttnmapper.phonesurveyor.model.MapPoint
 import java.util.HashMap
+import kotlin.collections.ArrayList
+import kotlin.collections.MutableList
+import kotlin.collections.MutableMap
 
 object MapAggregate {
     private val TAG = MapAggregate::class.java.getName()

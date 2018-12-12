@@ -126,10 +126,10 @@
             android:dialogTitle="TTN MQTT URL"
             android:defaultValue="tcp://eu.thethings.network:1883" />
         <Preference android:title="Log in to TTN and choose a device"
-            android:enabled="false"
             android:icon="@drawable/ic__ionicons_svg_md_map">
             <intent android:action="android.intent.action.VIEW"
-                android:data="http://www.example.com" />
+                android:targetPackage="org.ttnmapper.phonesurveyor"
+                android:targetClass="org.ttnmapper.phonesurveyor.ui.TtnLoginActivity" />
         </Preference>
     </PreferenceCategory>
 

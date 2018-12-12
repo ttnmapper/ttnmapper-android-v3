@@ -4,12 +4,9 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.preference.Preference
 import android.preference.PreferenceFragment
+import android.preference.PreferenceGroup
 import android.util.Log
 import org.ttnmapper.phonesurveyor.R
-import android.preference.PreferenceGroup
-
-
-
 
 
 class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -37,7 +34,7 @@ class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPrefere
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        Log.e(TAG, "Preference changed: "+key)
+        Log.e(TAG, "Preference changed: " + key)
 
         updatePreference(findPreference(key), key)
     }
@@ -53,7 +50,7 @@ class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPrefere
 
         val sharedPrefs = preferenceManager.sharedPreferences
 
-        if(key == getString(R.string.PREF_SAVE_FILE_NAME)) {
+        if (key == getString(R.string.PREF_SAVE_FILE_NAME)) {
             preference.summary = sharedPrefs.getString(key, "")
         }
     }

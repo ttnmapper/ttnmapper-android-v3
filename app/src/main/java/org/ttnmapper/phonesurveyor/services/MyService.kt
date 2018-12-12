@@ -18,11 +18,12 @@ import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
+import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.sanitiseMqttUri
 import java.util.*
 import kotlin.concurrent.thread
 
 
-class MyService: Service() {
+class MyService : Service() {
     private val TAG = MyService::class.java.getName()
 
     private val myBinder = MyLocalBinder()
@@ -65,7 +66,8 @@ class MyService: Service() {
     fun startMQTTConnection() {
         setMQTTStatusMessage("MQTT connecting")
 
-        serverUri = sharedPref.getString(getString(R.string.PREF_BROKER), serverUri)
+        serverUri = sanitiseMqttUri(sharedPref.getString(getString(R.string.PREF_BROKER), serverUri)
+                ?: "")
         clientId = MqttClient.generateClientId()
 
         mqttAndroidClient = MqttAndroidClient(SurveyorApp.instance, serverUri, clientId)
@@ -89,7 +91,7 @@ class MyService: Service() {
 
             @Throws(Exception::class)
             override fun messageArrived(topic: String, mqttMessage: MqttMessage) {
-                Log.w("Mqtt", topic+": "+mqttMessage.toString())
+                Log.w("Mqtt", topic + ": " + mqttMessage.toString())
                 setMQTTCountupMessage(Date())
 
                 Log.e(TAG, "Processing new message")
@@ -120,7 +122,7 @@ class MyService: Service() {
             }
 
             override fun connectionLost(throwable: Throwable?) {
-                if(!selfStop) {
+                if (!selfStop) {
                     Log.w("mqtt", "Connection lost")
                     setMQTTStatusMessage("MQTT disconnected - mapping stopped")
                 }
@@ -137,8 +139,8 @@ class MyService: Service() {
         appId = sharedPref.getString(getString(R.string.PREF_APP_ID), appId)
         appKey = sharedPref.getString(getString(R.string.PREF_APP_KEY), appKey)
 
-        Log.e(TAG, "Using appId: "+appId)
-        Log.e(TAG, "Using appKey: "+appKey)
+        Log.e(TAG, "Using appId: " + appId)
+        Log.e(TAG, "Using appKey: " + appKey)
 
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isAutomaticReconnect = true
@@ -156,7 +158,7 @@ class MyService: Service() {
                 override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
                     Log.w("Mqtt", "Failed to connect: " + exception.toString())
 
-                    if(asyncActionToken.exception != null) {
+                    if (asyncActionToken.exception != null) {
                         val errorReason: Short = asyncActionToken.exception.reasonCode.toShort()
                         when (errorReason) {
                             MqttException.REASON_CODE_CLIENT_EXCEPTION -> {
@@ -182,7 +184,7 @@ class MyService: Service() {
                             }
                         }
                     } else {
-                        setMQTTStatusMessage("MQTT failed to connect - "+exception.toString())
+                        setMQTTStatusMessage("MQTT failed to connect - " + exception.toString())
                     }
 
                     selfStop = true
@@ -201,7 +203,7 @@ class MyService: Service() {
     private fun subscribeToTopic() {
         deviceId = sharedPref.getString(getString(R.string.PREF_DEV_ID), deviceId)
 
-        val subscriptionTopic = appId+"/devices/"+deviceId+"/up"
+        val subscriptionTopic = appId + "/devices/" + deviceId + "/up"
 
         try {
             mqttAndroidClient?.subscribe(subscriptionTopic, 0, null, object : IMqttActionListener {
@@ -232,7 +234,7 @@ class MyService: Service() {
         AppAggregate.setMQTTStatusMessage("TTN message received now")
         val r = object : Runnable {
             override fun run() {
-                AppAggregate.setMQTTStatusMessage("TTN message received "+datesToDurationString(date, Date()))
+                AppAggregate.setMQTTStatusMessage("TTN message received " + datesToDurationString(date, Date()))
                 handlerMqttStatus.postDelayed(this, 1000) //ms
             }
         }
@@ -245,9 +247,9 @@ class MyService: Service() {
     }
 
     fun setGPSCountupStatus(date: Date, accuracy: Float) {
-        if((Date().time - date.time) > 5000) {
-            setGPSStatusMessage("GPS location too old. Obtained "+datesToDurationString(date, Date()))
-        } else if(accuracy > 10.0 ) {
+        if ((Date().time - date.time) > 5000) {
+            setGPSStatusMessage("GPS location too old. Obtained " + datesToDurationString(date, Date()))
+        } else if (accuracy > 10.0) {
             setGPSStatusMessage("GPS location not accurate enough (>10m)")
         } else {
             setGPSStatusMessage("GPS location valid")
@@ -264,13 +266,13 @@ class MyService: Service() {
     fun datesToDurationString(first: Date, second: Date): String {
         var diff = (second.time - first.time) / 1000
 
-        if(diff < 60) {
+        if (diff < 60) {
             return diff.toString() + " seconds ago"
         }
 
         diff = diff / 60
 
-        if(diff < 60) {
+        if (diff < 60) {
             return diff.toString() + " minutes ago"
         }
 
@@ -299,7 +301,7 @@ class MyService: Service() {
 
                 setGPSCountupStatus(Date(), location.accuracy)
 
-                if(sharedPref.getBoolean(getString(R.string.PREF_AUTO_CENTER), true)) {
+                if (sharedPref.getBoolean(getString(R.string.PREF_AUTO_CENTER), true)) {
                     MapAggregate.centerMap(location)
                 }
             }
@@ -328,7 +330,7 @@ class MyService: Service() {
     }
 
     inner class MyLocalBinder : Binder() {
-        fun getService() : MyService {
+        fun getService(): MyService {
             return this@MyService
         }
     }

@@ -1,8 +1,9 @@
 package org.ttnmapper.phonesurveyor.ui
 
 import android.app.Fragment
-import android.content.SharedPreferences
-import android.graphics.*
+import android.graphics.Color
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
@@ -10,26 +11,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.events.MapListener
+import org.osmdroid.events.ScrollEvent
+import org.osmdroid.events.ZoomEvent
+import org.osmdroid.tileprovider.MapTileProviderBasic
+import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Polyline
+import org.osmdroid.views.overlay.TilesOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
 import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
 import org.ttnmapper.phonesurveyor.R
-import org.osmdroid.events.ScrollEvent
-import org.osmdroid.events.ZoomEvent
-import org.osmdroid.events.MapListener
-import org.osmdroid.tileprovider.MapTileProviderBasic
-import org.osmdroid.views.overlay.*
+import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 import org.ttnmapper.phonesurveyor.model.Gateway
-import org.ttnmapper.phonesurveyor.model.MapLine
-import org.osmdroid.util.MapTileIndex
-import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
-import org.osmdroid.tileprovider.tilesource.XYTileSource
-import org.osmdroid.util.BoundingBox
-import org.ttnmapper.phonesurveyor.SurveyorApp
 
 
 class MapFragment : Fragment() {
@@ -47,9 +46,9 @@ class MapFragment : Fragment() {
 
         Log.e(TAG, "onCreate")
 
-        tmsSource = object: OnlineTileSourceBase("TTN Mapper TMS",3,15,256,"png", arrayOf("")) {
+        tmsSource = object : OnlineTileSourceBase("TTN Mapper TMS", 3, 15, 256, "png", arrayOf("")) {
             override fun getTileURLString(pMapTileIndex: Long): String {
-                return "https://ttnmapper.org/tms/?tile="+MapTileIndex.getZoom(pMapTileIndex)+"/"+MapTileIndex.getX(pMapTileIndex)+"/"+MapTileIndex.getY(pMapTileIndex)+""
+                return "https://ttnmapper.org/tms/?tile=" + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex) + ""
             }
         }
         tmsProvider = MapTileProviderBasic(activity, tmsSource)
@@ -104,7 +103,7 @@ class MapFragment : Fragment() {
             }
 
             override fun onScroll(scrollEvent: ScrollEvent): Boolean {
-                if(scrollEvent.x == 0 && scrollEvent.y == 0) {
+                if (scrollEvent.x == 0 && scrollEvent.y == 0) {
                     //Ignore onScroll that is called onCreate and on screen rotate
                 } else {
                     MapAggregate.latitude = map.mapCenter.latitude
@@ -117,7 +116,7 @@ class MapFragment : Fragment() {
         // get map controller
         val controller = map.controller
 
-        Log.e(TAG, "Restoring map location to: "+MapAggregate.latitude+","+MapAggregate.longitude)
+        Log.e(TAG, "Restoring map location to: " + MapAggregate.latitude + "," + MapAggregate.longitude)
         val position = GeoPoint(MapAggregate.latitude, MapAggregate.longitude)
         controller.setCenter(position)
         controller.setZoom(MapAggregate.zoom)
@@ -136,12 +135,12 @@ class MapFragment : Fragment() {
     }
 
     fun drawLineOnMap(startLat: Double, startLon: Double, endLat: Double, endLon: Double, colour: Long) {
-        if(!isAdded() || activity == null) {
+        if (!isAdded() || activity == null) {
             return
         }
 
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
-        if(sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
+        if (sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
 
             val geoPoints: List<GeoPoint> = listOf(GeoPoint(startLat, startLon), GeoPoint(endLat, endLon))
             val line = Polyline()
@@ -154,7 +153,7 @@ class MapFragment : Fragment() {
     }
 
     fun drawPointOnMap(lat: Double, lon: Double, colour: Long) {
-        if(!isAdded() || activity == null) {
+        if (!isAdded() || activity == null) {
             return
         }
 
@@ -177,7 +176,7 @@ class MapFragment : Fragment() {
     }
 
     fun redrawMap() {
-        if(!isAdded() || activity == null) {
+        if (!isAdded() || activity == null) {
             return
         }
 
@@ -186,12 +185,12 @@ class MapFragment : Fragment() {
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
 
         // Add tiles layer with custom tile source
-        if(sharedPreferences.getBoolean(getString(R.string.PREF_COVERAGE), false)) {
+        if (sharedPreferences.getBoolean(getString(R.string.PREF_COVERAGE), false)) {
             map.getOverlays().add(tmsLayer)
         }
 
 
-        if(sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
+        if (sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
 
             for (gateway in MapAggregate.seenGateways) {
                 addGatewayToMap(gateway.value)
@@ -203,7 +202,7 @@ class MapFragment : Fragment() {
             }
         }
 
-        for(point in MapAggregate.pointList) {
+        for (point in MapAggregate.pointList) {
             drawPointOnMap(point.lat, point.lon, point.colour)
         }
 
@@ -211,12 +210,12 @@ class MapFragment : Fragment() {
     }
 
     fun addGatewayToMap(gateway: Gateway) {
-        if(!isAdded() || activity == null) {
+        if (!isAdded() || activity == null) {
             return
         }
 
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
-        if(sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
+        if (sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
 
             if (gateway.latitude != null && gateway.longitude != null) {
                 var startMarker = Marker(map);

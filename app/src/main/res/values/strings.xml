@@ -5,4 +5,5 @@
     <string name="title_stats">Stats</string>
     <string name="action_start_stop">Start/Stop</string>
     <string name="obtaining_discovery">obtaining from discovery server</string>
+    <string name="title_activity_device_list">DeviceListActivity</string>
 </resources>

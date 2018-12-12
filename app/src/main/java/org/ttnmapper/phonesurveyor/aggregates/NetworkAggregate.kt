@@ -1,30 +1,36 @@
 package org.ttnmapper.phonesurveyor.aggregates
 
-import android.content.SharedPreferences
-import android.content.res.Resources
-import android.preference.PreferenceManager
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import org.ttnmapper.phonesurveyor.model.TTNMessage
-import java.io.IOException
-import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
-import okhttp3.*
+import okhttp3.MediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import org.json.JSONException
 import org.json.JSONObject
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
+import org.ttnmapper.phonesurveyor.model.TTNMessage
 
 
 object NetworkAggregate {
     private val TAG = NetworkAggregate::class.java.getName()
 
-    val MEDIA_TYPE_MARKDOWN = MediaType.parse("application/json")
+    val MEDIA_TYPE_JSON = MediaType.parse("application/json")
 
-    private val client = OkHttpClient()
+    val client = OkHttpClient()
 
     val context = AppAggregate.mainActivity
 
+    fun exchangeTtnCodeForToken(code: String) {
+        val request = Request.Builder()
+                .url("https://ttnmapper.org/authed/getTokens.php?code=" + code)
+                .build()
+
+        client.newCall(request).execute().use { response ->
+            Log.e(TAG, response.body()?.string())
+        }
+    }
 
     fun postPacket(url: String, packet: TTNMessage) {
         val moshi = Moshi.Builder().build()
@@ -35,7 +41,7 @@ object NetworkAggregate {
 
         val request = Request.Builder()
                 .url(url)
-                .post(RequestBody.create(MEDIA_TYPE_MARKDOWN, postBody))
+                .post(RequestBody.create(MEDIA_TYPE_JSON, postBody))
                 .build()
 
         client.newCall(request).execute().use { response ->

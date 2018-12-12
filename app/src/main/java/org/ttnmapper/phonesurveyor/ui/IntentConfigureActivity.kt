@@ -9,11 +9,12 @@ import kotlinx.android.synthetic.main.activity_deep_link_configure.*
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.NetworkAggregate
+import org.ttnmapper.phonesurveyor.aggregates.TtnLoginAggregate
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
 import kotlin.concurrent.thread
 
 
-class DeepLinkConfigureActivity : AppCompatActivity() {
+class IntentConfigureActivity : AppCompatActivity() {
     private val TAG = AppCompatActivity::class.java.getName()
 
     lateinit var sharedPreferences: SharedPreferences
@@ -21,33 +22,19 @@ class DeepLinkConfigureActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_deep_link_configure)
-
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
 
-        val intent = intent
-        val data = intent.data
+        editTextAppId.setText(TtnLoginAggregate.selectedDevice?.appId)
+        editTextDevId.setText(TtnLoginAggregate.selectedDevice?.devId)
+        editTextMqttAddress.setText(TtnLoginAggregate.selectedApplication?.mqttAddress)
 
-        if (data != null && data.host == "app.ttnmapper.org") {
-            val appId = data.getQueryParameter("appid")!!
-            val devId = data.getQueryParameter("devid")!!
-            val accessKey = data.getQueryParameter("accesskey")!!
-            val handler = data.getQueryParameter("handler")!!
-
-            if (appId.equals(sharedPreferences.getString(getString(R.string.PREF_APP_ID), ""))
-                    && devId.equals(sharedPreferences.getString(getString(R.string.PREF_DEV_ID), ""))
-                    && accessKey.equals(sharedPreferences.getString(getString(R.string.PREF_APP_KEY), ""))) {
-
-                goToMainActivity()
-
-            } else {
-                editTextAppId.setText(appId)
-                editTextDevId.setText(devId)
-                editTextAccessKey.setText(accessKey)
-                lookupAndFillMqtt(handler)
+        // Iterate the keys and use the last one that has the message:up:r right
+        TtnLoginAggregate.selectedApplication?.accessKeys?.forEach {
+            if (it!!.rights!!.contains("messages:up:r")) {
+                editTextAccessKey.setText(it.key)
             }
-        } else {
-            goToMainActivity()
         }
+
 
         buttonLinkDevice.setOnClickListener {
             val editor = sharedPreferences.edit()

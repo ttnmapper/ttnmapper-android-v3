@@ -31,7 +31,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
+class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     private val TAG = MainActivity::class.java.getName()
 
@@ -77,7 +77,7 @@ class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceCha
         //TODO: handle any other runtime changable settings
 
         // Sanitise the handler address
-        if(key == getString(R.string.PREF_BROKER)) {
+        if (key == getString(R.string.PREF_BROKER)) {
             val mqttUri = CommonFunctions.sanitiseMqttUri(sharedPreferences!!.getString(key, "eu.tehtings.network")!!)
             val editor = sharedPreferences.edit()
             editor.putString(key, mqttUri)
@@ -106,17 +106,17 @@ class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceCha
 
         // At first run create a new installation instance ID
         val editor = sharedPref.edit()
-        if(sharedPref.contains(getString(R.string.PREF_MAPPER_IID)) && !( sharedPref.getString(getString(R.string.PREF_MAPPER_IID), "").equals("") ) ) {
+        if (sharedPref.contains(getString(R.string.PREF_MAPPER_IID)) && !(sharedPref.getString(getString(R.string.PREF_MAPPER_IID), "").equals(""))) {
             // pass
         } else {
             editor.putString(getString(R.string.PREF_MAPPER_IID), UUID.randomUUID().toString())
         }
 
         // Experiment default name
-        if(sharedPref.contains(getString(R.string.PREF_EXPERIMENT_NAME)) && !( sharedPref.getString(getString(R.string.PREF_EXPERIMENT_NAME), "").equals("") ) ) {
+        if (sharedPref.contains(getString(R.string.PREF_EXPERIMENT_NAME)) && !(sharedPref.getString(getString(R.string.PREF_EXPERIMENT_NAME), "").equals(""))) {
             // pass
         } else {
-            editor.putString(getString(R.string.PREF_EXPERIMENT_NAME), "experiment_"+sharedPref.getString(getString(R.string.PREF_MAPPER_IID), ""))
+            editor.putString(getString(R.string.PREF_EXPERIMENT_NAME), "experiment_" + sharedPref.getString(getString(R.string.PREF_MAPPER_IID), ""))
         }
 
         // At startup set the logfile and experiment names to the current time
@@ -153,7 +153,7 @@ class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceCha
         startStopButton = menu.findItem(R.id.action_start_stop)
 
         val serviceClass = MyService::class.java
-        if(AppAggregate.isServiceRunning(serviceClass)) {
+        if (AppAggregate.isServiceRunning(serviceClass)) {
             startStopButton?.setTitle("Stop")
         } else {
             startStopButton?.setTitle("Start")
@@ -165,7 +165,7 @@ class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceCha
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_start_stop -> {
             val serviceClass = MyService::class.java
-            if(AppAggregate.isServiceRunning(serviceClass)) {
+            if (AppAggregate.isServiceRunning(serviceClass)) {
                 AppAggregate.stopService()
                 item.setTitle("Start")
             } else {
@@ -184,7 +184,7 @@ class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceCha
 
     fun setScreenAlwaysOn() {
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
-        if(sharedPreferences.getBoolean(getString(R.string.PREF_SCREEN_ON), true)) {
+        if (sharedPreferences.getBoolean(getString(R.string.PREF_SCREEN_ON), true)) {
             Log.e(TAG, "Screen always on")
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         } else {
@@ -198,7 +198,7 @@ class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceCha
     running is the new state after the service stops = false
      */
     fun updateStartStopButton(running: Boolean) {
-        if(running) {
+        if (running) {
             startStopButton?.setTitle("Stop")
         } else {
             startStopButton?.setTitle("Start")
@@ -230,7 +230,7 @@ class MainActivity: AppCompatActivity(), SharedPreferences.OnSharedPreferenceCha
             val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
 
             if (pm.isIgnoringBatteryOptimizations(packageName))
-                //intent.setAction(ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
+            //intent.setAction(ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
             else {
                 var intent = Intent()
                 intent.setAction(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);

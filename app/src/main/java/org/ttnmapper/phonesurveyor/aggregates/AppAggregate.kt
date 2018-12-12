@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.*
 import android.location.Location
 import android.media.RingtoneManager
+import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
 import android.os.IBinder
@@ -25,13 +26,10 @@ import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.ui.MainActivity
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
 import org.ttnmapper.phonesurveyor.utils.getBackgroundNotification
-import java.util.*
-import android.media.Ringtone
-import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
 import java.io.PrintWriter
-import java.net.URI
+import java.util.*
 
 
 object AppAggregate {
@@ -122,10 +120,9 @@ object AppAggregate {
     }
 
 
-
     fun setMQTTStatusMessage(message: String) {
         mainActivity?.setMQTTStatusMessage(message)
-        if(isServiceRunning(MyService::class.java)) {
+        if (isServiceRunning(MyService::class.java)) {
             updateNotificationText(message)
         }
     }
@@ -135,7 +132,7 @@ object AppAggregate {
     }
 
     // Extension function to show toast message
-    fun toast(message:String){
+    fun toast(message: String) {
         Toast.makeText(SurveyorApp.instance.applicationContext, message, Toast.LENGTH_SHORT).show()
     }
 
@@ -189,14 +186,14 @@ object AppAggregate {
         Log.e(TAG, "Processing new message")
         sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
 
-        if(!topic.endsWith("up")) {
+        if (!topic.endsWith("up")) {
             //TODO: Not an uplink message
             Log.e(TAG, "Not an uplink message")
             return
         }
 
         // Play a ringtone if enabled
-        if(sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_PLAY_SOUND), false)) {
+        if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_PLAY_SOUND), false)) {
             val defaultNotification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             val notification = Uri.parse(sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_SOUND_URI), defaultNotification.toString()))
             val r = RingtoneManager.getRingtone(mainActivity, notification)
@@ -211,7 +208,7 @@ object AppAggregate {
         */
 //            val ttnMessage = jsonAdapter.fromJson(data)
         val moshi = Moshi.Builder().build()
-        val jsonAdapter = moshi.adapter<TTNMessage>(TTNMessage::class.java!!)
+        val jsonAdapter = moshi.adapter<TTNMessage>(TTNMessage::class.java)
 //        Log.e(TAG, "Just before parsing")
         val ttnMessage = jsonAdapter.fromJson(data)
 //        Log.e(TAG, "Just after parsing")
@@ -238,12 +235,12 @@ object AppAggregate {
         ttnMessage.iid = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), "")
 
         // Mark as experiment
-        if(sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_EXPERIMENT), false)) {
-            ttnMessage.experiment = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_EXPERIMENT_NAME), "experiment_"+sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), ""))
+        if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_EXPERIMENT), false)) {
+            ttnMessage.experiment = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_EXPERIMENT_NAME), "experiment_" + sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), ""))
         }
 
         // Save to file if enabled
-        if(sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_SAVE_TO_FILE), false)) {
+        if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_SAVE_TO_FILE), false)) {
             val fileName = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_SAVE_FILE_NAME), "ttnmapper.log")
 
             // Find the root of the external storage.
@@ -267,7 +264,7 @@ object AppAggregate {
             CommonFunctions.scanFile(file.absolutePath)
         }
 
-        if(phoneLocation == null) {
+        if (phoneLocation == null) {
             //TODO: No location information yet message
             Log.e(TAG, "No location information")
             return
@@ -288,37 +285,36 @@ object AppAggregate {
 
         var maxLevel: Double? = null
 
-        for( gateway in ttnMessage.metadata?.gateways!!) {
+        for (gateway in ttnMessage.metadata?.gateways!!) {
             addGatewayToMap(gateway!!)
 
             var level: Double = gateway.rssi!!
-            if(gateway.snr != null) {
+            if (gateway.snr != null) {
                 if (gateway.snr!! < 0.0) {
                     level = level + gateway.snr!!
                 }
             }
-            if(maxLevel == null) maxLevel = level
-            if(level>maxLevel) maxLevel = level
+            if (maxLevel == null) maxLevel = level
+            if (level > maxLevel) maxLevel = level
 
-            if(gateway.latitude != null && gateway.longitude != null) {
+            if (gateway.latitude != null && gateway.longitude != null) {
                 drawLineOnMap(gateway.latitude!!, gateway.longitude!!, ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(level))
             }
 
         }
 
-        if(maxLevel!=null) {
+        if (maxLevel != null) {
             drawPointOnMap(ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(maxLevel))
         } else {
             drawPointOnMap(ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(0.0))
         }
 
 
-
         // And upload to TTN Mapper
-        if(sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_UPLOAD), true)) {
+        if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_UPLOAD), true)) {
             NetworkAggregate.postToTTNMapper(ttnMessage)
         }
-        if(sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ENABLED), false)) {
+        if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ENABLED), false)) {
             var serverUri = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ADDRESS), "")
             NetworkAggregate.postToCustomServer(ttnMessage, serverUri)
         }
@@ -336,8 +332,8 @@ object AppAggregate {
     }
 
     fun addGatewayToMap(gateway: Gateway) {
-        if(!MapAggregate.seenGateways.containsKey(gateway.gtwId)) {
-            if(gateway.gtwId != null) {
+        if (!MapAggregate.seenGateways.containsKey(gateway.gtwId)) {
+            if (gateway.gtwId != null) {
                 MapAggregate.seenGateways.put(gateway.gtwId!!, gateway)
                 mainActivity!!.addGatewayToMap(gateway)
             }

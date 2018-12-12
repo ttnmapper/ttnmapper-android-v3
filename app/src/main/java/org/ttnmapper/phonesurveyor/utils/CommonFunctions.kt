@@ -1,13 +1,11 @@
 package org.ttnmapper.phonesurveyor.utils
 
-import java.text.SimpleDateFormat
-import java.util.*
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.util.Log
 import org.ttnmapper.phonesurveyor.SurveyorApp
-import org.ttnmapper.phonesurveyor.ui.MainActivity
-
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class CommonFunctions {
@@ -47,19 +45,19 @@ class CommonFunctions {
             var mqttUri = handler
 
             // Assume a handler name will never contain a dot
-            if(!mqttUri.contains(".")) {
+            if (!mqttUri.contains(".")) {
                 mqttUri = mqttUri + ".thethings.network"
             }
 
-            if(mqttUri.startsWith("mqtt://")) {
+            if (mqttUri.startsWith("mqtt://")) {
                 mqttUri = mqttUri.substring(7)
             }
 
-            if(mqttUri.startsWith("mqtts://")) {
+            if (mqttUri.startsWith("mqtts://")) {
                 mqttUri = mqttUri.substring(8)
             }
 
-            if(!mqttUri.startsWith("tcp://")) {
+            if (!mqttUri.startsWith("tcp://")) {
                 mqttUri = "tcp://" + mqttUri
             }
 
