@@ -1,10 +1,12 @@
 package org.ttnmapper.phonesurveyor.aggregates
 
+import android.Manifest
 import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.*
+import android.content.pm.PackageManager
 import android.location.Location
 import android.media.RingtoneManager
 import android.net.Uri
@@ -12,6 +14,7 @@ import android.os.AsyncTask
 import android.os.Build
 import android.os.IBinder
 import android.preference.PreferenceManager
+import android.support.v4.app.ActivityCompat
 import android.util.Log
 import android.widget.Toast
 import com.squareup.moshi.Moshi
@@ -240,7 +243,11 @@ object AppAggregate {
         }
 
         // Save to file if enabled
-        if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_SAVE_TO_FILE), false)) {
+        val permissionWriteStorage = ActivityCompat.checkSelfPermission(SurveyorApp.instance, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+        if (permissionWriteStorage == PackageManager.PERMISSION_GRANTED
+                && sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_SAVE_TO_FILE), false)) {
+
             val fileName = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_SAVE_FILE_NAME), "ttnmapper.log")
 
             // Find the root of the external storage.
@@ -249,7 +256,7 @@ object AppAggregate {
 
             // See http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
             val dir = File(root.absolutePath + "/ttnmapper_logs")
-            dir.mkdirs()
+            val created = dir.mkdirs()
             val file = File(dir, fileName)
 
             val f = FileOutputStream(file, true)
@@ -261,7 +268,14 @@ object AppAggregate {
             pw.close()
             f.close()
 
-            CommonFunctions.scanFile(file.absolutePath)
+            if (created) {
+                CommonFunctions.scanFile(file.absolutePath)
+            }
+
+        } else {
+            if (permissionWriteStorage != PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "No permission to write external storage")
+            }
         }
 
         if (phoneLocation == null) {
@@ -285,7 +299,7 @@ object AppAggregate {
 
         var maxLevel: Double? = null
 
-        for (gateway in ttnMessage.metadata?.gateways!!) {
+        for (gateway in ttnMessage.metadata?.gateways.orEmpty()) {
             addGatewayToMap(gateway!!)
 
             var level: Double = gateway.rssi!!

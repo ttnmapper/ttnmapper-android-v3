@@ -110,15 +110,15 @@ class MyService : Service() {
     fun stopMQTTConnection() {
         mqttAndroidClient?.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(reconnect: Boolean, serverURI: String?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                Log.w("mqtt", "connectComplete")
             }
 
             override fun messageArrived(topic: String?, message: MqttMessage?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                Log.w("mqtt", "messageArrived")
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                Log.w("mqtt", "deliveryComplete")
             }
 
             override fun connectionLost(throwable: Throwable?) {

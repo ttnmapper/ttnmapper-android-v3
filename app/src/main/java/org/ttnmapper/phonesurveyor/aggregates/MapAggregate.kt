@@ -8,8 +8,6 @@ import org.ttnmapper.phonesurveyor.model.MapLine
 import org.ttnmapper.phonesurveyor.model.MapPoint
 import java.util.HashMap
 import kotlin.collections.ArrayList
-import kotlin.collections.MutableList
-import kotlin.collections.MutableMap
 
 object MapAggregate {
     private val TAG = MapAggregate::class.java.getName()

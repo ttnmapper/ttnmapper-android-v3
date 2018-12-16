@@ -93,7 +93,7 @@
             android:title="Custom server address"
             android:summary="The URL of the API endpoint where you want to POST data to"
             android:dialogTitle="Server address"
-            android:defaultValue="https://example.com/upload.php"/>
+            android:defaultValue="https://example.com/upload.php" />
 
     </PreferenceCategory>
 
@@ -125,9 +125,11 @@
             android:summary="The MQTT URL of the TTN message broker. ex: eu.thethings.network:1883"
             android:dialogTitle="TTN MQTT URL"
             android:defaultValue="tcp://eu.thethings.network:1883" />
-        <Preference android:title="Log in to TTN and choose a device"
+        <Preference
+            android:title="Log in to TTN and choose a device"
             android:icon="@drawable/ic__ionicons_svg_md_map">
-            <intent android:action="android.intent.action.VIEW"
+            <intent
+                android:action="android.intent.action.VIEW"
                 android:targetPackage="org.ttnmapper.phonesurveyor"
                 android:targetClass="org.ttnmapper.phonesurveyor.ui.TtnLoginActivity" />
         </Preference>
@@ -137,8 +139,8 @@
         android:key="about"
         android:title="About">
         <!--<Preference-->
-            <!--android:title="App Version"-->
-            <!--android:summary="3" />-->
+        <!--android:title="App Version"-->
+        <!--android:summary="3" />-->
         <org.ttnmapper.phonesurveyor.utils.VersionPreference android:title="Version" />
     </PreferenceCategory>
 </PreferenceScreen>

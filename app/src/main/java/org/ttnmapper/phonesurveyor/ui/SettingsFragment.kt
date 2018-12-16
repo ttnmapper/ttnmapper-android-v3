@@ -7,6 +7,7 @@ import android.preference.PreferenceFragment
 import android.preference.PreferenceGroup
 import android.util.Log
 import org.ttnmapper.phonesurveyor.R
+import org.ttnmapper.phonesurveyor.SurveyorApp
 
 
 class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -50,7 +51,7 @@ class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPrefere
 
         val sharedPrefs = preferenceManager.sharedPreferences
 
-        if (key == getString(R.string.PREF_SAVE_FILE_NAME)) {
+        if (key == SurveyorApp.instance.getString(R.string.PREF_SAVE_FILE_NAME)) {
             preference.summary = sharedPrefs.getString(key, "")
         }
     }

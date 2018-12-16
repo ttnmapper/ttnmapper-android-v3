@@ -11,6 +11,7 @@ import org.json.JSONObject
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.model.TTNMessage
+import java.io.IOException
 
 
 object NetworkAggregate {
@@ -44,8 +45,12 @@ object NetworkAggregate {
                 .post(RequestBody.create(MEDIA_TYPE_JSON, postBody))
                 .build()
 
-        client.newCall(request).execute().use { response ->
-            Log.e(TAG, response.body()?.string())
+        try {
+            client.newCall(request).execute().use { response ->
+                Log.e(TAG, response.body()?.string())
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "Timeout posting to server " + url)
         }
     }
 

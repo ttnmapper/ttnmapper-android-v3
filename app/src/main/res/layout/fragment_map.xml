@@ -9,7 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <org.osmdroid.views.MapView android:id="@+id/map"
+        <org.osmdroid.views.MapView
+            android:id="@+id/map"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" />
 
@@ -21,7 +22,8 @@
             android:layout_above="@+id/textViewMQTTStatus"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
-            android:paddingBottom="8dp"/>
+            android:paddingBottom="8dp" />
+
         <TextView
             android:id="@+id/textViewMQTTStatus"
             android:layout_width="wrap_content"
@@ -30,7 +32,7 @@
             android:layout_alignParentBottom="true"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
-            android:paddingBottom="8dp"/>
+            android:paddingBottom="8dp" />
 
     </RelativeLayout>
 

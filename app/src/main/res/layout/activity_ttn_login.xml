@@ -13,15 +13,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
-    </WebView>
+        app:layout_constraintTop_toTopOf="parent"></WebView>
 
     <TextView
         android:id="@+id/textViewStatus"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_alignParentBottom="true"
-android:layout_alignParentStart="true"
+        android:layout_alignParentStart="true"
         android:paddingBottom="8dp"
         android:paddingStart="8dp"
         android:text="TextView"
@@ -32,13 +31,12 @@ android:layout_alignParentStart="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/textViewStatus"
-        android:layout_centerHorizontal="true"
-        />
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:id="@+id/buttonRetry"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/textViewStatus"
-        android:text="Retry"/>
+        android:text="Retry" />
 </RelativeLayout>

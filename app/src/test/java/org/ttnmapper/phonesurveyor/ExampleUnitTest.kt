@@ -1,8 +1,7 @@
 package org.ttnmapper.phonesurveyor
 
+import org.junit.Assert.assertEquals
 import org.junit.Test
-
-import org.junit.Assert.*
 
 /**
  * Example local unit org.ttnmapper.phonesurveyor.test, which will execute on the development machine (host).
