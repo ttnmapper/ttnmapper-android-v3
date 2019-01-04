@@ -10,6 +10,7 @@ import org.json.JSONObject
 import org.ttnmapper.phonesurveyor.model.Device
 import org.ttnmapper.phonesurveyor.model.TtnApplication
 import org.ttnmapper.phonesurveyor.model.TtnDevices
+import java.io.IOException
 
 object TtnLoginAggregate {
     private val TAG = TtnLoginAggregate::class.java.getName()
@@ -197,41 +198,47 @@ object TtnLoginAggregate {
                 .url(devicesUrl)
                 .build()
 
-        NetworkAggregate.client.newCall(requestDevices).execute().use { response ->
-            val responseString = response.body()?.string()
-//            Log.e(TAG, responseString)
-            /* {"devices":
-                   [
-                     {"app_id":"jpm_mapping_nodes",
-                      "dev_id":"pink_kosblik",
-                      "lorawan_device":
-                      {
-                        "app_eui":"70B3D57EF0001D09",
-                        "dev_eui":"00CF85F175DD45CD",
-                        "app_id":"jpm_mapping_nodes",
-                        "dev_id":"pink_kosblik",
-                        "dev_addr":"260110CC",
-                        "nwk_s_key":"A998A0E5645663A9AAF58B58B36A9BA1",
-                        "app_s_key":"41FA07B9FC5E6367DCDB0ACBC0155776",
-                        "app_key":""
-                      }
-                     },
-                     {"app_id":"jpm_mapping_nodes","dev_id":"rfm_teensy3","lorawan_device":{"app_eui":"70B3D57EF0001D09","dev_eui":"00CC186F83CD4492","app_id":"jpm_mapping_nodes","dev_id":"rfm_teensy3","dev_addr":"26011256","nwk_s_key":"F227888F5F74AA2DAC372BA8D53D20FC","app_s_key":"0AF44FB198F7B3DA1204F6A2EC2080D7","app_key":""}},
-                     {"app_id":"jpm_mapping_nodes","dev_id":"thingsuno_gpsshield","lorawan_device":{"app_eui":"70B3D57EF0001D09","dev_eui":"006259C6A72A76AA","app_id":"jpm_mapping_nodes","dev_id":"thingsuno_gpsshield","dev_addr":"260115A6","nwk_s_key":"32551FF1817DDDD7BD2FF4307F51D408","app_s_key":"18DAA70AE22D0B9B100140E2766EBE7D","app_key":""}},
-                     {"app_id":"jpm_mapping_nodes","dev_id":"tnt_sodaq_one","lorawan_device":{"app_eui":"70B3D57EF0001D09","dev_eui":"007DBBB13067B880","app_id":"jpm_mapping_nodes","dev_id":"tnt_sodaq_one","dev_addr":"260112B2","nwk_s_key":"ADDF9C3BDA818AAD7922F3A2C38FA3ED","app_s_key":"20B8EE18721453C6D04F564D5329FC94","app_key":""}}
-                   ]
-                   }
-                */
-            val moshi = Moshi.Builder().build()
-            val jsonAdapter = moshi.adapter<TtnDevices>(TtnDevices::class.java)
-            try {
-                val devices = jsonAdapter.fromJson(responseString!!)
-//                Log.e(TAG, devices.toString())
-                selectedApplication?.devices = devices?.devices
-                return true
-            } catch (e: Exception) {
-                return false
+        try {
+            NetworkAggregate.client.newCall(requestDevices).execute().use { response ->
+                val responseString = response.body()?.string()
+    //            Log.e(TAG, responseString)
+                /* {"devices":
+                       [
+                         {"app_id":"jpm_mapping_nodes",
+                          "dev_id":"pink_kosblik",
+                          "lorawan_device":
+                          {
+                            "app_eui":"70B3D57EF0001D09",
+                            "dev_eui":"00CF85F175DD45CD",
+                            "app_id":"jpm_mapping_nodes",
+                            "dev_id":"pink_kosblik",
+                            "dev_addr":"260110CC",
+                            "nwk_s_key":"A998A0E5645663A9AAF58B58B36A9BA1",
+                            "app_s_key":"41FA07B9FC5E6367DCDB0ACBC0155776",
+                            "app_key":""
+                          }
+                         },
+                         {"app_id":"jpm_mapping_nodes","dev_id":"rfm_teensy3","lorawan_device":{"app_eui":"70B3D57EF0001D09","dev_eui":"00CC186F83CD4492","app_id":"jpm_mapping_nodes","dev_id":"rfm_teensy3","dev_addr":"26011256","nwk_s_key":"F227888F5F74AA2DAC372BA8D53D20FC","app_s_key":"0AF44FB198F7B3DA1204F6A2EC2080D7","app_key":""}},
+                         {"app_id":"jpm_mapping_nodes","dev_id":"thingsuno_gpsshield","lorawan_device":{"app_eui":"70B3D57EF0001D09","dev_eui":"006259C6A72A76AA","app_id":"jpm_mapping_nodes","dev_id":"thingsuno_gpsshield","dev_addr":"260115A6","nwk_s_key":"32551FF1817DDDD7BD2FF4307F51D408","app_s_key":"18DAA70AE22D0B9B100140E2766EBE7D","app_key":""}},
+                         {"app_id":"jpm_mapping_nodes","dev_id":"tnt_sodaq_one","lorawan_device":{"app_eui":"70B3D57EF0001D09","dev_eui":"007DBBB13067B880","app_id":"jpm_mapping_nodes","dev_id":"tnt_sodaq_one","dev_addr":"260112B2","nwk_s_key":"ADDF9C3BDA818AAD7922F3A2C38FA3ED","app_s_key":"20B8EE18721453C6D04F564D5329FC94","app_key":""}}
+                       ]
+                       }
+                    */
+                val moshi = Moshi.Builder().build()
+                val jsonAdapter = moshi.adapter<TtnDevices>(TtnDevices::class.java)
+                try {
+                    val devices = jsonAdapter.fromJson(responseString!!)
+    //                Log.e(TAG, devices.toString())
+                    selectedApplication?.devices = devices?.devices
+                    return true
+                } catch (e: Exception) {
+                    return false
+                }
             }
+
+        } catch (e: IOException) {
+            Log.e(TAG, "Timeout getting list of devices")
+            return false
         }
     }
 }

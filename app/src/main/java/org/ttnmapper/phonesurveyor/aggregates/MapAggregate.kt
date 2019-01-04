@@ -6,6 +6,7 @@ import org.osmdroid.util.GeoPoint
 import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.model.MapLine
 import org.ttnmapper.phonesurveyor.model.MapPoint
+import java.lang.NullPointerException
 import java.util.HashMap
 import kotlin.collections.ArrayList
 
@@ -28,7 +29,11 @@ object MapAggregate {
         longitude = location.longitude
         val position = GeoPoint(latitude, longitude)
 
-        val controller = AppAggregate.mainActivity?.mapFragment?.map?.controller
-        controller?.animateTo(position)
+        try {
+            val controller = AppAggregate.mainActivity?.mapFragment?.map?.controller
+            controller?.animateTo(position)
+        } catch (e: NullPointerException) {
+            // The UI might not exist at this point
+        }
     }
 }
