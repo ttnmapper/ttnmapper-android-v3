@@ -31,4 +31,8 @@ object MapAggregate {
         val controller = AppAggregate.mainActivity?.mapFragment?.map?.controller
         controller?.animateTo(position)
     }
+
+    fun updateOwnLocationMarker(location: Location) {
+
+    }
 }

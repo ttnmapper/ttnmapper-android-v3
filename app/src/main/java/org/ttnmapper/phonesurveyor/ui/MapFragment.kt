@@ -4,6 +4,7 @@ import android.app.Fragment
 import android.graphics.Color
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
+import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
@@ -22,6 +23,8 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.TilesOverlay
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
 import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
@@ -183,6 +186,16 @@ class MapFragment : Fragment() {
         map.overlays.clear()
 
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+
+        // Show own location on map
+        val provider = GpsMyLocationProvider(SurveyorApp.instance)
+        provider.addLocationSource(LocationManager.NETWORK_PROVIDER)
+        var myLocationNewOverlay = MyLocationNewOverlay(provider, map)
+        myLocationNewOverlay.enableMyLocation()
+//        myLocationNewOverlay.isDrawAccuracyEnabled = true
+//        myLocationNewOverlay.
+
+        map.getOverlays().add(myLocationNewOverlay);
 
         // Add tiles layer with custom tile source
         if (sharedPreferences.getBoolean(getString(R.string.PREF_COVERAGE), false)) {
