@@ -70,8 +70,9 @@ class IntentConfigureActivity : AppCompatActivity() {
 
     fun goToMainActivity() {
         val i = Intent(this, MainActivity::class.java)
-        finish()
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(i)
+        finish()
     }
 
 }
