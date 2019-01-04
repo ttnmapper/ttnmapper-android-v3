@@ -28,7 +28,7 @@ import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
-import org.ttnmapper.phonesurveyor.model.Gateway
+import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 
 
 class MapFragment : Fragment() {
@@ -209,7 +209,7 @@ class MapFragment : Fragment() {
         map.invalidate()
     }
 
-    fun addGatewayToMap(gateway: Gateway) {
+    fun addGatewayToMap(gateway: GatewayMetadata) {
         if (!isAdded() || activity == null) {
             return
         }

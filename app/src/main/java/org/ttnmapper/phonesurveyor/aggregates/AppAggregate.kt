@@ -21,7 +21,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
-import org.ttnmapper.phonesurveyor.model.Gateway
+import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.model.MapLine
 import org.ttnmapper.phonesurveyor.model.MapPoint
 import org.ttnmapper.phonesurveyor.model.TTNMessage
@@ -345,7 +345,7 @@ object AppAggregate {
         mainActivity!!.drawPointOnMap(lat, lon, colour)
     }
 
-    fun addGatewayToMap(gateway: Gateway) {
+    fun addGatewayToMap(gateway: GatewayMetadata) {
         if (!MapAggregate.seenGateways.containsKey(gateway.gtwId)) {
             if (gateway.gtwId != null) {
                 MapAggregate.seenGateways.put(gateway.gtwId!!, gateway)

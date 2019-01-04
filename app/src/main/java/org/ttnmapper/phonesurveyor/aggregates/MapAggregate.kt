@@ -3,7 +3,7 @@ package org.ttnmapper.phonesurveyor.aggregates
 import android.location.Location
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.osmdroid.util.GeoPoint
-import org.ttnmapper.phonesurveyor.model.Gateway
+import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.model.MapLine
 import org.ttnmapper.phonesurveyor.model.MapPoint
 import java.util.HashMap
@@ -18,7 +18,7 @@ object MapAggregate {
 
     var lineList: MutableList<MapLine> = ArrayList()
     var pointList: MutableList<MapPoint> = ArrayList()
-    var seenGateways: MutableMap<String, Gateway> = HashMap();
+    var seenGateways: MutableMap<String, GatewayMetadata> = HashMap();
 
     var gpsStatusMessage: String = "GPS stopped"
     var mqttStatusMessage: String = "MQTT disconnected"

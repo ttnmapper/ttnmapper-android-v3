@@ -24,7 +24,7 @@ import org.ttnmapper.phonesurveyor.BuildConfig
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
-import org.ttnmapper.phonesurveyor.model.Gateway
+import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
 import java.text.SimpleDateFormat
@@ -286,7 +286,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         })
     }
 
-    fun addGatewayToMap(gateway: Gateway) {
+    fun addGatewayToMap(gateway: GatewayMetadata) {
         runOnUiThread({
             mapFragment.addGatewayToMap(gateway)
         })
