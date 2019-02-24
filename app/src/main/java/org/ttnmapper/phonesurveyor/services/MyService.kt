@@ -183,6 +183,10 @@ class MyService : Service() {
                                 setMQTTStatusMessage("MQTT client connected")
                                 return
                             }
+                            MqttException.REASON_CODE_CONNECT_IN_PROGRESS -> {
+                                Log.e(TAG, "Connect in progress, ignoring error")
+                                return
+                            }
                             else -> {
                                 setMQTTStatusMessage("MQTT failed to connect - unexpected error: " + errorReason)
                             }
