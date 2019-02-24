@@ -24,6 +24,7 @@ import org.ttnmapper.phonesurveyor.BuildConfig
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
+import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
@@ -118,6 +119,11 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         } else {
             editor.putString(getString(R.string.PREF_EXPERIMENT_NAME), "experiment_" + sharedPref.getString(getString(R.string.PREF_MAPPER_IID), ""))
         }
+
+        // Read map start location from preferences
+        MapAggregate.latitude = sharedPref.getFloat(getString(R.string.PREF_MAP_START_LAT), 52.372706.toFloat()).toDouble()
+        MapAggregate.longitude = sharedPref.getFloat(getString(R.string.PREF_MAP_START_LON), 4.897312.toFloat()).toDouble()
+        MapAggregate.zoom = sharedPref.getFloat(getString(R.string.PREF_MAP_START_ZOOM), 6.toFloat()).toDouble()
 
         // At startup set the logfile and experiment names to the current time
         val tz = TimeZone.getTimeZone("UTC")
