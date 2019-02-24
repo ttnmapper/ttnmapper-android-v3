@@ -26,6 +26,7 @@ import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 import org.ttnmapper.phonesurveyor.model.GatewayMetadata
+import org.ttnmapper.phonesurveyor.model.TTNMessage
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
 import java.text.SimpleDateFormat
@@ -296,6 +297,11 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         runOnUiThread({
             mapFragment.addGatewayToMap(gateway)
         })
+    }
 
+    fun updateStats() {
+        runOnUiThread({
+            statsFragment.updateStats()
+        })
     }
 }

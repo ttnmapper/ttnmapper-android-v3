@@ -221,9 +221,10 @@ class MapFragment : Fragment() {
             if (gateway.latitude != null && gateway.longitude != null) {
                 var startMarker = Marker(map);
                 startMarker.icon = SurveyorApp.instance.getDrawable(R.drawable.gateway_dot)
-                startMarker.setPosition(GeoPoint(gateway.latitude!!, gateway.longitude!!));
-                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
-                map.getOverlays().add(startMarker);
+                startMarker.setPosition(GeoPoint(gateway.latitude!!, gateway.longitude!!))
+                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                startMarker.title = gateway.gtwId
+                map.getOverlays().add(startMarker)
                 map.invalidate()
             }
         }

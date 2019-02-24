@@ -46,6 +46,8 @@ object AppAggregate {
 
     var phoneLocation: Location? = null
 
+    var lastTTNMessage: TTNMessage? = null
+    var numberOfPacketsRx = 0
 
     val moshi = Moshi.Builder()
             .add(KotlinJsonAdapterFactory())
@@ -222,6 +224,11 @@ object AppAggregate {
 //            Log.e(TAG, "Parsed")
 //        }
 
+        // We can update the stats directly without adding info to it
+        lastTTNMessage = ttnMessage
+        numberOfPacketsRx++
+        updateStats()
+
         // add location and other local info
         // "mqtt_topic":"jpm_sodaq_one\/devices\/sodaq-one-v3-box\/up","phone_lat":-34.0480438,"phone_lon":18.8220624,"phone_alt":182.8053986682576,"phone_loc_acc":10,"phone_loc_provider":"fused","phone_time":"2018-03-18T10:04:43Z","user_agent":"Android7.0 App30:2018.03.04"
         ttnMessage!!.mqttTopic = topic
@@ -323,7 +330,6 @@ object AppAggregate {
             drawPointOnMap(ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(0.0))
         }
 
-
         // And upload to TTN Mapper
         if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_UPLOAD), true)) {
             NetworkAggregate.postToTTNMapper(ttnMessage)
@@ -332,7 +338,6 @@ object AppAggregate {
             var serverUri = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ADDRESS), "")
             NetworkAggregate.postToCustomServer(ttnMessage, serverUri)
         }
-
     }
 
     fun drawLineOnMap(startLat: Double, startLon: Double, endLat: Double, endLon: Double, colour: Long) {
@@ -352,6 +357,10 @@ object AppAggregate {
                 mainActivity!!.addGatewayToMap(gateway)
             }
         }
+    }
+
+    fun updateStats() {
+        mainActivity!!.updateStats()
     }
 
 }
