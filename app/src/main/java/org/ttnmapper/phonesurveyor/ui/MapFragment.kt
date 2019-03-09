@@ -1,9 +1,11 @@
 package org.ttnmapper.phonesurveyor.ui
 
 import android.app.Fragment
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
+import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
@@ -22,6 +24,8 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
 import org.osmdroid.views.overlay.TilesOverlay
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
 import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
@@ -29,6 +33,7 @@ import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 import org.ttnmapper.phonesurveyor.model.GatewayMetadata
+import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.getBitmapFromVectorDrawable
 
 
 class MapFragment : Fragment() {
@@ -40,6 +45,7 @@ class MapFragment : Fragment() {
     private lateinit var tmsSource: OnlineTileSourceBase
     private lateinit var tmsProvider: MapTileProviderBasic
     private lateinit var tmsLayer: TilesOverlay
+    private lateinit var locationIconBitmap: Bitmap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +82,8 @@ class MapFragment : Fragment() {
         map = view.findViewById(R.id.map)
         textViewMQTTStatus = view.findViewById(R.id.textViewMQTTStatus)
         textViewGPSStatus = view.findViewById(R.id.textViewGPSStatus)
+
+        locationIconBitmap = getBitmapFromVectorDrawable(activity, R.drawable.ic_arrow)
 
         map.setTileSource(object : OnlineTileSourceBase("Stamen Toner Light",
                 0, 20, 256, ".png",
@@ -184,6 +192,17 @@ class MapFragment : Fragment() {
         map.overlays.clear()
 
         var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+
+        // Show own location on map
+        val provider = GpsMyLocationProvider(SurveyorApp.instance)
+        provider.addLocationSource(LocationManager.NETWORK_PROVIDER) // When we start mapping this provider will also get GPS locations
+        var myLocationNewOverlay = MyLocationNewOverlay(provider, map)
+        myLocationNewOverlay.enableMyLocation()
+        myLocationNewOverlay.setPersonIcon(locationIconBitmap)
+        myLocationNewOverlay.setDirectionArrow(locationIconBitmap, locationIconBitmap)
+        myLocationNewOverlay.setPersonHotspot(0f, 0f)
+        myLocationNewOverlay.isDrawAccuracyEnabled = false
+        map.getOverlays().add(myLocationNewOverlay)
 
         // Add tiles layer with custom tile source
         if (sharedPreferences.getBoolean(getString(R.string.PREF_COVERAGE), false)) {
