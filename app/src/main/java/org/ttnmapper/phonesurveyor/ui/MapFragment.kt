@@ -93,7 +93,7 @@ class MapFragment : Fragment() {
         })
 
 
-        map.setTilesScaledToDpi(true)
+        map.setTilesScaledToDpi(false)
         map.setMultiTouchControls(true)
 
         map.addMapListener(object : MapListener {
