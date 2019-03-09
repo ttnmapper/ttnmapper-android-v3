@@ -309,7 +309,6 @@ class MyService : Service() {
 
                 setGPSCountupStatus(Date(), location.accuracy)
 
-                MapAggregate.updateOwnLocationMarker(location)
                 if (sharedPref.getBoolean(getString(R.string.PREF_AUTO_CENTER), true)) {
                     MapAggregate.centerMap(location)
                 }

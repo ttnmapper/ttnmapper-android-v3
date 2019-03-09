@@ -59,8 +59,4 @@ object MapAggregate {
             // The UI might not exist at this point
         }
     }
-
-    fun updateOwnLocationMarker(location: Location) {
-
-    }
 }
