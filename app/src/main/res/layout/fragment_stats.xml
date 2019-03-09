@@ -11,10 +11,10 @@
 
 
     <TextView
+        style="@style/Base.TextAppearance.AppCompat.Body2"
+        android:textColor="@color/colorAccent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textColor="?android:attr/textColorLink"
         android:text="Total"
         android:paddingTop="15dp"
         android:paddingBottom="15dp"/>
@@ -64,11 +64,11 @@
         android:layout_height="20dp" />
 
     <TextView
+        style="@style/Base.TextAppearance.AppCompat.Body2"
+        android:textColor="@color/colorAccent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Last packet"
-        android:textColor="?android:attr/textColorLink"
-        android:textStyle="bold"
         android:paddingTop="15dp"
         android:paddingBottom="15dp"/>
 
