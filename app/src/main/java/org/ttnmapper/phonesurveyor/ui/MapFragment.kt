@@ -96,7 +96,7 @@ class MapFragment : Fragment() {
         })
 
 
-        map.setTilesScaledToDpi(true)
+        map.setTilesScaledToDpi(false)
         map.setMultiTouchControls(true)
 
         map.addMapListener(object : MapListener {
@@ -168,9 +168,10 @@ class MapFragment : Fragment() {
         mPointStyle.setColor(colour.toInt())
 
         val opt = SimpleFastPointOverlayOptions.getDefaultStyle()
+                .setSymbol(SimpleFastPointOverlayOptions.Shape.CIRCLE) //square is faster than circle
                 .setPointStyle(mPointStyle)
                 .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION)
-                .setRadius(7f).setIsClickable(true).setCellSize(15)
+                .setRadius(15f).setIsClickable(false).setCellSize(15)
 
         val sfpo = SimpleFastPointOverlay(pt, opt)
 
@@ -232,9 +233,11 @@ class MapFragment : Fragment() {
 
             if (gateway.latitude != null && gateway.longitude != null) {
                 var startMarker = Marker(map);
-                startMarker.setPosition(GeoPoint(gateway.latitude!!, gateway.longitude!!));
-                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-                map.getOverlays().add(startMarker);
+                startMarker.icon = SurveyorApp.instance.getDrawable(R.drawable.gateway_dot)
+                startMarker.setPosition(GeoPoint(gateway.latitude!!, gateway.longitude!!))
+                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                startMarker.title = gateway.gtwId
+                map.getOverlays().add(startMarker)
                 map.invalidate()
             }
         }

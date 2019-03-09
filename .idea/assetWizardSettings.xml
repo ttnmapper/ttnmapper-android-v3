@@ -52,8 +52,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_ttn_mapper_20180116" />
-                            <entry key="sourceFile" value="$USER_HOME$/Dropbox/Projects/TTN Mapper/TTN Mapper logo/Modified by Claudia/TTN Mapper-20180116.svg" />
+                            <entry key="outputName" value="ic_ttncropped" />
+                            <entry key="sourceFile" value="$USER_HOME$/Downloads/TTNcropped.svg" />
                           </map>
                         </option>
                       </PersistentState>

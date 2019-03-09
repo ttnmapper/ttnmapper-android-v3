@@ -179,8 +179,16 @@ class MyService : Service() {
                             MqttException.REASON_CODE_NOT_AUTHORIZED -> {
                                 setMQTTStatusMessage("MQTT failed to connect - not authorised")
                             }
+                            MqttException.REASON_CODE_CLIENT_CONNECTED -> {
+                                setMQTTStatusMessage("MQTT client connected")
+                                return
+                            }
+                            MqttException.REASON_CODE_CONNECT_IN_PROGRESS -> {
+                                Log.e(TAG, "Connect in progress, ignoring error")
+                                return
+                            }
                             else -> {
-                                setMQTTStatusMessage("MQTT failed to connect - unexpected error")
+                                setMQTTStatusMessage("MQTT failed to connect - unexpected error: " + errorReason)
                             }
                         }
                     } else {

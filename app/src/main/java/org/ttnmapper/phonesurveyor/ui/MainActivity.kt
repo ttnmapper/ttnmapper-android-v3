@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +13,7 @@ import android.os.PowerManager
 import android.preference.PreferenceManager
 import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.support.design.widget.BottomNavigationView
+import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -24,6 +27,7 @@ import org.ttnmapper.phonesurveyor.BuildConfig
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
+import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
@@ -96,6 +100,12 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         setContentView(R.layout.activity_main)
 
+        val fab: FloatingActionButton = findViewById(R.id.fab)
+        fab.setOnClickListener { view ->
+            toggleMappingFab()
+        }
+        initMappingFab()
+
         // Save a handle to the main activity in the app aggregate singleton
         // Needed to send updates to UI from service
         AppAggregate.mainActivity = this
@@ -118,6 +128,11 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         } else {
             editor.putString(getString(R.string.PREF_EXPERIMENT_NAME), "experiment_" + sharedPref.getString(getString(R.string.PREF_MAPPER_IID), ""))
         }
+
+        // Read map start location from preferences
+        MapAggregate.latitude = sharedPref.getFloat(getString(R.string.PREF_MAP_START_LAT), 52.372706.toFloat()).toDouble()
+        MapAggregate.longitude = sharedPref.getFloat(getString(R.string.PREF_MAP_START_LON), 4.897312.toFloat()).toDouble()
+        MapAggregate.zoom = sharedPref.getFloat(getString(R.string.PREF_MAP_START_ZOOM), 6.toFloat()).toDouble()
 
         // At startup set the logfile and experiment names to the current time
         val tz = TimeZone.getTimeZone("UTC")
@@ -146,39 +161,67 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         super.onDestroy()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu items for use in the action bar
-        val inflater = menuInflater
-        inflater.inflate(R.menu.action_bar_options, menu)
-        startStopButton = menu.findItem(R.id.action_start_stop)
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//        // Inflate the menu items for use in the action bar
+//        val inflater = menuInflater
+//        inflater.inflate(R.menu.action_bar_options, menu)
+//        startStopButton = menu.findItem(R.id.action_start_stop)
+//
+//        val serviceClass = MyService::class.java
+//        if (AppAggregate.isServiceRunning(serviceClass)) {
+//            startStopButton?.setTitle("Stop")
+//        } else {
+//            startStopButton?.setTitle("Start")
+//        }
+//
+//        return super.onCreateOptionsMenu(menu)
+//    }
+
+//    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+//        R.id.action_start_stop -> {
+//            val serviceClass = MyService::class.java
+//            if (AppAggregate.isServiceRunning(serviceClass)) {
+//                AppAggregate.stopService()
+//                item.setTitle("Start")
+//            } else {
+//                AppAggregate.startService()
+//                item.setTitle("Stop")
+//            }
+//            true
+//        }
+//
+//        else -> {
+//            // If we got here, the user's action was not recognized.
+//            // Invoke the superclass to handle it.
+//            super.onOptionsItemSelected(item)
+//        }
+//    }
+
+    fun initMappingFab() {
+        val fab: FloatingActionButton = findViewById(R.id.fab)
 
         val serviceClass = MyService::class.java
         if (AppAggregate.isServiceRunning(serviceClass)) {
-            startStopButton?.setTitle("Stop")
+            fab.setImageResource(android.R.drawable.ic_media_pause)
+            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.colorAccent)))
         } else {
-            startStopButton?.setTitle("Start")
+            fab.setImageResource(android.R.drawable.ic_media_play)
+            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.ttnPrimary)))
         }
-
-        return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-        R.id.action_start_stop -> {
-            val serviceClass = MyService::class.java
-            if (AppAggregate.isServiceRunning(serviceClass)) {
-                AppAggregate.stopService()
-                item.setTitle("Start")
-            } else {
-                AppAggregate.startService()
-                item.setTitle("Stop")
-            }
-            true
-        }
+    fun toggleMappingFab() {
+        val fab: FloatingActionButton = findViewById(R.id.fab)
 
-        else -> {
-            // If we got here, the user's action was not recognized.
-            // Invoke the superclass to handle it.
-            super.onOptionsItemSelected(item)
+        val serviceClass = MyService::class.java
+        if (AppAggregate.isServiceRunning(serviceClass)) {
+            AppAggregate.stopService()
+            fab.setImageResource(android.R.drawable.ic_media_play)
+            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.ttnPrimary)))
+        } else {
+            AppAggregate.startService()
+            fab.setImageResource(android.R.drawable.ic_media_pause)
+            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.colorAccent)))
         }
     }
 
@@ -199,9 +242,13 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
      */
     fun updateStartStopButton(running: Boolean) {
         if (running) {
-            startStopButton?.setTitle("Stop")
+//            startStopButton?.setTitle("Stop")
+            fab.setImageResource(android.R.drawable.ic_media_pause)
+            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.colorAccent)))
         } else {
-            startStopButton?.setTitle("Start")
+//            startStopButton?.setTitle("Start")
+            fab.setImageResource(android.R.drawable.ic_media_play)
+            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.ttnPrimary)))
         }
     }
 
@@ -290,6 +337,11 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         runOnUiThread({
             mapFragment.addGatewayToMap(gateway)
         })
+    }
 
+    fun updateStats() {
+        runOnUiThread({
+            statsFragment.updateStats()
+        })
     }
 }

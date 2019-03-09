@@ -22,6 +22,9 @@
     <string name="PREF_CUSTOM_SERVER_ADDRESS">PREF_CUSTOM_SERVER_ADDRESS</string>
 
     <string name="PREF_MAPPER_IID">PREF_MAPPER_IID</string>
+    <string name="PREF_MAP_START_LAT">PREF_MAP_START_LAT</string>
+    <string name="PREF_MAP_START_LON">PREF_MAP_START_LON</string>
+    <string name="PREF_MAP_START_ZOOM">PREF_MAP_START_ZOOM</string>
 
     <string name="TTN_MAPPER_UPLOAD_API">https://ttnmapper.org/appapi/v3/</string>
 </resources>
