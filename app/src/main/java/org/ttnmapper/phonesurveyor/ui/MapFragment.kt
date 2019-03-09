@@ -1,9 +1,11 @@
 package org.ttnmapper.phonesurveyor.ui
 
 import android.app.Fragment
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
+import android.graphics.drawable.BitmapDrawable
 import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -32,6 +34,7 @@ import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 import org.ttnmapper.phonesurveyor.model.GatewayMetadata
+import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.getBitmapFromVectorDrawable
 
 
 class MapFragment : Fragment() {
@@ -195,6 +198,12 @@ class MapFragment : Fragment() {
         myLocationNewOverlay.enableMyLocation()
 //        myLocationNewOverlay.isDrawAccuracyEnabled = true
 //        myLocationNewOverlay.
+        val locationIconBitmap = getBitmapFromVectorDrawable(activity, R.drawable.ic_arrow)
+        myLocationNewOverlay.setPersonIcon(locationIconBitmap)
+        myLocationNewOverlay.setDirectionArrow(locationIconBitmap, locationIconBitmap)
+        myLocationNewOverlay.setPersonHotspot(0f, 0f)
+        myLocationNewOverlay.isDrawAccuracyEnabled = false
+
 
         map.getOverlays().add(myLocationNewOverlay);
 
