@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
+
+
 class CommonFunctions {
 
     companion object {
@@ -44,6 +46,14 @@ class CommonFunctions {
         fun getISO8601StringForDate(date: Date): String {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+            return dateFormat.format(date)
+        }
+
+        fun getISO8601StringForMillis(millis: Long): String {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+
+            val date = Date(millis)
             return dateFormat.format(date)
         }
 

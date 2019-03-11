@@ -54,6 +54,9 @@ data class TTNMessage(
         @field:Json(name = "phone_loc_provider")
         var phoneLocProvider: String?, // fused
 
+        @field:Json(name = "phone_loc_time")
+        var phoneLocTime: String?, // 2018-03-18T10:05:44Z
+
         @field:Json(name = "phone_time")
         var phoneTime: String?, // 2018-03-18T10:05:44Z
 

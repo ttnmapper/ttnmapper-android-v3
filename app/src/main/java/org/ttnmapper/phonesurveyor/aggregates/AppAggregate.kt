@@ -231,12 +231,20 @@ object AppAggregate {
 
         // add location and other local info
         // "mqtt_topic":"jpm_sodaq_one\/devices\/sodaq-one-v3-box\/up","phone_lat":-34.0480438,"phone_lon":18.8220624,"phone_alt":182.8053986682576,"phone_loc_acc":10,"phone_loc_provider":"fused","phone_time":"2018-03-18T10:04:43Z","user_agent":"Android7.0 App30:2018.03.04"
+
+        // Make a copy, otherwise it might change while we process the packet
+        val currentLocation = phoneLocation // This is likely not a deep copy, but let's hope the location service creates a new object and doesn't update this one.
+
         ttnMessage!!.mqttTopic = topic
-        ttnMessage.phoneLat = phoneLocation?.latitude
-        ttnMessage.phoneLon = phoneLocation?.longitude
-        ttnMessage.phoneAlt = phoneLocation?.altitude
-        ttnMessage.phoneLocAcc = phoneLocation?.accuracy?.toDouble()
-        ttnMessage.phoneLocProvider = phoneLocation?.provider
+        ttnMessage.phoneLat = currentLocation?.latitude
+        ttnMessage.phoneLon = currentLocation?.longitude
+        ttnMessage.phoneAlt = currentLocation?.altitude
+        ttnMessage.phoneLocAcc = currentLocation?.accuracy?.toDouble()
+        ttnMessage.phoneLocProvider = currentLocation?.provider
+        val locationTime = currentLocation?.time
+        if (locationTime != null) {
+            ttnMessage.phoneLocTime = CommonFunctions.getISO8601StringForMillis(locationTime)
+        }
         ttnMessage.phoneTime = CommonFunctions.getISO8601StringForDate(Date())
         val pInfo = SurveyorApp.instance.getPackageManager().getPackageInfo(SurveyorApp.instance.getPackageName(), 0)
         val version = pInfo.versionName
@@ -285,23 +293,23 @@ object AppAggregate {
             }
         }
 
-        if (phoneLocation == null) {
+        if (currentLocation == null) {
             //TODO: No location information yet message
             Log.e(TAG, "No location information")
             return
         }
 
-//        if(System.currentTimeMillis() - phoneLocation!!.time > 10000) {
-//            //TODO: Fix older than 10 seconds - notify
-//            Log.e(TAG, "Location older than 10 seconds")
-//            return
-//        }
-//
-//        if(phoneLocation!!.accuracy > 10) {
-//            //TODO: too low accuracy
-//            Log.e(TAG, "Location accuracy too low")
-//            return
-//        }
+        if(System.currentTimeMillis() - currentLocation.time > 10000) {
+            //TODO: Fix older than 10 seconds - notify
+            Log.e(TAG, "Location older than 10 seconds")
+            return
+        }
+
+        if(currentLocation.accuracy > 10) {
+            //TODO: too low accuracy
+            Log.e(TAG, "Location accuracy too low")
+            return
+        }
 
 
         var maxLevel: Double? = null
