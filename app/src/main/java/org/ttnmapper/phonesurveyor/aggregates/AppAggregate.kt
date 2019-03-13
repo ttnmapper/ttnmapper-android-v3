@@ -27,6 +27,7 @@ import org.ttnmapper.phonesurveyor.model.MapPoint
 import org.ttnmapper.phonesurveyor.model.TTNMessage
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.ui.MainActivity
+import org.ttnmapper.phonesurveyor.utils.AppConstants
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
 import org.ttnmapper.phonesurveyor.utils.getBackgroundNotification
 import java.io.File
@@ -257,7 +258,7 @@ object AppAggregate {
             ttnMessage.experiment = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_EXPERIMENT_NAME), "experiment_" + sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), ""))
         }
 
-        // Save to file if enabled
+        // Save to file if enabled - even if the location is old and/or inaccurate
         val permissionWriteStorage = ActivityCompat.checkSelfPermission(SurveyorApp.instance, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
         if (permissionWriteStorage == PackageManager.PERMISSION_GRANTED
@@ -305,11 +306,12 @@ object AppAggregate {
             return
         }
 
-        if(currentLocation.accuracy > 10) {
-            //TODO: too low accuracy
-            Log.e(TAG, "Location accuracy too low")
-            return
-        }
+        // This check has already been done in MyService before storing the lcoation in phoneLocation
+//        if(currentLocation.accuracy > AppConstants.LOCATION_ACCURACY) {
+//            //TODO: too low accuracy
+//            Log.e(TAG, "Location accuracy too low")
+//            return
+//        }
 
 
         var maxLevel: Double? = null

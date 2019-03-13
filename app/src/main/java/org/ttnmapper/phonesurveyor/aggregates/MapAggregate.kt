@@ -48,13 +48,8 @@ object MapAggregate {
     var mqttStatusMessage: String = "MQTT disconnected"
 
     fun centerMap(location: Location) {
-        latitude = location.latitude
-        longitude = location.longitude
-        val position = GeoPoint(latitude, longitude)
-
         try {
-            val controller = AppAggregate.mainActivity?.mapFragment?.map?.controller
-            controller?.animateTo(position)
+            AppAggregate.mainActivity?.mapFragment?.centerMapTo(location)
         } catch (e: NullPointerException) {
             // The UI might not exist at this point
         }

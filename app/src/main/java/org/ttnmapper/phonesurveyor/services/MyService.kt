@@ -18,6 +18,7 @@ import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
+import org.ttnmapper.phonesurveyor.utils.AppConstants
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.sanitiseMqttUri
 import java.util.*
 import kotlin.concurrent.thread
@@ -257,7 +258,7 @@ class MyService : Service() {
     fun setGPSCountupStatus(date: Date, accuracy: Float) {
         if ((Date().time - date.time) > 5000) {
             setGPSStatusMessage("GPS location too old. Obtained " + datesToDurationString(date, Date()))
-        } else if (accuracy > 10.0) {
+        } else if (accuracy > AppConstants.LOCATION_ACCURACY) {
             setGPSStatusMessage("GPS location not accurate enough (>10m)")
         } else {
             setGPSStatusMessage("GPS location valid")
@@ -305,12 +306,16 @@ class MyService : Service() {
         locationListener = object : LocationListener {
             override fun onLocationChanged(location: Location) {
 //                Log.e(TAG, "New location")
-                AppAggregate.phoneLocation = location
-
                 setGPSCountupStatus(Date(), location.accuracy)
 
-                if (sharedPref.getBoolean(getString(R.string.PREF_AUTO_CENTER), true)) {
-                    MapAggregate.centerMap(location)
+                if (location.accuracy < AppConstants.LOCATION_ACCURACY) {
+                    // Only store a valid location for use by packet processing
+                    AppAggregate.phoneLocation = location
+
+                    // Only auto center if our location is accurate enough, otherwise the map jumps around
+                    if (sharedPref.getBoolean(getString(R.string.PREF_AUTO_CENTER), true)) {
+                        MapAggregate.centerMap(location)
+                    }
                 }
             }
 

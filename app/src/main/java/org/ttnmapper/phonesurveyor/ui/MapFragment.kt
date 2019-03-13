@@ -5,11 +5,13 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
+import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -36,7 +38,8 @@ import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.getBitmapFromVectorDrawable
 
 
-class MapFragment : Fragment() {
+class MapFragment : Fragment(), View.OnTouchListener {
+
     private val TAG = MapFragment::class.java.getName()
 
     private lateinit var map: MapView
@@ -46,6 +49,7 @@ class MapFragment : Fragment() {
     private lateinit var tmsProvider: MapTileProviderBasic
     private lateinit var tmsLayer: TilesOverlay
     private lateinit var locationIconBitmap: Bitmap
+    private var fingerIsDown: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +83,7 @@ class MapFragment : Fragment() {
 
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_map, container, false)
+
         map = view.findViewById(R.id.map)
         textViewMQTTStatus = view.findViewById(R.id.textViewMQTTStatus)
         textViewGPSStatus = view.findViewById(R.id.textViewGPSStatus)
@@ -121,6 +126,8 @@ class MapFragment : Fragment() {
             }
         })
 
+        map.setOnTouchListener(this)
+
         // get map controller
         val controller = map.controller
 
@@ -138,8 +145,20 @@ class MapFragment : Fragment() {
         return view;
     }
 
-    fun addGateway() {
+    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
 
+        when (event?.action){
+            MotionEvent.ACTION_DOWN -> {
+                Log.e(TAG, "Finger down")
+                fingerIsDown = true
+            }
+            MotionEvent.ACTION_UP -> {
+                Log.e(TAG, "Finger up")
+                fingerIsDown = false
+            }
+        }
+
+        return false
     }
 
     fun drawLineOnMap(startLat: Double, startLon: Double, endLat: Double, endLon: Double, colour: Long) {
@@ -258,4 +277,14 @@ class MapFragment : Fragment() {
         MapAggregate.gpsStatusMessage = message
         textViewGPSStatus.setText(message)
     }
+
+    fun centerMapTo(location: Location) {
+        if(!fingerIsDown) {
+            MapAggregate.latitude = location.latitude
+            MapAggregate.longitude = location.longitude
+            val position = GeoPoint(MapAggregate.latitude, MapAggregate.longitude)
+            map.controller.animateTo(position)
+        }
+    }
+
 }
