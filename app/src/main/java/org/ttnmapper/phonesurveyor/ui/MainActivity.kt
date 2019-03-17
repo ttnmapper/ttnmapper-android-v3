@@ -23,6 +23,7 @@ import android.view.WindowManager
 import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.activity_main.*
+import org.osmdroid.config.Configuration
 import org.ttnmapper.phonesurveyor.BuildConfig
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
@@ -98,6 +99,16 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
             Fabric.with(this, Crashlytics())
         }
 
+        //handle permissions first, before map is created. not depicted here
+
+        //load/initialize the osmdroid configuration, this can be done
+        Configuration.getInstance().load(getApplicationContext(), PreferenceManager.getDefaultSharedPreferences(getApplicationContext()))
+        //setting this before the layout is inflated is a good idea
+        //it 'should' ensure that the map has a writable location for the map cache, even without permissions
+        //if no tiles are displayed, you can try overriding the cache path using Configuration.getInstance().setCachePath
+        //see also StorageUtils
+        //note, the load method also sets the HTTP User Agent to your application's package name, abusing osm's tile servers will get you banned based on this string
+
         setContentView(R.layout.activity_main)
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
@@ -111,7 +122,8 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         AppAggregate.mainActivity = this
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
-        var sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        AppAggregate.sharedPref = sharedPref
         sharedPref.registerOnSharedPreferenceChangeListener(this)
 
         // At first run create a new installation instance ID
@@ -130,9 +142,9 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         }
 
         // Read map start location from preferences
-        MapAggregate.latitude = sharedPref.getFloat(getString(R.string.PREF_MAP_START_LAT), 52.372706.toFloat()).toDouble()
-        MapAggregate.longitude = sharedPref.getFloat(getString(R.string.PREF_MAP_START_LON), 4.897312.toFloat()).toDouble()
-        MapAggregate.zoom = sharedPref.getFloat(getString(R.string.PREF_MAP_START_ZOOM), 6.toFloat()).toDouble()
+        MapAggregate.latitude = sharedPref.getFloat(getString(R.string.PREF_MAP_START_LAT), 52.372706f).toDouble()
+        MapAggregate.longitude = sharedPref.getFloat(getString(R.string.PREF_MAP_START_LON), 4.897312f).toDouble()
+        MapAggregate.zoom = sharedPref.getFloat(getString(R.string.PREF_MAP_START_ZOOM), 6f).toDouble()
 
         // At startup set the logfile and experiment names to the current time
         val tz = TimeZone.getTimeZone("UTC")

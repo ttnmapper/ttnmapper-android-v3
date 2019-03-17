@@ -190,7 +190,7 @@ object AppAggregate {
 
     fun processMessage(topic: String, data: String) {
         Log.e(TAG, "Processing new message")
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        //sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance) // set in main activity
 
         if (!topic.endsWith("up")) {
             //TODO: Not an uplink message

@@ -1,6 +1,7 @@
 package org.ttnmapper.phonesurveyor.aggregates
 
 import android.location.Location
+import android.util.Log
 import kotlinx.android.synthetic.main.fragment_map.*
 import org.osmdroid.util.GeoPoint
 import org.ttnmapper.phonesurveyor.R
@@ -19,25 +20,25 @@ object MapAggregate {
     var zoom: Double = 6.0
         set(value) {
             field = value
-            val editor = sharedPref?.edit()
-            editor?.putFloat(SurveyorApp.instance.getString(R.string.PREF_MAP_START_ZOOM), value.toFloat())
-            editor?.apply()
+            val editor = AppAggregate.sharedPref?.edit()
+            editor!!.putFloat(SurveyorApp.instance.getString(R.string.PREF_MAP_START_ZOOM), value.toFloat())
+            editor.apply()
         }
 
     var latitude: Double = 52.372706
         set(value) {
             field = value
-            val editor = sharedPref?.edit()
-            editor?.putFloat(SurveyorApp.instance.getString(R.string.PREF_MAP_START_LAT), value.toFloat())
-            editor?.apply()
+            val editor = AppAggregate.sharedPref?.edit()
+            editor!!.putFloat(SurveyorApp.instance.getString(R.string.PREF_MAP_START_LAT), value.toFloat())
+            editor.apply()
         }
 
     var longitude: Double = 4.897312
         set(value) {
             field = value
-            val editor = sharedPref?.edit()
-            editor?.putFloat(SurveyorApp.instance.getString(R.string.PREF_MAP_START_LON), value.toFloat())
-            editor?.apply()
+            val editor = AppAggregate.sharedPref?.edit()
+            editor!!.putFloat(SurveyorApp.instance.getString(R.string.PREF_MAP_START_LON), value.toFloat())
+            editor.apply()
         }
 
     var lineList: MutableList<MapLine> = ArrayList()
