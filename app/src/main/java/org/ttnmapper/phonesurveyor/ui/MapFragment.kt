@@ -1,10 +1,7 @@
 package org.ttnmapper.phonesurveyor.ui
 
 import android.app.Fragment
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.ColorMatrixColorFilter
-import android.graphics.Paint
+import android.graphics.*
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -90,20 +87,116 @@ class MapFragment : Fragment(), View.OnTouchListener {
 
         locationIconBitmap = getBitmapFromVectorDrawable(activity, R.drawable.ic_arrow)
 
-        map.setTileSource(object : OnlineTileSourceBase("Stamen Toner Light",
-                0, 20, 256, ".png",
-                arrayOf("https://stamen-tiles-a.a.ssl.fastly.net/toner-lite/",
-                        "https://stamen-tiles-b.a.ssl.fastly.net/toner-lite/",
-                        "https://stamen-tiles-c.a.ssl.fastly.net/toner-lite/",
-                        "https://stamen-tiles-d.a.ssl.fastly.net/toner-lite/")) {
-            override fun getTileURLString(pMapTileIndex: Long): String {
-                return (baseUrl
-                        + MapTileIndex.getZoom(pMapTileIndex)
-                        + "/" + MapTileIndex.getX(pMapTileIndex)
-                        + "/" + MapTileIndex.getY(pMapTileIndex)
-                        + mImageFilenameEnding)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        when (sharedPreferences.getString(getString(R.string.PREF_BACKGROUND_MAP), getString(R.string.MAP_STAMEN_TONER_LIGHT))) {
+            // Stamen Toner Light
+            getString(R.string.MAP_STAMEN_TONER_LIGHT) -> {
+                Log.e(TAG, "Stamen toner light")
+                map.setTileSource(object : OnlineTileSourceBase("Stamen Toner Light",
+                        0, 20, 256, ".png",
+                        arrayOf("https://stamen-tiles-a.a.ssl.fastly.net/toner-lite/",
+                                "https://stamen-tiles-b.a.ssl.fastly.net/toner-lite/",
+                                "https://stamen-tiles-c.a.ssl.fastly.net/toner-lite/",
+                                "https://stamen-tiles-d.a.ssl.fastly.net/toner-lite/")) {
+                    override fun getTileURLString(pMapTileIndex: Long): String {
+                        return (baseUrl
+                                + MapTileIndex.getZoom(pMapTileIndex)
+                                + "/" + MapTileIndex.getX(pMapTileIndex)
+                                + "/" + MapTileIndex.getY(pMapTileIndex)
+                                + mImageFilenameEnding)
+                    }
+                })
             }
-        })
+
+            // Terrain
+            getString(R.string.MAP_TERRAIN) -> {
+                Log.e(TAG, "Map terrain")
+                map.setTileSource(object : OnlineTileSourceBase("Arcgis World Shaded Relief",
+                        0, 14, 256, "",
+                        arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/")) {
+                    override fun getTileURLString(pMapTileIndex: Long): String {
+                        val url = baseUrl + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex) + mImageFilenameEnding
+//                        Log.e(TAG, url)
+                        return (url)
+                    }
+                })
+            }
+
+            // Satellite
+            getString(R.string.MAP_SATELLITE) -> {
+                Log.e(TAG, "Map satellite")
+                map.setTileSource(object : OnlineTileSourceBase("Arcgis World Imagery",
+                        0, 20, 256, "",
+                        arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/")) {
+                    override fun getTileURLString(pMapTileIndex: Long): String {
+                        return (baseUrl
+                                + MapTileIndex.getZoom(pMapTileIndex)
+                                + "/" + MapTileIndex.getY(pMapTileIndex)
+                                + "/" + MapTileIndex.getX(pMapTileIndex)
+                                + mImageFilenameEnding)
+                    }
+                })
+            }
+
+            // OSM Mapnik
+            getString(R.string.MAP_OSM_MAPNIK) -> {
+                Log.e(TAG, "Map osm mapnik")
+                map.setTileSource(object : OnlineTileSourceBase("Open Street Map Mapnik",
+                        0, 20, 256, ".png",
+                        arrayOf("https://a.tile.openstreetmap.org/",
+                                "https://b.tile.openstreetmap.org/",
+                                "https://c.tile.openstreetmap.org/")) {
+                    override fun getTileURLString(pMapTileIndex: Long): String {
+                        val url = baseUrl + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex) + mImageFilenameEnding
+//                        Log.e(TAG, url)
+                        return (url)
+                    }
+                })
+            }
+
+            // OSM Mapnik greyscale
+            getString(R.string.MAP_OSM_MAPNIK_GREYSCALE) -> {
+                Log.e(TAG, "Map osm mapnik greyscale")
+                map.setTileSource(object : OnlineTileSourceBase("Open Street Map Mapnik",
+                        0, 20, 256, ".png",
+                        arrayOf("https://a.tile.openstreetmap.org/",
+                                "https://b.tile.openstreetmap.org/",
+                                "https://c.tile.openstreetmap.org/")) {
+                    override fun getTileURLString(pMapTileIndex: Long): String {
+                        val url = baseUrl + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex) + mImageFilenameEnding
+//                        Log.e(TAG, url)
+                        return (url)
+                    }
+                })
+
+                // Apply grayscale filter
+                val matrix = ColorMatrix()
+                matrix.setSaturation(0.0f)
+                val filter = ColorMatrixColorFilter(matrix);
+                //map.getOverlayManager().getTilesOverlay().setColorFilter(TilesOverlay.INVERT_COLORS) //night mode
+                map.getOverlayManager().getTilesOverlay().setColorFilter(filter);
+            }
+
+            // OSM Mapnik night mode
+            getString(R.string.MAP_OSM_MAPNIK_NIGHTMODE) -> {
+                Log.e(TAG, "Map osm mapnik greyscale")
+                map.setTileSource(object : OnlineTileSourceBase("Open Street Map Mapnik",
+                        0, 20, 256, ".png",
+                        arrayOf("https://a.tile.openstreetmap.org/",
+                                "https://b.tile.openstreetmap.org/",
+                                "https://c.tile.openstreetmap.org/")) {
+                    override fun getTileURLString(pMapTileIndex: Long): String {
+                        val url = baseUrl + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex) + mImageFilenameEnding
+//                        Log.e(TAG, url)
+                        return (url)
+                    }
+                })
+
+                // Apply grayscale filter
+                map.getOverlayManager().getTilesOverlay().setColorFilter(TilesOverlay.INVERT_COLORS) //night mode
+            }
+        }
+
 
 
         map.setTilesScaledToDpi(false)
@@ -149,11 +242,11 @@ class MapFragment : Fragment(), View.OnTouchListener {
 
         when (event?.action){
             MotionEvent.ACTION_DOWN -> {
-                Log.e(TAG, "Finger down")
+//                Log.e(TAG, "Finger down")
                 fingerIsDown = true
             }
             MotionEvent.ACTION_UP -> {
-                Log.e(TAG, "Finger up")
+//                Log.e(TAG, "Finger up")
                 fingerIsDown = false
             }
         }

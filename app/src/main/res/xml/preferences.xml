@@ -52,13 +52,20 @@
         <CheckBoxPreference
             android:key="@string/PREF_LORDRIVE"
             android:title="LoRdrive mode"
-            android:summary="Show gateways and signal path on map"
+            android:summary="Show gateways and signal paths on map"
             android:defaultValue="true" />
         <CheckBoxPreference
             android:key="@string/PREF_COVERAGE"
             android:title="Coverage"
-            android:summary="Show all previously mapped coverage from TTNMapper.org"
+            android:summary="Show all previously mapped coverage from ttnmapper.org"
             android:defaultValue="false" />
+        <ListPreference
+            android:title="Background map"
+            android:summary="Select which map service to use as the background map"
+            android:key="@string/PREF_BACKGROUND_MAP"
+            android:defaultValue="@string/MAP_STAMEN_TONER_LIGHT"
+            android:entries="@array/backgroundMapTitles"
+            android:entryValues="@array/backgroundMapKeys" />
     </PreferenceCategory>
 
     <PreferenceCategory

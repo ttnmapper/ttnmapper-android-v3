@@ -9,6 +9,7 @@
     <string name="PREF_AUTO_CENTER">PREF_AUTO_CENTER</string>
     <string name="PREF_LORDRIVE">PREF_LORDRIVE</string>
     <string name="PREF_COVERAGE">PREF_COVERAGE</string>
+    <string name="PREF_BACKGROUND_MAP">PREF_BACKGROUND_MAP</string>
 
     <string name="PREF_BROKER">PREF_BROKER</string>
     <string name="PREF_APP_ID">PREF_APP_ID</string>
@@ -27,4 +28,12 @@
     <string name="PREF_MAP_START_ZOOM">PREF_MAP_START_ZOOM</string>
 
     <string name="TTN_MAPPER_UPLOAD_API">https://ttnmapper.org/appapi/v3/</string>
+
+    <!--Map types-->
+    <string name="MAP_STAMEN_TONER_LIGHT">MAP_STAMEN_TONER_LIGHT</string>
+    <string name="MAP_TERRAIN">MAP_TERRAIN</string>
+    <string name="MAP_SATELLITE">MAP_SATELLITE</string>
+    <string name="MAP_OSM_MAPNIK">MAP_OSM_MAPNIK</string>
+    <string name="MAP_OSM_MAPNIK_GREYSCALE">MAP_OSM_MAPNIK_GREYSCALE</string>
+    <string name="MAP_OSM_MAPNIK_NIGHTMODE">MAP_OSM_MAPNIK_NIGHTMODE</string>
 </resources>
