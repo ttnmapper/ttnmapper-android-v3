@@ -344,6 +344,7 @@ object AppAggregate {
         if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_UPLOAD), true)) {
             NetworkAggregate.postToTTNMapper(ttnMessage)
         }
+        // Always upload to TTN Mapper before custom server, as we might modify the packet for custom servers.
         if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ENABLED), false)) {
             var serverUri = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ADDRESS), "")
             NetworkAggregate.postToCustomServer(ttnMessage, serverUri)

@@ -79,7 +79,6 @@
             android:defaultValue="true" />
         <CheckBoxPreference
             android:key="@string/PREF_EXPERIMENT"
-            android:dependency="@string/PREF_UPLOAD"
             android:title="Experiment"
             android:summary="Mark uploaded data as experimental to exclude it from the main global map of coverage"
             android:defaultValue="false" />
@@ -98,7 +97,7 @@
             android:key="@string/PREF_CUSTOM_SERVER_ADDRESS"
             android:dependency="@string/PREF_CUSTOM_SERVER_ENABLED"
             android:title="Custom server address"
-            android:summary="The URL of the API endpoint where you want to POST data to"
+            android:summary="The URL of the API endpoint where you want to POST data to. This has to be HTTPS."
             android:dialogTitle="Server address"
             android:defaultValue="https://example.com/upload.php" />
 

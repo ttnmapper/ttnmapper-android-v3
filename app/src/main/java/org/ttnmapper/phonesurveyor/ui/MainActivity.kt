@@ -77,9 +77,10 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        Log.e(TAG, "Setting changed")
-        setScreenAlwaysOn()
-        //TODO: handle any other runtime changable settings
+
+        if (key == getString(R.string.PREF_SCREEN_ON)) {
+            setScreenAlwaysOn()
+        }
 
         // Sanitise the handler address
         if (key == getString(R.string.PREF_BROKER)) {
@@ -88,6 +89,8 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
             editor.putString(key, mqttUri)
             editor.apply()
         }
+
+        //TODO: handle any other runtime changable settings
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -12,8 +12,8 @@ android {
         applicationId "org.ttnmapper.phonesurveyor"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 17
-        versionName "2019.03.17"
+        versionCode 18
+        versionName "2019.04.12"
         testInstrumentationRunner "android.support.org.ttnmapper.phonesurveyor.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -44,13 +44,13 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    implementation 'org.osmdroid:osmdroid-android:6.0.3'
+    implementation 'org.osmdroid:osmdroid-android:6.1.0'
 
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.1'
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
     implementation 'com.squareup.moshi:moshi-kotlin:1.8.0'
-    implementation 'com.squareup.okhttp3:okhttp:3.13.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.1'
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
         transitive = true;

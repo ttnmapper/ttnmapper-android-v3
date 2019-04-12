@@ -8,6 +8,7 @@ import android.preference.PreferenceGroup
 import android.util.Log
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
+import kotlin.concurrent.thread
 
 
 class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -21,27 +22,36 @@ class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPrefere
 
     override fun onResume() {
         super.onResume()
-        for (i in 0 until preferenceScreen.preferenceCount) {
-            val preference = preferenceScreen.getPreference(i)
-            if (preference is PreferenceGroup) {
-                for (j in 0 until preference.preferenceCount) {
-                    val singlePref = preference.getPreference(j)
-                    updatePreference(singlePref, singlePref.key)
+        thread(start = true) {
+            // Iterating through the preferneces is slow, so we do it in another thread
+            for (i in 0 until preferenceScreen.preferenceCount) {
+                val preference = preferenceScreen.getPreference(i)
+                if (preference is PreferenceGroup) {
+                    for (j in 0 until preference.preferenceCount) {
+                        val singlePref = preference.getPreference(j)
+                        updatePreference(singlePref, singlePref.key)
+                    }
+                } else {
+                    updatePreference(preference, preference.key)
                 }
-            } else {
-                updatePreference(preference, preference.key)
             }
         }
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        Log.e(TAG, "Preference changed: " + key)
-
         updatePreference(findPreference(key), key)
     }
 
     private fun updatePreference(preference: Preference?, key: String?) {
         if (preference == null) return
+
+        if (key == SurveyorApp.instance.getString(R.string.PREF_MAP_START_LAT)
+                || key == SurveyorApp.instance.getString(R.string.PREF_MAP_START_LON)) {
+            return
+        }
+
+        Log.e(TAG, "Preference changed: " + key)
+
 
 //        if (preference is ListPreference) {
 //            val listPreference = preference as ListPreference?
@@ -52,7 +62,9 @@ class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPrefere
         val sharedPrefs = preferenceManager.sharedPreferences
 
         if (key == SurveyorApp.instance.getString(R.string.PREF_SAVE_FILE_NAME)) {
-            preference.summary = sharedPrefs.getString(key, "")
+            getActivity().runOnUiThread {
+                preference.summary = sharedPrefs.getString(key, "")
+            }
         }
     }
 
