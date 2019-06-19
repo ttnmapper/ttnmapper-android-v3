@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         Log.e(TAG, "Creating main activity")
 
-        if (BuildConfig.BUILD_TYPE.equals("release")) {
+        if(!BuildConfig.DEBUG) {
             Fabric.with(this, Crashlytics())
         }
 

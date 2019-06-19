@@ -61,11 +61,11 @@ class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPrefere
 
         val sharedPrefs = preferenceManager.sharedPreferences
 
+        // If the filename change update the UI - but only if activity is not null
         if (key == SurveyorApp.instance.getString(R.string.PREF_SAVE_FILE_NAME)) {
-            getActivity().runOnUiThread {
+            activity?.runOnUiThread {
                 preference.summary = sharedPrefs.getString(key, "")
             }
         }
     }
-
 }

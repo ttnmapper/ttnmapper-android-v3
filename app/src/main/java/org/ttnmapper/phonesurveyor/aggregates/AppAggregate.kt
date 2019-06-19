@@ -192,6 +192,11 @@ object AppAggregate {
         Log.e(TAG, "Processing new message")
         //sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance) // set in main activity
 
+        if(sharedPref == null) {
+            Log.e(TAG, "sharedPref is null at start of processMessage")
+            return
+        }
+
         if (!topic.endsWith("up")) {
             //TODO: Not an uplink message
             Log.e(TAG, "Not an uplink message")

@@ -12,8 +12,8 @@ android {
         applicationId "org.ttnmapper.phonesurveyor"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 18
-        versionName "2019.04.12"
+        versionCode 19
+        versionName "2019.06.19"
         testInstrumentationRunner "android.support.org.ttnmapper.phonesurveyor.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -50,7 +50,7 @@ dependencies {
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
     implementation 'com.squareup.moshi:moshi-kotlin:1.8.0'
-    implementation 'com.squareup.okhttp3:okhttp:3.14.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.14.2'
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
         transitive = true;

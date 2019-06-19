@@ -229,6 +229,8 @@ class MyService : Service() {
 
         } catch (ex: MqttException) {
             ex.printStackTrace()
+        } catch (ex: IllegalArgumentException) {
+            ex.printStackTrace()
         }
 
     }
