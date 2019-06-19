@@ -1,0 +1,3 @@
+#Add your own Fabric Crashlytics details below and rename the file to fabric.properties
+apiSecret=0
+apiKey=0

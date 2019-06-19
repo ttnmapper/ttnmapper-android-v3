@@ -98,9 +98,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         Log.e(TAG, "Creating main activity")
 
-        if(!BuildConfig.DEBUG) {
-            Fabric.with(this, Crashlytics())
-        }
+        Fabric.with(this, Crashlytics())
 
         //handle permissions first, before map is created. not depicted here
 

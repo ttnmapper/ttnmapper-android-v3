@@ -50,7 +50,7 @@ class SettingsFragment : PreferenceFragment(), SharedPreferences.OnSharedPrefere
             return
         }
 
-        Log.e(TAG, "Preference changed: " + key)
+//        Log.e(TAG, "Preference changed: " + key)
 
 
 //        if (preference is ListPreference) {
