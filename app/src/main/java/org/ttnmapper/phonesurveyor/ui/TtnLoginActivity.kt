@@ -6,24 +6,28 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.webkit.*
 import android.widget.TextView
-import kotlinx.android.synthetic.main.activity_ttn_login.*
+import androidx.appcompat.app.AppCompatActivity
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.aggregates.TtnLoginAggregate
+import org.ttnmapper.phonesurveyor.databinding.ActivityTtnLoginBinding
+import java.util.*
 import kotlin.concurrent.thread
 
 
 class TtnLoginActivity : AppCompatActivity() {
     private val TAG = TtnLoginActivity::class.java.getName()
 
+    private lateinit var binding: ActivityTtnLoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_ttn_login)
+        binding = ActivityTtnLoginBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         if (intent.getBooleanExtra("SHOULD_LOGOUT", false)) {
             clearCookies(this)
@@ -34,25 +38,25 @@ class TtnLoginActivity : AppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     fun loadLoginPage() {
-        textViewStatus.visibility = View.GONE
-        buttonRetry.visibility = View.GONE
-        progressBarLogin.visibility = View.GONE
+        binding.textViewStatus.visibility = View.GONE
+        binding.buttonRetry.visibility = View.GONE
+        binding.progressBarLogin.visibility = View.GONE
 
-        TtnLoginAggregate.secretState = java.util.UUID.randomUUID().toString()
+        TtnLoginAggregate.secretState = UUID.randomUUID().toString()
 
-        webview_ttn_login.settings.javaScriptEnabled = true
+        binding.webviewTtnLogin.settings.javaScriptEnabled = true
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 
-            webview_ttn_login.webViewClient = object : WebViewClient() {
+            binding.webviewTtnLogin.webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                     val uri = request.url
                     val url = uri.toString()
 
                     if (url.startsWith(TtnLoginAggregate.redirectURI) == true) {
                         setStatusMessage("Logged in")
-                        webview_ttn_login.loadUrl("about:blank")
+                        binding.webviewTtnLogin.loadUrl("about:blank")
                         checkCallbackURL(url)
                     } else {
                         view.loadUrl(url)
@@ -63,13 +67,13 @@ class TtnLoginActivity : AppCompatActivity() {
 
         } else {
 
-            webview_ttn_login.webViewClient = object : WebViewClient() {
+            binding.webviewTtnLogin.webViewClient = object : WebViewClient() {
                 @Suppress("OverridingDeprecatedMember")
                 override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
 
                     if (url.startsWith(TtnLoginAggregate.redirectURI) == true) {
                         setStatusMessage("Logged in")
-                        webview_ttn_login.loadUrl("about:blank")
+                        binding.webviewTtnLogin.loadUrl("about:blank")
                         checkCallbackURL(url)
                     } else {
                         view.loadUrl(url)
@@ -80,7 +84,7 @@ class TtnLoginActivity : AppCompatActivity() {
 
         }
 
-        webview_ttn_login.loadUrl(TtnLoginAggregate.authorizationUrl + "&state=" + TtnLoginAggregate.secretState)
+        binding.webviewTtnLogin.loadUrl(TtnLoginAggregate.authorizationUrl + "&state=" + TtnLoginAggregate.secretState)
     }
 
     fun clearCookies(context: Context) {
@@ -101,35 +105,34 @@ class TtnLoginActivity : AppCompatActivity() {
     fun checkCallbackURL(url: String) {
         //hide web view, show progress norification
         Log.d(TAG, "Redirected: $url")
-        webview_ttn_login.visibility = View.GONE
+        binding.webviewTtnLogin.visibility = View.GONE
 
-        val textView = findViewById(R.id.textViewStatus) as TextView
-        textView.visibility = View.VISIBLE
-        textView.text = "Redirected back from TTN login page"
+        binding.textViewStatus.visibility = View.VISIBLE
+        binding.textViewStatus.text = "Redirected back from TTN login page"
 
-        progressBarLogin.visibility = View.VISIBLE
+        binding.progressBarLogin.visibility = View.VISIBLE
 
         val urlAsUri = Uri.parse(url)
 
         if (urlAsUri.getQueryParameter("state") == null) {
             Log.d(TAG, "Response does not contain a secret state. Please try again.")
-            textView.text = "Response does not contain a secret state. Please try again."
-            progressBarLogin.visibility = View.GONE
+            binding.textViewStatus.text = "Response does not contain a secret state. Please try again."
+            binding.progressBarLogin.visibility = View.GONE
             enableRetryButton()
         } else if (urlAsUri.getQueryParameter("state")?.equals(TtnLoginAggregate.secretState) == false) {
             Log.d(TAG, "Secret state does not match. " + urlAsUri.getQueryParameter("state") + " != " + TtnLoginAggregate.secretState)
-            textView.text = "Secret state does not match. Please try again."
-            progressBarLogin.visibility = View.GONE
+            binding.textViewStatus.text = "Secret state does not match. Please try again."
+            binding.progressBarLogin.visibility = View.GONE
             enableRetryButton()
         } else if (urlAsUri.getQueryParameter("code") == null) {
             Log.d(TAG, "Response does not contain a code. Please try again.")
-            textView.text = "Response does not contain a code. Please try again."
-            progressBarLogin.visibility = View.GONE
+            binding.textViewStatus.text = "Response does not contain a code. Please try again."
+            binding.progressBarLogin.visibility = View.GONE
             enableRetryButton()
         } else if (urlAsUri.getQueryParameter("code") == "") {
             Log.d(TAG, "Invalid code in response. Please try again.")
-            textView.text = "Invalid code in response. Please try again."
-            progressBarLogin.visibility = View.GONE
+            binding.textViewStatus.text = "Invalid code in response. Please try again."
+            binding.progressBarLogin.visibility = View.GONE
             enableRetryButton()
         } else {
             Log.d(TAG, "Log in successful. Loading list of application.")
@@ -178,27 +181,27 @@ class TtnLoginActivity : AppCompatActivity() {
 
     fun onButtonRetryClicked(v: View) {
         //TODO: clearCookies(this)
-        webview_ttn_login.visibility = View.VISIBLE
-        textViewStatus.visibility = View.GONE
-        progressBarLogin.visibility = View.GONE
-        buttonRetry.visibility = View.GONE
+        binding.webviewTtnLogin.visibility = View.VISIBLE
+        binding.textViewStatus.visibility = View.GONE
+        binding.progressBarLogin.visibility = View.GONE
+        binding.buttonRetry.visibility = View.GONE
         loadLoginPage()
     }
 
     fun setStatusMessage(status: String) {
         runOnUiThread {
-            webview_ttn_login.visibility = View.GONE
-            textViewStatus.visibility = View.VISIBLE
-            textViewStatus.text = status
+            binding.webviewTtnLogin.visibility = View.GONE
+            binding.textViewStatus.visibility = View.VISIBLE
+            binding.textViewStatus.text = status
             Log.d(TAG, status)
         }
     }
 
     fun enableRetryButton() {
         runOnUiThread {
-            buttonRetry.setOnClickListener { onButtonRetryClicked(it) }
-            buttonRetry.visibility = View.VISIBLE
-            progressBarLogin.visibility = View.GONE
+            binding.buttonRetry.setOnClickListener { onButtonRetryClicked(it) }
+            binding.buttonRetry.visibility = View.VISIBLE
+            binding.progressBarLogin.visibility = View.GONE
         }
     }
 }

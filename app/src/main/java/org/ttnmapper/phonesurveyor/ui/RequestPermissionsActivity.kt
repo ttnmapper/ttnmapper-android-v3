@@ -1,20 +1,22 @@
 package org.ttnmapper.phonesurveyor.ui
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_request_permissions.*
-import org.ttnmapper.phonesurveyor.R
+import androidx.appcompat.app.AppCompatActivity
+import org.ttnmapper.phonesurveyor.databinding.ActivityRequestPermissionsBinding
 
 class RequestPermissionsActivity : AppCompatActivity() {
 
     private val TAG = "PermissionDemo"
-    private val RECORD_REQUEST_CODE = 101
+
+    private lateinit var binding: ActivityRequestPermissionsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_request_permissions)
+        binding = ActivityRequestPermissionsBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
-        buttonReqPhoneState.setOnClickListener {
+        binding.buttonReqPhoneState.setOnClickListener {
 
         }
     }

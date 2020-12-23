@@ -31,7 +31,7 @@
             android:text="Number of packets"/>
 
         <TextView
-            android:id="@+id/total_pkts"
+            android:id="@+id/totalPkts"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -51,7 +51,7 @@
             android:text="Number of gateways"/>
 
         <TextView
-            android:id="@+id/total_gtws"
+            android:id="@+id/totalGtws"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -59,7 +59,7 @@
 
     </LinearLayout>
 
-    <android.support.v4.widget.Space
+    <androidx.legacy.widget.Space
         android:layout_width="match_parent"
         android:layout_height="20dp" />
 
@@ -84,7 +84,7 @@
             android:text="Time"/>
 
         <TextView
-            android:id="@+id/last_pkt_time"
+            android:id="@+id/lastPktTime"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -98,14 +98,14 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/last_pkt_gtws_label"
+            android:id="@+id/lastPktGtwsLabel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Number of gateways"/>
 
         <TextView
-            android:id="@+id/last_pkt_gtws"
+            android:id="@+id/lastPktGtws"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -125,7 +125,7 @@
             android:text="Maximum RSSI"/>
 
         <TextView
-            android:id="@+id/last_pkt_rssi_max"
+            android:id="@+id/lastPktRssiMax"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -145,7 +145,7 @@
             android:text="Maximum SNR"/>
 
         <TextView
-            android:id="@+id/last_pkt_snr_max"
+            android:id="@+id/lastPktSnrMax"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -165,7 +165,7 @@
             android:text="Frequency"/>
 
         <TextView
-            android:id="@+id/last_pkt_freq"
+            android:id="@+id/lastPktFreq"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -185,7 +185,7 @@
             android:text="Data rate"/>
 
         <TextView
-            android:id="@+id/last_pkt_datarate"
+            android:id="@+id/lastPktDatarate"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

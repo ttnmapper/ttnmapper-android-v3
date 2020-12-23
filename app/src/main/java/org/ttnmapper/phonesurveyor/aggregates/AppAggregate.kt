@@ -14,9 +14,10 @@ import android.os.AsyncTask
 import android.os.Build
 import android.os.IBinder
 import android.preference.PreferenceManager
-import android.support.v4.app.ActivityCompat
+import androidx.core.app.ActivityCompat
 import android.util.Log
 import android.widget.Toast
+import androidx.room.Room
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.ttnmapper.phonesurveyor.R
@@ -25,6 +26,7 @@ import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.model.MapLine
 import org.ttnmapper.phonesurveyor.model.MapPoint
 import org.ttnmapper.phonesurveyor.model.TTNMessage
+import org.ttnmapper.phonesurveyor.room.AppDatabase
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.ui.MainActivity
 import org.ttnmapper.phonesurveyor.utils.AppConstants
@@ -41,6 +43,7 @@ object AppAggregate {
 
     var mainActivity: MainActivity? = null
     var sharedPref: SharedPreferences? = null
+    var db: AppDatabase? = null
 
     var myService: MyService? = null
     var isBound = false
@@ -49,12 +52,6 @@ object AppAggregate {
 
     var lastTTNMessage: TTNMessage? = null
     var numberOfPacketsRx = 0
-
-    val moshi = Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
-            .build()
-
-    val jsonAdapter = moshi.adapter(TTNMessage::class.java)
 
     private val myConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName,
@@ -137,6 +134,10 @@ object AppAggregate {
         mainActivity?.setGPSStatusMessage(message)
     }
 
+    fun showAlertDialog(title: String, message: String) {
+        mainActivity?.showAlertDialog(title, message)
+    }
+
     // Extension function to show toast message
     fun toast(message: String) {
         Toast.makeText(SurveyorApp.instance.applicationContext, message, Toast.LENGTH_SHORT).show()
@@ -211,50 +212,44 @@ object AppAggregate {
             r.play()
         }
 
-        /*
-        val gson = Gson()
 
-        Log.e(TAG, "Created gson")
-        val message = gson.fromJson(data, TTNMessageUp::class.java)
-        */
-//            val ttnMessage = jsonAdapter.fromJson(data)
-        val moshi = Moshi.Builder().build()
+        val moshi = Moshi.Builder()
+                .add(KotlinJsonAdapterFactory())
+                .build()
         val jsonAdapter = moshi.adapter<TTNMessage>(TTNMessage::class.java)
-//        Log.e(TAG, "Just before parsing")
         val ttnMessage = jsonAdapter.fromJson(data)
-//        Log.e(TAG, "Just after parsing")
 
-//        if(ttnMessage == null) {
-//            Log.e(TAG, "Message not parsed")
-//        } else {
-//            Log.e(TAG, "Parsed")
-//        }
+        if(ttnMessage == null) {
+            Log.e(TAG, "Message not parsed")
+            return
+        } else {
+            Log.d(TAG, "Parsed")
+        }
 
         // We can update the stats directly without adding info to it
         lastTTNMessage = ttnMessage
         numberOfPacketsRx++
         updateStats()
 
-        // add location and other local info
-        // "mqtt_topic":"jpm_sodaq_one\/devices\/sodaq-one-v3-box\/up","phone_lat":-34.0480438,"phone_lon":18.8220624,"phone_alt":182.8053986682576,"phone_loc_acc":10,"phone_loc_provider":"fused","phone_time":"2018-03-18T10:04:43Z","user_agent":"Android7.0 App30:2018.03.04"
-
         // Make a copy, otherwise it might change while we process the packet
         val currentLocation = phoneLocation // This is likely not a deep copy, but let's hope the location service creates a new object and doesn't update this one.
-
-        ttnMessage!!.mqttTopic = topic
-        ttnMessage.phoneLat = currentLocation?.latitude
-        ttnMessage.phoneLon = currentLocation?.longitude
-        ttnMessage.phoneAlt = currentLocation?.altitude
-        ttnMessage.phoneLocAcc = currentLocation?.accuracy?.toDouble()
-        ttnMessage.phoneLocProvider = currentLocation?.provider
-        val locationTime = currentLocation?.time
-        if (locationTime != null) {
-            ttnMessage.phoneLocTime = CommonFunctions.getISO8601StringForMillis(locationTime)
+        if(currentLocation != null) {
+            ttnMessage.phoneLat = currentLocation.latitude
+            ttnMessage.phoneLon = currentLocation.longitude
+            ttnMessage.phoneAlt = currentLocation.altitude
+            ttnMessage.phoneLocAcc = currentLocation.accuracy.toDouble()
+            ttnMessage.phoneLocProvider = currentLocation.provider
+            ttnMessage.phoneLocTime = CommonFunctions.getISO8601StringForMillis(currentLocation.time)
         }
+
         ttnMessage.phoneTime = CommonFunctions.getISO8601StringForDate(Date())
         val pInfo = SurveyorApp.instance.getPackageManager().getPackageInfo(SurveyorApp.instance.getPackageName(), 0)
         val version = pInfo.versionName
-        val verCode = pInfo.versionCode
+        val verCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            pInfo.longVersionCode
+        } else {
+            pInfo.versionCode
+        }
         ttnMessage.userAgent = "Android" + android.os.Build.VERSION.RELEASE + " App" + verCode + ":" + version
         ttnMessage.iid = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), "")
 
@@ -263,64 +258,38 @@ object AppAggregate {
             ttnMessage.experiment = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_EXPERIMENT_NAME), "experiment_" + sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), ""))
         }
 
-        // Save to file if enabled - even if the location is old and/or inaccurate
-        val permissionWriteStorage = ActivityCompat.checkSelfPermission(SurveyorApp.instance, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-        if (permissionWriteStorage == PackageManager.PERMISSION_GRANTED
-                && sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_SAVE_TO_FILE), false)) {
-
-            val fileName = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_SAVE_FILE_NAME), "ttnmapper.log")
-
-            // Find the root of the external storage.
-            // See http://developer.android.com/guide/topics/data/data-storage.html#filesExternal
-            val root = android.os.Environment.getExternalStorageDirectory()
-
-            // See http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
-            val dir = File(root.absolutePath + "/ttnmapper_logs")
-            val created = dir.mkdirs()
-            val file = File(dir, fileName)
-
-            val f = FileOutputStream(file, true)
-            val pw = PrintWriter(f)
-
-            pw.println(jsonAdapter.toJson(ttnMessage))
-
-            pw.flush()
-            pw.close()
-            f.close()
-
-            if (created) {
-                CommonFunctions.scanFile(file.absolutePath)
+        // Find the maximum signal level used to draw circle
+        var maxLevel: Double? = null
+        for (gateway in ttnMessage.metadata?.gateways.orEmpty()) {
+            var level: Double = gateway!!.rssi!!
+            if (gateway.snr != null) {
+                if (gateway.snr!! < 0.0) {
+                    level = level + gateway.snr!!
+                }
             }
-
-        } else {
-            if (permissionWriteStorage != PackageManager.PERMISSION_GRANTED) {
-                Log.e(TAG, "No permission to write external storage")
-            }
+            if (maxLevel == null) maxLevel = level
+            if (level > maxLevel) maxLevel = level
         }
+        ttnMessage.maxLevel = maxLevel
 
+        Log.v(TAG, ttnMessage.toString())
+
+        // Store all messages also in Room database for export to csv later
+        db?.linkDao()?.insertTtnMessage(ttnMessage)
+
+        // We store the point in the database regardless of the location. But if we do not have a location, we can not draw on the map or send to server.
         if (currentLocation == null) {
-            //TODO: No location information yet message
             Log.e(TAG, "No location information")
             return
         }
 
+        // Make sure we aren't using a very old gps location. Especially important when moving very fast (highway driving).
         if(System.currentTimeMillis() - currentLocation.time > 10000) {
-            //TODO: Fix older than 10 seconds - notify
             Log.e(TAG, "Location older than 10 seconds")
             return
         }
 
-        // This check has already been done in MyService before storing the lcoation in phoneLocation
-//        if(currentLocation.accuracy > AppConstants.LOCATION_ACCURACY) {
-//            //TODO: too low accuracy
-//            Log.e(TAG, "Location accuracy too low")
-//            return
-//        }
-
-
-        var maxLevel: Double? = null
-
+        // Draw gateway line on map
         for (gateway in ttnMessage.metadata?.gateways.orEmpty()) {
             addGatewayToMap(gateway!!)
 
@@ -330,15 +299,15 @@ object AppAggregate {
                     level = level + gateway.snr!!
                 }
             }
-            if (maxLevel == null) maxLevel = level
-            if (level > maxLevel) maxLevel = level
 
             if (gateway.latitude != null && gateway.longitude != null) {
                 drawLineOnMap(gateway.latitude!!, gateway.longitude!!, ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(level))
+            } else {
+                // Get the gateway location from ttnmapper and then try and draw on map
             }
-
         }
 
+        // Draw point on map
         if (maxLevel != null) {
             drawPointOnMap(ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(maxLevel))
         } else {
@@ -352,7 +321,9 @@ object AppAggregate {
         // Always upload to TTN Mapper before custom server, as we might modify the packet for custom servers.
         if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ENABLED), false)) {
             var serverUri = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ADDRESS), "")
-            NetworkAggregate.postToCustomServer(ttnMessage, serverUri)
+            if (serverUri != null) {
+                NetworkAggregate.postToCustomServer(ttnMessage, serverUri)
+            }
         }
     }
 

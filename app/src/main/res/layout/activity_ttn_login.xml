@@ -7,13 +7,13 @@
     tools:context=".ui.TtnLoginActivity">
 
     <WebView
-        android:id="@+id/webview_ttn_login"
+        android:id="@+id/webviewTtnLogin"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></WebView>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textViewStatus"
@@ -24,7 +24,7 @@
         android:paddingBottom="8dp"
         android:paddingStart="8dp"
         android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/webview_ttn_login" />
+        app:layout_constraintBottom_toTopOf="@+id/webviewTtnLogin" />
 
     <ProgressBar
         android:id="@+id/progressBarLogin"

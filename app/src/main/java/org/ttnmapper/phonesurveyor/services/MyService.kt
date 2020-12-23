@@ -2,16 +2,20 @@ package org.ttnmapper.phonesurveyor.services
 
 import android.app.Service
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.net.Uri
 import android.os.*
 import android.preference.PreferenceManager
-import android.support.v4.content.ContextCompat
+import android.provider.Settings
+import androidx.core.content.ContextCompat
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import org.ttnmapper.phonesurveyor.R
@@ -43,7 +47,7 @@ class MyService : Service() {
     var handlerGpsStatus = Handler()
 
     var locationManager: LocationManager? = null
-    var locationListener: LocationListener? = null
+//    var locationListener: LocationListener? = null
 
     var selfStop = false
 
@@ -54,8 +58,12 @@ class MyService : Service() {
     override fun onCreate() {
         super.onCreate()
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        startLocationTracking()
-        startMQTTConnection()
+        if(startLocationTracking()) {
+            startMQTTConnection()
+        } else {
+            selfStop = true
+            AppAggregate.stopService()
+        }
     }
 
     override fun onDestroy() {
@@ -90,7 +98,6 @@ class MyService : Service() {
                 setMQTTStatusMessage("MQTT connection lost - reconnecting")
             }
 
-            @Throws(Exception::class)
             override fun messageArrived(topic: String, mqttMessage: MqttMessage) {
                 Log.w("Mqtt", topic + ": " + mqttMessage.toString())
                 setMQTTCountupMessage(Date())
@@ -137,8 +144,8 @@ class MyService : Service() {
     }
 
     private fun connect() {
-        appId = sharedPref.getString(getString(R.string.PREF_APP_ID), appId)
-        appKey = sharedPref.getString(getString(R.string.PREF_APP_KEY), appKey)
+        appId = sharedPref.getString(getString(R.string.PREF_APP_ID), appId)!!
+        appKey = sharedPref.getString(getString(R.string.PREF_APP_KEY), appKey)!!
 
         Log.e(TAG, "Using appId: " + appId)
         Log.e(TAG, "Using appKey: " + appKey)
@@ -176,9 +183,11 @@ class MyService : Service() {
                             }
                             MqttException.REASON_CODE_FAILED_AUTHENTICATION -> {
                                 setMQTTStatusMessage("MQTT failed to connect - authentication failed")
+                                AppAggregate.showAlertDialog("MQTT Failed", "Did you link a device for mapping? Please check your settings and try again.")
                             }
                             MqttException.REASON_CODE_NOT_AUTHORIZED -> {
                                 setMQTTStatusMessage("MQTT failed to connect - not authorised")
+                                AppAggregate.showAlertDialog("MQTT Failed", "Did you link a device for mapping? Please check your settings and try again.")
                             }
                             MqttException.REASON_CODE_CLIENT_CONNECTED -> {
                                 setMQTTStatusMessage("MQTT client connected")
@@ -210,7 +219,7 @@ class MyService : Service() {
     }
 
     private fun subscribeToTopic() {
-        deviceId = sharedPref.getString(getString(R.string.PREF_DEV_ID), deviceId)
+        deviceId = sharedPref.getString(getString(R.string.PREF_DEV_ID), deviceId)!!
 
         val subscriptionTopic = appId + "/devices/" + deviceId + "/up"
 
@@ -261,7 +270,7 @@ class MyService : Service() {
         if ((Date().time - date.time) > 5000) {
             setGPSStatusMessage("GPS location too old. Obtained " + datesToDurationString(date, Date()))
         } else if (accuracy > AppConstants.LOCATION_ACCURACY) {
-            setGPSStatusMessage("GPS location not accurate enough (>10m)")
+            setGPSStatusMessage("GPS accuracy low (>10m)")
         } else {
             setGPSStatusMessage("GPS location valid")
         }
@@ -292,44 +301,36 @@ class MyService : Service() {
         return diff.toString() + " hours ago"
     }
 
-    private fun startLocationTracking() {
+    private fun startLocationTracking(): Boolean {
         setGPSStatusMessage("GPS finding fix")
 
         if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.e(TAG, "Location permission not granted by user")
             setGPSStatusMessage("Location permission not granted by user")
-            return
+            return false
         }
 
         Log.e(TAG, "startLocationTracking()")
 
 
         locationManager = this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        locationListener = object : LocationListener {
-            override fun onLocationChanged(location: Location) {
-//                Log.e(TAG, "New location")
-                setGPSCountupStatus(Date(), location.accuracy)
-
-                if (location.accuracy < AppConstants.LOCATION_ACCURACY) {
-                    // Only store a valid location for use by packet processing
-                    AppAggregate.phoneLocation = location
-
-                    // Only auto center if our location is accurate enough, otherwise the map jumps around
-                    if (sharedPref.getBoolean(getString(R.string.PREF_AUTO_CENTER), true)) {
-                        MapAggregate.centerMap(location)
-                    }
-                }
-            }
-
-            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-            override fun onProviderEnabled(provider: String) {}
-            override fun onProviderDisabled(provider: String) {}
-        }
 
         // Register the listener with the Location Manager to receive location updates
-        locationManager!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, locationListener)
-        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0f, locationListener)
+        if (locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER) ) {
+            locationManager!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0L, 0f, locationListener)
+        } else {
+            Log.e(TAG, "GPS is not enabled")
+            setGPSStatusMessage("GPS is not enabled")
 
+            AppAggregate.showAlertDialog("No GPS", "It seems like your phone does not have a GPS receiver, or the GPS receiver is not enabled. Mapping is not possible without GPS-based location.")
+
+            return false
+        }
+        if (locationManager!!.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0f, locationListener)
+        }
+
+        return true
     }
 
 
@@ -348,5 +349,22 @@ class MyService : Service() {
         fun getService(): MyService {
             return this@MyService
         }
+    }
+
+    val locationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+//                Log.e(TAG, "New location")
+            setGPSCountupStatus(Date(), location.accuracy)
+
+            // The app should show and log packets regardless of accuracy. We filter only main map data on the website.
+//            if (location.accuracy < AppConstants.LOCATION_ACCURACY) {
+                // Only store a valid location for use by packet processing
+                AppAggregate.phoneLocation = location
+//            }
+        }
+
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
     }
 }

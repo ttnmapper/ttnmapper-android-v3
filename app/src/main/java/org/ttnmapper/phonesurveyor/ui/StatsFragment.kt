@@ -1,23 +1,35 @@
 package org.ttnmapper.phonesurveyor.ui
 
-import android.app.Fragment
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.fragment_stats.*
-import org.ttnmapper.phonesurveyor.R
+import androidx.fragment.app.Fragment
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
-import org.ttnmapper.phonesurveyor.model.TTNMessage
+import org.ttnmapper.phonesurveyor.databinding.FragmentStatsBinding
 
 
 class StatsFragment : Fragment() {
 
+    private val TAG = StatsFragment::class.java.getName()
+
+    private var _binding: FragmentStatsBinding? = null
+    private val binding get() = _binding!!
+
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_stats, container, false)
+        _binding = FragmentStatsBinding.inflate(inflater, container, false)
+        val view = binding.root
+        return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onResume() {
@@ -32,8 +44,13 @@ class StatsFragment : Fragment() {
     fun updateStats() {
         val ttnMessage = AppAggregate.lastTTNMessage
 
-        total_gtws?.text = MapAggregate.seenGateways.size.toString()
-        total_pkts?.text = AppAggregate.numberOfPacketsRx.toString()
+        if(_binding == null) {
+            Log.w(TAG, "Binding is null, so fragment does not exist")
+            return
+        }
+
+        binding.totalGtws.text = MapAggregate.seenGateways.size.toString()
+        binding.totalPkts.text = AppAggregate.numberOfPacketsRx.toString()
 
         var gatewayCount = 0
         var maxRssi: Double = 0.0
@@ -59,39 +76,39 @@ class StatsFragment : Fragment() {
         }
 
         if (ttnMessage?.metadata?.time != null) {
-            last_pkt_time?.text = ttnMessage.metadata?.time.toString()
+            binding.lastPktTime.text = ttnMessage.metadata?.time.toString()
         }
 
         if (gatewayCount == 1) {
-            last_pkt_gtws_label?.text = "Gateway ID"
-            last_pkt_gtws?.text = gtwId
+            binding.lastPktGtwsLabel.text = "Gateway ID"
+            binding.lastPktGtws.text = gtwId
         } else {
-            last_pkt_gtws_label?.text = "Number of gateways"
-            last_pkt_gtws?.text = gatewayCount.toString()
+            binding.lastPktGtwsLabel.text = "Number of gateways"
+            binding.lastPktGtws.text = gatewayCount.toString()
         }
 
         if (maxRssi != 0.0) {
-            last_pkt_rssi_max?.text = maxRssi.toString()
+            binding.lastPktRssiMax.text = maxRssi.toString()
         } else {
-            last_pkt_rssi_max?.text = ""
+            binding.lastPktRssiMax.text = ""
         }
 
         if (maxSnr != 0.0) {
-            last_pkt_snr_max?.text = maxSnr.toString()
+            binding.lastPktSnrMax.text = maxSnr.toString()
         } else {
-            last_pkt_snr_max?.text = ""
+            binding.lastPktSnrMax.text = ""
         }
 
         if (ttnMessage?.metadata?.frequency != null) {
-            last_pkt_freq?.text = ttnMessage.metadata?.frequency?.toString()
+            binding.lastPktFreq.text = ttnMessage.metadata?.frequency?.toString()
         } else {
-            last_pkt_freq?.text = ""
+            binding.lastPktFreq.text = ""
         }
 
         if (ttnMessage?.metadata?.dataRate != null) {
-            last_pkt_datarate?.text = ttnMessage.metadata?.dataRate?.toString()
+            binding.lastPktDatarate.text = ttnMessage.metadata?.dataRate?.toString()
         } else {
-            last_pkt_datarate?.text = ""
+            binding.lastPktDatarate.text = ""
         }
     }
 }

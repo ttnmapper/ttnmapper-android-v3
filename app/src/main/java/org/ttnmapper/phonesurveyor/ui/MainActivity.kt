@@ -1,35 +1,36 @@
 package org.ttnmapper.phonesurveyor.ui
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
-import android.preference.PreferenceManager
 import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-import android.support.design.widget.BottomNavigationView
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.app.ActivityCompat
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
-import com.crashlytics.android.Crashlytics
-import io.fabric.sdk.android.Fabric
-import kotlinx.android.synthetic.main.activity_main.*
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.preference.PreferenceManager
+import androidx.room.Room
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.osmdroid.config.Configuration
-import org.ttnmapper.phonesurveyor.BuildConfig
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
+import org.ttnmapper.phonesurveyor.databinding.ActivityDeepLinkConfigureBinding
+import org.ttnmapper.phonesurveyor.databinding.ActivityMainBinding
 import org.ttnmapper.phonesurveyor.model.GatewayMetadata
+import org.ttnmapper.phonesurveyor.room.AppDatabase
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
 import java.text.SimpleDateFormat
@@ -40,6 +41,10 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
     private val TAG = MainActivity::class.java.getName()
 
+    private lateinit var binding: ActivityMainBinding
+
+    val PERMISSIONS = listOf(android.Manifest.permission.WAKE_LOCK, android.Manifest.permission.ACCESS_FINE_LOCATION)
+
     private val RECORD_REQUEST_CODE = 101
     val PERMISSION_ALL = 1
 
@@ -47,26 +52,24 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     val mapFragment = MapFragment()
     val statsFragment = StatsFragment()
 
-    var startStopButton: MenuItem? = null
-
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_settings -> {
-                fragmentManager
+                supportFragmentManager
                         .beginTransaction()
                         .replace(R.id.frame_fragmentholder, settingsFragment, "Settings")
                         .commit();
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_map -> {
-                fragmentManager
+                supportFragmentManager
                         .beginTransaction()
                         .replace(R.id.frame_fragmentholder, mapFragment, "Map")
                         .commit();
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_stats -> {
-                fragmentManager
+                supportFragmentManager
                         .beginTransaction()
                         .replace(R.id.frame_fragmentholder, statsFragment, "Stats")
                         .commit();
@@ -90,30 +93,21 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
             editor.apply()
         }
 
-        //TODO: handle any other runtime changable settings
+        //Handle any other runtime changeable settings
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         Log.e(TAG, "Creating main activity")
 
-        Fabric.with(this, Crashlytics())
+        // Initialize osmdroid
+        Configuration.getInstance().load(applicationContext, PreferenceManager.getDefaultSharedPreferences(applicationContext))
 
-        //handle permissions first, before map is created. not depicted here
-
-        //load/initialize the osmdroid configuration, this can be done
-        Configuration.getInstance().load(getApplicationContext(), PreferenceManager.getDefaultSharedPreferences(getApplicationContext()))
-        //setting this before the layout is inflated is a good idea
-        //it 'should' ensure that the map has a writable location for the map cache, even without permissions
-        //if no tiles are displayed, you can try overriding the cache path using Configuration.getInstance().setCachePath
-        //see also StorageUtils
-        //note, the load method also sets the HTTP User Agent to your application's package name, abusing osm's tile servers will get you banned based on this string
-
-        setContentView(R.layout.activity_main)
-
-        val fab: FloatingActionButton = findViewById(R.id.fab)
-        fab.setOnClickListener { view ->
+        binding.fab.setOnClickListener { view ->
             toggleMappingFab()
         }
         initMappingFab()
@@ -121,6 +115,12 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         // Save a handle to the main activity in the app aggregate singleton
         // Needed to send updates to UI from service
         AppAggregate.mainActivity = this
+
+        // Create database
+        AppAggregate.db = Room.databaseBuilder(
+                applicationContext,
+                AppDatabase::class.java, "ttnmapper"
+        ).build()
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
@@ -157,84 +157,47 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         editor.apply()
 
-        fragmentManager
+        supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.frame_fragmentholder, mapFragment, "Map")
-                .commit();
+                .commit()
 
-        navigation.getMenu().getItem(1).setChecked(true);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        binding.navigation.menu.getItem(1).isChecked = true;
+        binding.navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
-        setupPermissions()
         setScreenAlwaysOn()
     }
 
-    override fun onDestroy() {
-        //AppAggregate.stopService()
-        super.onDestroy()
-    }
-
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        // Inflate the menu items for use in the action bar
-//        val inflater = menuInflater
-//        inflater.inflate(R.menu.action_bar_options, menu)
-//        startStopButton = menu.findItem(R.id.action_start_stop)
-//
-//        val serviceClass = MyService::class.java
-//        if (AppAggregate.isServiceRunning(serviceClass)) {
-//            startStopButton?.setTitle("Stop")
-//        } else {
-//            startStopButton?.setTitle("Start")
-//        }
-//
-//        return super.onCreateOptionsMenu(menu)
-//    }
-
-//    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-//        R.id.action_start_stop -> {
-//            val serviceClass = MyService::class.java
-//            if (AppAggregate.isServiceRunning(serviceClass)) {
-//                AppAggregate.stopService()
-//                item.setTitle("Start")
-//            } else {
-//                AppAggregate.startService()
-//                item.setTitle("Stop")
-//            }
-//            true
-//        }
-//
-//        else -> {
-//            // If we got here, the user's action was not recognized.
-//            // Invoke the superclass to handle it.
-//            super.onOptionsItemSelected(item)
-//        }
-//    }
-
     fun initMappingFab() {
-        val fab: FloatingActionButton = findViewById(R.id.fab)
 
         val serviceClass = MyService::class.java
         if (AppAggregate.isServiceRunning(serviceClass)) {
-            fab.setImageResource(android.R.drawable.ic_media_pause)
-            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.colorAccent)))
+            binding.fab.setImageResource(android.R.drawable.ic_media_pause)
+            binding.fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,
+                    R.color.colorAccent))
         } else {
-            fab.setImageResource(android.R.drawable.ic_media_play)
-            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.ttnPrimary)))
+            binding.fab.setImageResource(android.R.drawable.ic_media_play)
+            binding.fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,
+                    R.color.ttnPrimary))
         }
     }
 
     fun toggleMappingFab() {
-        val fab: FloatingActionButton = findViewById(R.id.fab)
-
         val serviceClass = MyService::class.java
         if (AppAggregate.isServiceRunning(serviceClass)) {
             AppAggregate.stopService()
-            fab.setImageResource(android.R.drawable.ic_media_play)
-            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.ttnPrimary)))
+            binding.fab.setImageResource(android.R.drawable.ic_media_play)
+            binding.fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,
+                    R.color.ttnPrimary))
         } else {
-            AppAggregate.startService()
-            fab.setImageResource(android.R.drawable.ic_media_pause)
-            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.colorAccent)))
+            if (!hasPermissions(this, PERMISSIONS)) {
+                setupPermissions()
+            } else {
+                AppAggregate.startService()
+                binding.fab.setImageResource(android.R.drawable.ic_media_pause)
+                binding.fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,
+                        R.color.colorAccent))
+            }
         }
     }
 
@@ -255,18 +218,16 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
      */
     fun updateStartStopButton(running: Boolean) {
         if (running) {
-//            startStopButton?.setTitle("Stop")
-            fab.setImageResource(android.R.drawable.ic_media_pause)
-            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.colorAccent)))
+            binding.fab.setImageResource(android.R.drawable.ic_media_pause)
+            binding.fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.colorAccent)))
         } else {
-//            startStopButton?.setTitle("Start")
-            fab.setImageResource(android.R.drawable.ic_media_play)
-            fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.ttnPrimary)))
+            binding.fab.setImageResource(android.R.drawable.ic_media_play)
+            binding.fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.ttnPrimary)))
         }
     }
 
     fun hasPermissions(context: Context?, permissions: List<String>): Boolean {
-        if (context != null && permissions != null) {
+        if (context != null) {
             for (permission in permissions) {
                 if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
                     return false
@@ -277,8 +238,6 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     }
 
     private fun setupPermissions() {
-        val PERMISSIONS = listOf(android.Manifest.permission.WAKE_LOCK, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.ACCESS_FINE_LOCATION)
-
         if (!hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS.toTypedArray(), PERMISSION_ALL)
         }
@@ -289,25 +248,30 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
             val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
 
-            if (pm.isIgnoringBatteryOptimizations(packageName))
-            //intent.setAction(ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-            else {
-                var intent = Intent()
-                intent.setAction(ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                intent.setData(Uri.parse("package:" + packageName));
-                startActivity(intent);
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                val alertBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+                alertBuilder.setCancelable(true)
+                alertBuilder.setTitle("Run in background")
+                alertBuilder.setMessage("TTN Mapper needs permission to run in the background.\n\nThis is required to maintain an MQTT connection with TTN and to receive packets even when the app is in the background or your phone's screen is off.")
+                alertBuilder.setPositiveButton(android.R.string.ok, object : DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface?, which: Int) {
+                        var intent = Intent()
+                        intent.action = ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
+                        intent.data = Uri.parse("package:" + packageName);
+                        startActivity(intent);
+                    }
+                })
+                val alert: AlertDialog = alertBuilder.create()
+                alert.show()
             }
         }
-
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             RECORD_REQUEST_CODE -> {
-
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-
                     Log.i(TAG, "Permission has been denied by user")
                 } else {
                     Log.i(TAG, "Permission has been granted by user")
@@ -322,6 +286,13 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
                 }
             }
         }
+
+        // When location permission is granted the first time, we need to redraw the map fragment so that our location is shwon and auto centering works
+        supportFragmentManager
+                .beginTransaction()
+                .detach(mapFragment)
+                .attach(mapFragment)
+                .commit()
     }
 
     fun setMQTTStatusMessage(message: String) {
@@ -332,29 +303,37 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         mapFragment.setGPSStatusMessage(message)
     }
 
+    fun showAlertDialog(title: String, message: String) {
+        val alertBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+        alertBuilder.setCancelable(true)
+        alertBuilder.setTitle(title)
+        alertBuilder.setMessage(message)
+        alertBuilder.setPositiveButton("OK", null)
+        val alert: AlertDialog = alertBuilder.create()
+        alert.show()
+    }
+
     fun drawLineOnMap(startLat: Double, startLon: Double, endLat: Double, endLon: Double, colour: Long) {
-        runOnUiThread(
-                {
-                    mapFragment.drawLineOnMap(startLat, startLon, endLat, endLon, colour)
-                }
-        )
+        runOnUiThread {
+            mapFragment.drawLineOnMap(startLat, startLon, endLat, endLon, colour)
+        }
     }
 
     fun drawPointOnMap(lat: Double, lon: Double, colour: Long) {
-        runOnUiThread({
+        runOnUiThread {
             mapFragment.drawPointOnMap(lat, lon, colour)
-        })
+        }
     }
 
     fun addGatewayToMap(gateway: GatewayMetadata) {
-        runOnUiThread({
+        runOnUiThread {
             mapFragment.addGatewayToMap(gateway)
-        })
+        }
     }
 
     fun updateStats() {
-        runOnUiThread({
+        runOnUiThread {
             statsFragment.updateStats()
-        })
+        }
     }
 }

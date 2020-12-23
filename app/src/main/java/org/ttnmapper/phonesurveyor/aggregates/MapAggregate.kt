@@ -1,17 +1,11 @@
 package org.ttnmapper.phonesurveyor.aggregates
 
-import android.location.Location
-import android.util.Log
-import kotlinx.android.synthetic.main.fragment_map.*
-import org.osmdroid.util.GeoPoint
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
-import org.ttnmapper.phonesurveyor.aggregates.AppAggregate.sharedPref
 import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.model.MapLine
 import org.ttnmapper.phonesurveyor.model.MapPoint
-import java.lang.NullPointerException
-import java.util.HashMap
+import java.util.*
 import kotlin.collections.ArrayList
 
 object MapAggregate {
@@ -47,12 +41,4 @@ object MapAggregate {
 
     var gpsStatusMessage: String = "GPS stopped"
     var mqttStatusMessage: String = "MQTT disconnected"
-
-    fun centerMap(location: Location) {
-        try {
-            AppAggregate.mainActivity?.mapFragment?.centerMapTo(location)
-        } catch (e: NullPointerException) {
-            // The UI might not exist at this point
-        }
-    }
 }

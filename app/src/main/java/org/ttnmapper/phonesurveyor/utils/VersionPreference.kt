@@ -2,7 +2,7 @@ package org.ttnmapper.phonesurveyor.utils
 
 import android.content.Context
 import android.os.Build
-import android.preference.Preference
+import androidx.preference.Preference
 import android.util.AttributeSet
 
 class VersionPreference(context: Context, attrs: AttributeSet) : Preference(context, attrs) {

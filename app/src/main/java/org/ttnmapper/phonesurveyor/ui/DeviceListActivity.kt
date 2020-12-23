@@ -2,25 +2,29 @@ package org.ttnmapper.phonesurveyor.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import kotlinx.android.synthetic.main.activity_device_list.*
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.adapters.DevicesAdapter
 import org.ttnmapper.phonesurveyor.aggregates.TtnLoginAggregate
+import org.ttnmapper.phonesurveyor.databinding.ActivityDeviceListBinding
 import kotlin.concurrent.thread
 
 class DeviceListActivity : AppCompatActivity() {
     private val TAG = DeviceListActivity::class.java.getName()
 
+    private lateinit var binding: ActivityDeviceListBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_device_list)
+        binding = ActivityDeviceListBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
-        listViewDevices.visibility = View.GONE
+        binding.listViewDevices.visibility = View.GONE
 
         setStatusMessage("Loading list of devices.")
         thread(start = true) {
@@ -54,22 +58,22 @@ class DeviceListActivity : AppCompatActivity() {
 
     fun setStatusMessage(status: String) {
         runOnUiThread {
-            textViewStatus.visibility = View.VISIBLE
-            textViewStatus.text = status
+            binding.textViewStatus.visibility = View.VISIBLE
+            binding.textViewStatus.text = status
             Log.d(TAG, status)
         }
     }
 
     fun setupList() {
         runOnUiThread {
-            progressBar.visibility = View.GONE
-            textViewStatus.visibility = View.GONE
-            listViewDevices.visibility = View.VISIBLE
+            binding.progressBar.visibility = View.GONE
+            binding.textViewStatus.visibility = View.GONE
+            binding.listViewDevices.visibility = View.VISIBLE
 
             val adapter = DevicesAdapter(this)
-            listViewDevices.adapter = adapter
+            binding.listViewDevices.adapter = adapter
 
-            listViewDevices.setOnItemClickListener { _, _, position, _ ->
+            binding.listViewDevices.setOnItemClickListener { _, _, position, _ ->
                 //                Log.e(TAG, "Tapped item: "+position)
                 TtnLoginAggregate.selectedDevice = TtnLoginAggregate.selectedApplication?.devices?.get(position)
 

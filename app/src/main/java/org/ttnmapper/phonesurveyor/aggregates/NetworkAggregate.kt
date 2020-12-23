@@ -2,7 +2,9 @@ package org.ttnmapper.phonesurveyor.aggregates
 
 import android.util.Log
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -12,12 +14,13 @@ import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.model.TTNMessage
 import java.io.IOException
+import java.lang.NullPointerException
 
 
 object NetworkAggregate {
     private val TAG = NetworkAggregate::class.java.getName()
 
-    val MEDIA_TYPE_JSON = MediaType.parse("application/json")
+    val MEDIA_TYPE_JSON = "application/json".toMediaTypeOrNull()
 
     val client = OkHttpClient()
 
@@ -29,12 +32,17 @@ object NetworkAggregate {
                 .build()
 
         client.newCall(request).execute().use { response ->
-            Log.e(TAG, response.body()?.string())
+            val body = response.body
+            if (body != null) {
+                Log.e(TAG, body.string())
+            }
         }
     }
 
     fun postPacket(url: String, packet: TTNMessage) {
-        val moshi = Moshi.Builder().build()
+        val moshi = Moshi.Builder()
+                .add(KotlinJsonAdapterFactory())
+                .build()
         val jsonAdapter = moshi.adapter<TTNMessage>(TTNMessage::class.java)
         val postBody = jsonAdapter.toJson(packet)
 
@@ -47,7 +55,10 @@ object NetworkAggregate {
 
         try {
             client.newCall(request).execute().use { response ->
-                Log.e(TAG, response.body()?.string())
+                val body = response.body
+                if (body != null) {
+                    Log.e(TAG, body.string())
+                }
             }
         } catch (e: IOException) {
             Log.e(TAG, "Timeout posting to server " + url)
@@ -68,14 +79,16 @@ object NetworkAggregate {
                 .build()
 
         client.newCall(request).execute().use { response ->
-            val responseData = response.body()!!.string()
             try {
+                val responseData = response.body!!.string()
                 val handlerData = JSONObject(responseData)
                 if (handlerData.has("mqtt_address")) {
                     val broker = handlerData.getString("mqtt_address")
                     return broker
                 }
             } catch (e: JSONException) {
+                e.printStackTrace()
+            } catch (e: NullPointerException) {
                 e.printStackTrace()
             }
         }

@@ -6,14 +6,19 @@ import android.graphics.Canvas
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
-import android.support.v4.content.ContextCompat
-import android.support.v4.graphics.drawable.DrawableCompat
 import android.util.Log
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
-
-
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.KProperty
+import kotlin.reflect.full.isSupertypeOf
+import kotlin.reflect.full.memberProperties
 
 
 class CommonFunctions {
@@ -57,6 +62,11 @@ class CommonFunctions {
             return dateFormat.format(date)
         }
 
+        fun getDateForISO8601String(iso: String): Date {
+            val offsetDateTime: OffsetDateTime = OffsetDateTime.parse(iso) // default is iso format
+            return Date.from(Instant.from(offsetDateTime))
+        }
+
         fun sanitiseMqttUri(handler: String): String {
             var mqttUri = handler
 
@@ -80,18 +90,6 @@ class CommonFunctions {
             return mqttUri
         }
 
-        fun scanFile(path: String) {
-
-            MediaScannerConnection.scanFile(SurveyorApp.instance,
-                    arrayOf(path), null,
-                    object : MediaScannerConnection.OnScanCompletedListener {
-
-                        override fun onScanCompleted(path: String, uri: Uri) {
-                            Log.i(TAG, "Finished scanning $path")
-                        }
-                    })
-        }
-
         fun getBitmapFromVectorDrawable(context: Context, drawableId: Int): Bitmap {
             var drawable = ContextCompat.getDrawable(context, drawableId)
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -105,6 +103,22 @@ class CommonFunctions {
             drawable.draw(canvas)
 
             return bitmap
+        }
+
+        fun <T : Any, R : Any> T.copyPropsFrom(fromObject: R, vararg props: KProperty<*>) {
+            // only consider mutable properties
+            val mutableProps = this::class.memberProperties.filterIsInstance<KMutableProperty<*>>()
+            // if source list is provided use that otherwise use all available properties
+            val sourceProps = if (props.isEmpty()) fromObject::class.memberProperties else props.toList()
+            // copy all matching
+            mutableProps.forEach { targetProp ->
+                sourceProps.find {
+                    // make sure properties have same name and compatible types
+                    it.name == targetProp.name && targetProp.returnType.isSupertypeOf(it.returnType)
+                }?.let { matchingProp ->
+                    targetProp.setter.call(this, matchingProp.getter.call(fromObject))
+                }
+            }
         }
 
     }

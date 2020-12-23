@@ -27,7 +27,7 @@
     <string name="PREF_MAP_START_LON">PREF_MAP_START_LON</string>
     <string name="PREF_MAP_START_ZOOM">PREF_MAP_START_ZOOM</string>
 
-    <string name="TTN_MAPPER_UPLOAD_API">https://ttnmapper.org/appapi/v3/</string>
+    <string name="TTN_MAPPER_UPLOAD_API">https://integrations.ttnmapper.org/android/v3/</string>
 
     <!--Map types-->
     <string name="MAP_STAMEN_TONER_LIGHT">MAP_STAMEN_TONER_LIGHT</string>
@@ -36,4 +36,5 @@
     <string name="MAP_OSM_MAPNIK">MAP_OSM_MAPNIK</string>
     <string name="MAP_OSM_MAPNIK_GREYSCALE">MAP_OSM_MAPNIK_GREYSCALE</string>
     <string name="MAP_OSM_MAPNIK_NIGHTMODE">MAP_OSM_MAPNIK_NIGHTMODE</string>
+
 </resources>

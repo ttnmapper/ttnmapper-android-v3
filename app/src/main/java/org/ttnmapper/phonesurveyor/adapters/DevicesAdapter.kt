@@ -41,7 +41,7 @@ class DevicesAdapter(private val context: Context) : BaseAdapter() {
         val textViewName = holder.name
 
         val device = getItem(position) as Device
-        textViewId.text = device.devId
+        textViewId.text = device.dev_id
         textViewName.text = device.description
 
         return view

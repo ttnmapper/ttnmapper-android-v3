@@ -15,7 +15,7 @@
             android:title="Play sound"
             android:summary="Play a notification sound when a new packet is received"
             android:defaultValue="false" />
-        <RingtonePreference
+        <Preference
             android:key="@string/PREF_SOUND_URI"
             android:title="Notification sound"
             android:summary="The sound that should be played when a packet is received"
@@ -58,7 +58,7 @@
             android:key="@string/PREF_COVERAGE"
             android:title="Coverage"
             android:summary="Show all previously mapped coverage from ttnmapper.org"
-            android:defaultValue="false" />
+            android:defaultValue="true" />
         <ListPreference
             android:title="Background map"
             android:summary="Select which map service to use as the background map"

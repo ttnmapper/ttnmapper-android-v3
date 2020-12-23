@@ -2,26 +2,31 @@ package org.ttnmapper.phonesurveyor.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import kotlinx.android.synthetic.main.activity_applications_list.*
+import android.widget.ListView
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.adapters.ApplicationsAdapter
 import org.ttnmapper.phonesurveyor.aggregates.TtnLoginAggregate
+import org.ttnmapper.phonesurveyor.databinding.ActivityApplicationsListBinding
 
 
 class ApplicationsListActivity : AppCompatActivity() {
     private val TAG = ApplicationsListActivity::class.java.getName()
 
+    private lateinit var binding: ActivityApplicationsListBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_applications_list)
+        binding = ActivityApplicationsListBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         val adapter = ApplicationsAdapter(this)
-        listViewApplications.adapter = adapter
+        binding.listViewApplications.adapter = adapter
 
-        listViewApplications.setOnItemClickListener { _, _, position, _ ->
+        binding.listViewApplications.setOnItemClickListener { _, _, position, _ ->
             //            Log.e(TAG, "Tapped item: "+position)
             TtnLoginAggregate.selectedApplication = TtnLoginAggregate.ttnApplications?.get(position)
 
