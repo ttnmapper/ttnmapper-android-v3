@@ -22,11 +22,13 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
+import org.ttnmapper.phonesurveyor.aggregates.NetworkAggregate.getGatewayFromTtnMapper
 import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.model.MapLine
 import org.ttnmapper.phonesurveyor.model.MapPoint
 import org.ttnmapper.phonesurveyor.model.TTNMessage
 import org.ttnmapper.phonesurveyor.room.AppDatabase
+import org.ttnmapper.phonesurveyor.room.Gateway
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.ui.MainActivity
 import org.ttnmapper.phonesurveyor.utils.AppConstants
@@ -291,7 +293,7 @@ object AppAggregate {
 
         // Draw gateway line on map
         for (gateway in ttnMessage.metadata?.gateways.orEmpty()) {
-            addGatewayToMap(gateway!!)
+            if(gateway == null) continue
 
             var level: Double = gateway.rssi!!
             if (gateway.snr != null) {
@@ -300,11 +302,34 @@ object AppAggregate {
                 }
             }
 
-            if (gateway.latitude != null && gateway.longitude != null) {
-                drawLineOnMap(gateway.latitude!!, gateway.longitude!!, ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(level))
-            } else {
-                // Get the gateway location from ttnmapper and then try and draw on map
-            }
+//            if (gateway.latitude != null && gateway.longitude != null) {
+//                drawLineOnMap(gateway.latitude!!, gateway.longitude!!, ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(level))
+//            } else {
+                // Try and read the location from our local storage
+                val gatewayDb = db?.gatewayDao()?.findGateway(gateway.gtwId!!)
+                Log.e(TAG, "Gateway from db: "+gatewayDb.toString())
+                if(gatewayDb != null) {
+                    if(gatewayDb.latitude != null && gatewayDb.longitude != null) {
+                        addGatewayToMap(gatewayDb)
+                        drawLineOnMap(gatewayDb.latitude!!, gatewayDb.longitude!!, ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(level))
+                    }
+                } else {
+                    // Finally try getting the gateway location from ttnmapper.org
+                    val gatewayData = getGatewayFromTtnMapper(gateway.gtwId!!)
+                    if(gatewayData != null) {
+                        val gatewayDbNew = Gateway(gtwId = gateway.gtwId!!)
+                        gatewayDbNew.latitude = gatewayData.getDouble("latitude")
+                        gatewayDbNew.longitude = gatewayData.getDouble("longitude")
+                        gatewayDbNew.channels = gatewayData.getInt("channels")
+                        gatewayDbNew.description = gatewayData.getString("description")
+
+                        db?.gatewayDao()?.insertAll(gatewayDbNew)
+
+                        addGatewayToMap(gatewayDbNew)
+                        drawLineOnMap(gatewayDbNew.latitude!!, gatewayDbNew.longitude!!, ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(level))
+                    }
+                }
+//            }
         }
 
         // Draw point on map
@@ -337,10 +362,9 @@ object AppAggregate {
         mainActivity!!.drawPointOnMap(lat, lon, colour)
     }
 
-    fun addGatewayToMap(gateway: GatewayMetadata) {
+    fun addGatewayToMap(gateway: Gateway) {
         if (!MapAggregate.seenGateways.containsKey(gateway.gtwId)) {
-            if (gateway.gtwId != null) {
-                MapAggregate.seenGateways.put(gateway.gtwId!!, gateway)
+            if (gateway.latitude != null && gateway.longitude != null) {
                 mainActivity!!.addGatewayToMap(gateway)
             }
         }

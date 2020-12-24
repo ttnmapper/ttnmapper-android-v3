@@ -94,4 +94,25 @@ object NetworkAggregate {
         }
         return "none"
     }
+
+    fun getGatewayFromTtnMapper(gateway: String): JSONObject? {
+        val request = Request.Builder()
+                .url("https://ttnmapper.org/appapi/v3/gwdetails.php?gtwId=$gateway")
+                .build()
+
+        client.newCall(request).execute().use { response ->
+            try {
+                val responseData = response.body!!.string()
+                val responseJson = JSONObject(responseData)
+                val gatewayData = responseJson.getJSONObject("details")
+
+                return gatewayData
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            } catch (e: NullPointerException) {
+                e.printStackTrace()
+            }
+        }
+        return null
+    }
 }

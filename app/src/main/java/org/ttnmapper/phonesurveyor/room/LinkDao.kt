@@ -1,17 +1,17 @@
 package org.ttnmapper.phonesurveyor.room
 
-import android.util.Log
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.model.TTNMessage
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.copyPropsFrom
-import java.util.*
 
 @Dao
 interface LinkDao {
+    @Query("SELECT COUNT(*) FROM link")
+    fun getCount(): Int
+
     @Query("SELECT * FROM link")
     fun getAll(): List<Link>
 
@@ -36,9 +36,12 @@ interface LinkDao {
 
             links.add(link)
         }
-        Log.e("LinkDao", links.toString())
+        insertAll(*links.toTypedArray())
     }
 
     @Delete
     fun delete(link: Link)
+
+    @Query("DELETE FROM link")
+    fun deleteAll()
 }

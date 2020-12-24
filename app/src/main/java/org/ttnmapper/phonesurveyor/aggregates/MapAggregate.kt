@@ -5,6 +5,7 @@ import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.model.MapLine
 import org.ttnmapper.phonesurveyor.model.MapPoint
+import org.ttnmapper.phonesurveyor.room.Gateway
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -37,7 +38,7 @@ object MapAggregate {
 
     var lineList: MutableList<MapLine> = ArrayList()
     var pointList: MutableList<MapPoint> = ArrayList()
-    var seenGateways: MutableMap<String, GatewayMetadata> = HashMap();
+    var seenGateways: MutableMap<String, Gateway> = HashMap();
 
     var gpsStatusMessage: String = "GPS stopped"
     var mqttStatusMessage: String = "MQTT disconnected"

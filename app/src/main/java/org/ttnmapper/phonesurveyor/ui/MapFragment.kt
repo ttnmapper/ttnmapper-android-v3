@@ -28,7 +28,7 @@ import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 import org.ttnmapper.phonesurveyor.databinding.FragmentMapBinding
-import org.ttnmapper.phonesurveyor.model.GatewayMetadata
+import org.ttnmapper.phonesurveyor.room.Gateway
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.getBitmapFromVectorDrawable
 
 
@@ -372,7 +372,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
         binding.map.invalidate()
     }
 
-    fun addGatewayToMap(gateway: GatewayMetadata) {
+    fun addGatewayToMap(gateway: Gateway) {
         if(_binding == null) {
             Log.w(TAG, "Binding is null, so fragment does not exist")
             return
@@ -386,13 +386,15 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
         if (sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
 
             if (gateway.latitude != null && gateway.longitude != null) {
-                var startMarker = Marker(binding.map);
-                startMarker.icon = SurveyorApp.instance.getDrawable(R.drawable.ic_gateway_dot_vector)
-                startMarker.setPosition(GeoPoint(gateway.latitude!!, gateway.longitude!!))
-                startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                startMarker.title = gateway.gtwId
-                binding.map.getOverlays().add(startMarker)
+                var gatewayMarker = Marker(binding.map);
+                gatewayMarker.icon = SurveyorApp.instance.getDrawable(R.drawable.ic_gateway_dot_vector)
+                gatewayMarker.setPosition(GeoPoint(gateway.latitude!!, gateway.longitude!!))
+                gatewayMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                gatewayMarker.title = gateway.gtwId + "\n" + gateway.description
+                binding.map.getOverlays().add(gatewayMarker)
                 binding.map.invalidate()
+
+                MapAggregate.seenGateways.put(gateway.gtwId!!, gateway)
             }
         }
     }

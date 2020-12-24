@@ -21,17 +21,6 @@
             android:summary="The sound that should be played when a packet is received"
             android:dependency="@string/PREF_PLAY_SOUND"
             android:ringtoneType="notification" />
-        <CheckBoxPreference
-            android:key="@string/PREF_SAVE_TO_FILE"
-            android:title="Save to file"
-            android:summary="Save mapping data to a local logfile on your phone"
-            android:defaultValue="true" />
-        <Preference
-            android:enabled="false"
-            android:key="@string/PREF_SAVE_FILE_NAME"
-            android:title="Log file name"
-            android:summary=""
-            android:dependency="@string/PREF_SAVE_TO_FILE" />
 
     </PreferenceCategory>
 
@@ -138,6 +127,19 @@
                 android:action="android.intent.action.VIEW"
                 android:targetPackage="org.ttnmapper.phonesurveyor"
                 android:targetClass="org.ttnmapper.phonesurveyor.ui.TtnLoginActivity" />
+        </Preference>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="storedData"
+        android:title="Stored Data">
+
+        <Preference
+            android:title="Manage stored data">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="org.ttnmapper.phonesurveyor"
+                android:targetClass="org.ttnmapper.phonesurveyor.ui.StoredData" />
         </Preference>
     </PreferenceCategory>
 

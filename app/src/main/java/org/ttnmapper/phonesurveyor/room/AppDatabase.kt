@@ -8,7 +8,8 @@ import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.getDateForISO
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.getISO8601StringForMillis
 import java.util.*
 
-@Database(entities = arrayOf(Link::class), version = 1)
+@Database(entities = arrayOf(Link::class, Gateway::class), version = 1)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun linkDao(): LinkDao
+    abstract fun gatewayDao(): GatewayDao
 }

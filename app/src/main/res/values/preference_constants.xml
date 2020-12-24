@@ -3,8 +3,6 @@
     <string name="PREF_SCREEN_ON">PREF_SCREEN_ON</string>
     <string name="PREF_PLAY_SOUND">PREF_PLAY_SOUND</string>
     <string name="PREF_SOUND_URI">PREF_SOUND_URI</string>
-    <string name="PREF_SAVE_TO_FILE">PREF_SAVE_TO_FILE</string>
-    <string name="PREF_SAVE_FILE_NAME">PREF_SAVE_FILE_NAME</string>
 
     <string name="PREF_AUTO_CENTER">PREF_AUTO_CENTER</string>
     <string name="PREF_LORDRIVE">PREF_LORDRIVE</string>

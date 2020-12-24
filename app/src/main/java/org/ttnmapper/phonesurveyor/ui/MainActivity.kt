@@ -31,6 +31,7 @@ import org.ttnmapper.phonesurveyor.databinding.ActivityDeepLinkConfigureBinding
 import org.ttnmapper.phonesurveyor.databinding.ActivityMainBinding
 import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.room.AppDatabase
+import org.ttnmapper.phonesurveyor.room.Gateway
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
 import java.text.SimpleDateFormat
@@ -146,14 +147,6 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         MapAggregate.latitude = sharedPref.getFloat(getString(R.string.PREF_MAP_START_LAT), 52.372706f).toDouble()
         MapAggregate.longitude = sharedPref.getFloat(getString(R.string.PREF_MAP_START_LON), 4.897312f).toDouble()
         MapAggregate.zoom = sharedPref.getFloat(getString(R.string.PREF_MAP_START_ZOOM), 6f).toDouble()
-
-        // At startup set the logfile and experiment names to the current time
-        val tz = TimeZone.getTimeZone("UTC")
-        val df = SimpleDateFormat("yyyyMMddHHmm", Locale.ENGLISH) // Quoted "Z" to indicate UTC, no timezone offset
-        df.timeZone = tz
-        val nowAsISO = df.format(Date())
-        val fileName = "ttnmapper-$nowAsISO.log"
-        editor.putString(getString(R.string.PREF_SAVE_FILE_NAME), fileName)
 
         editor.apply()
 
@@ -325,7 +318,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         }
     }
 
-    fun addGatewayToMap(gateway: GatewayMetadata) {
+    fun addGatewayToMap(gateway: Gateway) {
         runOnUiThread {
             mapFragment.addGatewayToMap(gateway)
         }
