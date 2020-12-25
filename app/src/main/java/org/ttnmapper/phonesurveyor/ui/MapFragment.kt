@@ -51,7 +51,6 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
 
         tmsSource = object : OnlineTileSourceBase("TTN Mapper TMS", 3, 15, 256, "png", arrayOf("")) {
             override fun getTileURLString(pMapTileIndex: Long): String {
-//                return "https://ttnmapperfsa4if0y-tilemapserver.functions.fnc.fr-par.scw.cloud/circles/" + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex) + ".png"
                 return "https://ttnmapper.org/tms/?tile=" + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex) + ""
             }
         }

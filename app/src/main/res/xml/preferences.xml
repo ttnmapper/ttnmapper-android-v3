@@ -2,26 +2,90 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
+
     <PreferenceCategory
-        android:key="category_general_preference"
-        android:title="General">
+        android:key="device_preference_screen"
+        android:title="Linked device"
+        android:summary="Modify the linked device">
+        <EditTextPreference
+            android:key="@string/PREF_APP_ID"
+            android:title="Application ID"
+            android:summary="The ID of the application. This is also the MQTT username."
+            android:dialogTitle="Application ID"
+            android:defaultValue="app_id" />
+        <EditTextPreference
+            android:key="@string/PREF_APP_KEY"
+            android:title="Application Key"
+            android:summary="The Access Key of the application. This is also the MQTT password. ex: ttn-account-v2.aB..."
+            android:dialogTitle="Application Key"
+            android:defaultValue="ttn-account-v2.zFhflrXwHYwAY2Tqb1KkRyx0xWz8M_f6p2lm7zzl87A" />
+        <EditTextPreference
+            android:key="@string/PREF_DEV_ID"
+            android:title="Device ID"
+            android:summary="The ID of the device you are mapping with."
+            android:dialogTitle="Device ID"
+            android:defaultValue="+" />
+        <EditTextPreference
+            android:key="@string/PREF_BROKER"
+            android:title="MQTT URL"
+            android:summary="The MQTT URL of the TTN message broker. ex: eu.thethings.network:1883"
+            android:dialogTitle="MQTT URL"
+            android:defaultValue="tcp://eu.thethings.network:1883" />
+        <Preference
+            android:title="Log in to TTNv2 and choose a device"
+            android:icon="@drawable/ic_ttncropped">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="org.ttnmapper.phonesurveyor"
+                android:targetClass="org.ttnmapper.phonesurveyor.ui.TtnLoginActivity" />
+        </Preference>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="recordedData"
+        android:title="Recorded Data">
+
+        <Preference
+            android:title="Mapping sessions">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="org.ttnmapper.phonesurveyor"
+                android:targetClass="org.ttnmapper.phonesurveyor.ui.SessionListActivity" />
+        </Preference>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="category_upload_preference"
+        android:title="Data upload">
+
         <CheckBoxPreference
-            android:key="@string/PREF_SCREEN_ON"
-            android:title="Keep screen on"
-            android:summary="Screen will not dim and lock while the app is open"
+            android:key="@string/PREF_UPLOAD"
+            android:title="Upload data"
+            android:summary="Upload all measured points to ttnmapper.org"
             android:defaultValue="true" />
         <CheckBoxPreference
-            android:key="@string/PREF_PLAY_SOUND"
-            android:title="Play sound"
-            android:summary="Play a notification sound when a new packet is received"
+            android:key="@string/PREF_EXPERIMENT"
+            android:title="Experiment"
+            android:summary="Mark uploaded data as experimental to exclude it from the main global map of coverage"
             android:defaultValue="false" />
-        <Preference
-            android:key="@string/PREF_SOUND_URI"
-            android:title="Notification sound"
-            android:summary="The sound that should be played when a packet is received"
-            android:dependency="@string/PREF_PLAY_SOUND"
-            android:ringtoneType="notification" />
-
+        <EditTextPreference
+            android:key="@string/PREF_EXPERIMENT_NAME"
+            android:dependency="@string/PREF_EXPERIMENT"
+            android:title="Experiment name"
+            android:summary="The name under which this experiment will be saved on ttnmapper.org"
+            android:dialogTitle="Exepriment name" />
+        <CheckBoxPreference
+            android:key="@string/PREF_CUSTOM_SERVER_ENABLED"
+            android:title="Custom server"
+            android:summary="When selected also uploads data to your own server using an HTTP POST"
+            android:defaultValue="false" />
+        <EditTextPreference
+            android:key="@string/PREF_CUSTOM_SERVER_ADDRESS"
+            android:dependency="@string/PREF_CUSTOM_SERVER_ENABLED"
+            android:title="Custom server address"
+            android:summary="The URL of the API endpoint where you want to POST data to. This has to be HTTPS."
+            android:dialogTitle="Server address"
+            android:defaultValue="https://example.com/upload.php" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -58,89 +122,25 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="category_upload_preference"
-        android:title="Data upload">
-
+        android:key="category_general_preference"
+        android:title="General">
         <CheckBoxPreference
-            android:key="@string/PREF_UPLOAD"
-            android:title="Upload data"
-            android:summary="Upload all measured points to ttnmapper.org"
+            android:key="@string/PREF_SCREEN_ON"
+            android:title="Keep screen on"
+            android:summary="Screen will not dim and lock while the app is open"
             android:defaultValue="true" />
         <CheckBoxPreference
-            android:key="@string/PREF_EXPERIMENT"
-            android:title="Experiment"
-            android:summary="Mark uploaded data as experimental to exclude it from the main global map of coverage"
+            android:key="@string/PREF_PLAY_SOUND"
+            android:title="Play sound"
+            android:summary="Play a notification sound when a new packet is received"
             android:defaultValue="false" />
-        <EditTextPreference
-            android:key="@string/PREF_EXPERIMENT_NAME"
-            android:dependency="@string/PREF_EXPERIMENT"
-            android:title="Experiment name"
-            android:summary="The name under which this experiment will be saved on ttnmapper.org"
-            android:dialogTitle="Exepriment name" />
-        <CheckBoxPreference
-            android:key="@string/PREF_CUSTOM_SERVER_ENABLED"
-            android:title="Custom server"
-            android:summary="When selected also uploads data to your own server using an HTTP POST"
-            android:defaultValue="false" />
-        <EditTextPreference
-            android:key="@string/PREF_CUSTOM_SERVER_ADDRESS"
-            android:dependency="@string/PREF_CUSTOM_SERVER_ENABLED"
-            android:title="Custom server address"
-            android:summary="The URL of the API endpoint where you want to POST data to. This has to be HTTPS."
-            android:dialogTitle="Server address"
-            android:defaultValue="https://example.com/upload.php" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:key="device_preference_screen"
-        android:title="Linked device"
-        android:summary="Modify the linked device">
-        <EditTextPreference
-            android:key="@string/PREF_APP_ID"
-            android:title="Application ID"
-            android:summary="The ID of the application. This is also the MQTT username."
-            android:dialogTitle="Application ID"
-            android:defaultValue="app_id" />
-        <EditTextPreference
-            android:key="@string/PREF_APP_KEY"
-            android:title="Application Key"
-            android:summary="The Access Key of the application. This is also the MQTT password. ex: ttn-account-v2.aB..."
-            android:dialogTitle="Application Key"
-            android:defaultValue="ttn-account-v2.zFhflrXwHYwAY2Tqb1KkRyx0xWz8M_f6p2lm7zzl87A" />
-        <EditTextPreference
-            android:key="@string/PREF_DEV_ID"
-            android:title="Device ID"
-            android:summary="The ID of the device you are mapping with."
-            android:dialogTitle="Device ID"
-            android:defaultValue="+" />
-        <EditTextPreference
-            android:key="@string/PREF_BROKER"
-            android:title="MQTT URL"
-            android:summary="The MQTT URL of the TTN message broker. ex: eu.thethings.network:1883"
-            android:dialogTitle="MQTT URL"
-            android:defaultValue="tcp://eu.thethings.network:1883" />
         <Preference
-            android:title="Log in to TTN and choose a device"
-            android:icon="@drawable/ic_ttncropped">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:targetPackage="org.ttnmapper.phonesurveyor"
-                android:targetClass="org.ttnmapper.phonesurveyor.ui.TtnLoginActivity" />
-        </Preference>
-    </PreferenceCategory>
+            android:key="@string/PREF_SOUND_URI"
+            android:title="Notification sound"
+            android:summary="The sound that should be played when a packet is received"
+            android:dependency="@string/PREF_PLAY_SOUND"
+            android:ringtoneType="notification" />
 
-    <PreferenceCategory
-        android:key="storedData"
-        android:title="Stored Data">
-
-        <Preference
-            android:title="Manage stored data">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:targetPackage="org.ttnmapper.phonesurveyor"
-                android:targetClass="org.ttnmapper.phonesurveyor.ui.StoredData" />
-        </Preference>
     </PreferenceCategory>
 
     <PreferenceCategory

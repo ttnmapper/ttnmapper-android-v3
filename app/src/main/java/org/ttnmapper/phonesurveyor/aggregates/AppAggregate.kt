@@ -50,8 +50,8 @@ object AppAggregate {
     var myService: MyService? = null
     var isBound = false
 
+    var currentSessionStart: Date? = null
     var phoneLocation: Location? = null
-
     var lastTTNMessage: TTNMessage? = null
     var numberOfPacketsRx = 0
 
@@ -79,6 +79,7 @@ object AppAggregate {
         if (!isServiceRunning(serviceClass)) {
             // Start the service
             Log.e(TAG, "Starting new service")
+            currentSessionStart = Date()
             SurveyorApp.instance.startService(serviceIntent)
             SurveyorApp.instance.bindService(serviceIntent, myConnection, Context.BIND_AUTO_CREATE)
         } else {
@@ -244,6 +245,8 @@ object AppAggregate {
             ttnMessage.phoneLocTime = CommonFunctions.getISO8601StringForMillis(currentLocation.time)
         }
 
+        Log.e(TAG, "Loc Time: "+currentLocation!!.time.toString()+" == "+ttnMessage.phoneLocTime)
+
         ttnMessage.phoneTime = CommonFunctions.getISO8601StringForDate(Date())
         val pInfo = SurveyorApp.instance.getPackageManager().getPackageInfo(SurveyorApp.instance.getPackageName(), 0)
         val version = pInfo.versionName
@@ -277,7 +280,7 @@ object AppAggregate {
         Log.v(TAG, ttnMessage.toString())
 
         // Store all messages also in Room database for export to csv later
-        db?.linkDao()?.insertTtnMessage(ttnMessage)
+        db?.linkDao()?.insertTtnMessage(currentSessionStart!!, ttnMessage)
 
         // We store the point in the database regardless of the location. But if we do not have a location, we can not draw on the map or send to server.
         if (currentLocation == null) {

@@ -10,8 +10,8 @@ android {
         applicationId "org.ttnmapper.phonesurveyor"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 20
-        versionName "2019.06.19b"
+        versionCode 21
+        versionName "2020.12.25"
         testInstrumentationRunner "android.support.org.ttnmapper.phonesurveyor.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

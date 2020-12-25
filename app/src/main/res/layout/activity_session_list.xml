@@ -4,16 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.StoredData">
+    tools:context=".ui.SessionListActivity">
 
     <TextView
-        android:id="@+id/textViewStoredData"
+        android:id="@+id/textViewMappingSessions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="16dp"
-        android:text="Stored data"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:text="Mapping Sessions"
+        style="@style/Base.TextAppearance.AppCompat.Body2"
+        android:textColor="@color/colorAccent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -25,7 +26,7 @@
         android:layout_marginTop="16dp"
         android:text="Export all"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewNumberPoints" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewNumberSessions" />
 
     <Button
         android:id="@+id/buttonDelete"
@@ -35,15 +36,28 @@
         android:layout_marginTop="16dp"
         android:text="Delete all"
         app:layout_constraintStart_toEndOf="@+id/buttonExportAll"
-        app:layout_constraintTop_toBottomOf="@+id/textViewNumberPoints" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewNumberSessions" />
 
     <TextView
-        android:id="@+id/textViewNumberPoints"
+        android:id="@+id/textViewNumberSessions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:text="Points in storage: 0"
+        android:text="Number of sessions: 0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewStoredData" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewMappingSessions" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewSessionList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonExportAll"
+        app:layout_constraintVertical_bias="0.383" />
 </androidx.constraintlayout.widget.ConstraintLayout>
