@@ -1,12 +1,10 @@
 package org.ttnmapper.phonesurveyor.room
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.squareup.moshi.Json
-import java.util.*
 
-@Entity
+@Entity(indices = arrayOf(Index(value = ["Session"])))
 data class Link(
         @PrimaryKey(autoGenerate = true)
         val uid: Int = 0,
@@ -44,8 +42,8 @@ data class Link(
         var Snr: Double? = null,
         var GatewayLatitude: Double? = null,
         var GatewayLongitude: Double? = null,
-        var GatewayAltitude: Int? = null,
-        var GatewayLocationAccuracy: Int? = null,
+        var GatewayAltitude: Double? = null,
+        var GatewayLocationAccuracy: Double? = null,
         var GatewayLocationSource: String? = null,
 
         var Latitude: Double? = null,

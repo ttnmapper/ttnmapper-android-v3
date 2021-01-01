@@ -54,8 +54,8 @@ class ObjectCopy {
             // Gateway Location Metadata
             link.GatewayLatitude = gateway.Latitude
             link.GatewayLongitude = gateway.Longitude
-            link.GatewayAltitude = gateway.Altitude
-            link.GatewayLocationAccuracy = gateway.LocationAccuracy
+            link.GatewayAltitude = gateway.Altitude?.toDouble()
+            link.GatewayLocationAccuracy = gateway.LocationAccuracy?.toDouble()
             link.GatewayLocationSource = gateway.LocationSource
 
             // Location

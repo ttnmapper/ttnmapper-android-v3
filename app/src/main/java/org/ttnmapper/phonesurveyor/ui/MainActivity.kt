@@ -117,8 +117,10 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         AppAggregate.db = Room.databaseBuilder(
                 applicationContext,
                 AppDatabase::class.java, "ttnmapper"
-        )
-        .addMigrations(MIGRATION_1_2).build()
+            )
+            .addMigrations(MIGRATION_1_2)
+            .fallbackToDestructiveMigrationOnDowngrade()
+            .build()
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)

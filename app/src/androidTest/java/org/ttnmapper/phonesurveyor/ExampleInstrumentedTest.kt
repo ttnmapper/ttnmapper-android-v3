@@ -16,7 +16,7 @@ class ExampleInstrumentedTest {
     @Test
     fun useAppContext() {
         // Context of the app under org.ttnmapper.phonesurveyor.test.
-        val appContext = InstrumentationRegistry.getTargetContext()
+        val appContext = InstrumentationRegistry.getInstrumentation().context
         assertEquals("org.ttnmapper.phonesurveyor", appContext.packageName)
     }
 }

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "58c25a80f8ce6a83048effe12ea035fe",
+    "identityHash": "8fda887f93109e2cd92f23b36b3e0dee",
     "entities": [
       {
         "tableName": "Link",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Session` TEXT NOT NULL, `AppID` TEXT, `DevID` TEXT, `DevEui` TEXT, `Time` INTEGER, `FPort` INTEGER, `FCnt` INTEGER, `Frequency` INTEGER, `Modulation` TEXT, `Bandwidth` INTEGER, `SpreadingFactor` INTEGER, `Bitrate` INTEGER, `CodingRate` TEXT, `GatewayId` TEXT, `GatewayEui` TEXT, `AntennaIndex` INTEGER, `GatewayTime` INTEGER, `GatewayTimestamp` INTEGER, `FineTimestamp` INTEGER, `FineTimestampEncrypted` TEXT, `FineTimestampEncryptedKeyId` TEXT, `ChannelIndex` INTEGER, `Rssi` REAL, `SignalRssi` REAL, `Snr` REAL, `GatewayLatitude` REAL, `GatewayLongitude` REAL, `GatewayAltitude` INTEGER, `GatewayLocationAccuracy` INTEGER, `GatewayLocationSource` TEXT, `Latitude` REAL, `Longitude` REAL, `Altitude` REAL, `AccuracyMeters` REAL, `Satellites` INTEGER, `Hdop` REAL, `AccuracySource` TEXT, `Experiment` TEXT, `UserId` TEXT, `UserAgent` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Session` TEXT NOT NULL, `AppID` TEXT, `DevID` TEXT, `DevEui` TEXT, `Time` INTEGER, `FPort` INTEGER, `FCnt` INTEGER, `Frequency` INTEGER, `Modulation` TEXT, `Bandwidth` INTEGER, `SpreadingFactor` INTEGER, `Bitrate` INTEGER, `CodingRate` TEXT, `GatewayId` TEXT, `GatewayEui` TEXT, `AntennaIndex` INTEGER, `GatewayTime` INTEGER, `GatewayTimestamp` INTEGER, `FineTimestamp` INTEGER, `FineTimestampEncrypted` TEXT, `FineTimestampEncryptedKeyId` TEXT, `ChannelIndex` INTEGER, `Rssi` REAL, `SignalRssi` REAL, `Snr` REAL, `GatewayLatitude` REAL, `GatewayLongitude` REAL, `GatewayAltitude` REAL, `GatewayLocationAccuracy` REAL, `GatewayLocationSource` TEXT, `Latitude` REAL, `Longitude` REAL, `Altitude` REAL, `AccuracyMeters` REAL, `Satellites` INTEGER, `Hdop` REAL, `AccuracySource` TEXT, `Experiment` TEXT, `UserId` TEXT, `UserAgent` TEXT)",
         "fields": [
           {
             "fieldPath": "uid",
@@ -179,13 +179,13 @@
           {
             "fieldPath": "GatewayAltitude",
             "columnName": "GatewayAltitude",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": false
           },
           {
             "fieldPath": "GatewayLocationAccuracy",
             "columnName": "GatewayLocationAccuracy",
-            "affinity": "INTEGER",
+            "affinity": "REAL",
             "notNull": false
           },
           {
@@ -261,7 +261,16 @@
           ],
           "autoGenerate": true
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_Link_Session",
+            "unique": false,
+            "columnNames": [
+              "Session"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Link_Session` ON `${TABLE_NAME}` (`Session`)"
+          }
+        ],
         "foreignKeys": []
       },
       {
@@ -318,7 +327,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '58c25a80f8ce6a83048effe12ea035fe')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8fda887f93109e2cd92f23b36b3e0dee')"
     ]
   }
 }
