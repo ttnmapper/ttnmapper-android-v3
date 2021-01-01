@@ -57,26 +57,26 @@ class StatsFragment : Fragment() {
         var maxSnr: Double = 0.0
         var gtwId: String = ""
 
-        ttnMessage?.metadata?.gateways?.forEach {
+        ttnMessage?.Gateways?.forEach {
             gatewayCount++
 
-            gtwId = it?.gtwId ?: "<unknown>"
+            gtwId = it?.GatewayId ?: "<unknown>"
 
-            if (it?.rssi != null) {
-                if (maxRssi == 0.0 || it.rssi!! > maxRssi) {
-                    maxRssi = it.rssi!!
+            if (it?.Rssi != null) {
+                if (maxRssi == 0.0 || it.Rssi!! > maxRssi) {
+                    maxRssi = it.Rssi!!
                 }
             }
 
-            if (it?.snr != null) {
-                if (maxSnr == 0.0 || it.snr!! > maxSnr) {
-                    maxSnr = it.snr!!
+            if (it?.Snr != null) {
+                if (maxSnr == 0.0 || it.Snr!! > maxSnr) {
+                    maxSnr = it.Snr!!
                 }
             }
         }
 
-        if (ttnMessage?.metadata?.time != null) {
-            binding.lastPktTime.text = ttnMessage.metadata?.time.toString()
+        if (ttnMessage?.Time != null) {
+            binding.lastPktTime.text = ttnMessage.Time.toString()
         }
 
         if (gatewayCount == 1) {
@@ -99,16 +99,8 @@ class StatsFragment : Fragment() {
             binding.lastPktSnrMax.text = ""
         }
 
-        if (ttnMessage?.metadata?.frequency != null) {
-            binding.lastPktFreq.text = ttnMessage.metadata?.frequency?.toString()
-        } else {
-            binding.lastPktFreq.text = ""
-        }
+            binding.lastPktFreq.text = ttnMessage?.Frequency.toString()
 
-        if (ttnMessage?.metadata?.dataRate != null) {
-            binding.lastPktDatarate.text = ttnMessage.metadata?.dataRate?.toString()
-        } else {
-            binding.lastPktDatarate.text = ""
-        }
+            binding.lastPktDatarate.text = ttnMessage?.SpreadingFactor.toString()
     }
 }

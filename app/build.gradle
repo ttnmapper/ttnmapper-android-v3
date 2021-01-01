@@ -13,6 +13,11 @@ android {
         versionCode 21
         versionName "2020.12.25"
         testInstrumentationRunner "android.support.org.ttnmapper.phonesurveyor.test.runner.AndroidJUnitRunner"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
     }
     buildTypes {
         release {

@@ -2,7 +2,6 @@ package org.ttnmapper.phonesurveyor.aggregates
 
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
-import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.model.MapLine
 import org.ttnmapper.phonesurveyor.model.MapPoint
 import org.ttnmapper.phonesurveyor.room.Gateway

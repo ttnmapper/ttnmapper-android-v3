@@ -22,11 +22,11 @@ class SessionAdapter(private var sessionList: List<SessionLinkCount>, private va
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.textViewSessionId.text = sessionList[position].session
+        holder.binding.textViewSessionId.text = sessionList[position].Session
         holder.binding.textViewLinkCount.text = "Link count: "+sessionList[position].count.toString()
 
-        holder.binding.buttonExportSession.setOnClickListener { listener.onExportClicked(sessionList[position].session) }
-        holder.binding.buttonDeleteSession.setOnClickListener { listener.onDeleteClicked(sessionList[position].session) }
+        holder.binding.buttonExportSession.setOnClickListener { listener.onExportClicked(sessionList[position].Session) }
+        holder.binding.buttonDeleteSession.setOnClickListener { listener.onDeleteClicked(sessionList[position].Session) }
     }
 
     override fun getItemCount(): Int {

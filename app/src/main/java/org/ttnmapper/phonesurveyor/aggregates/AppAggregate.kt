@@ -1,42 +1,39 @@
 package org.ttnmapper.phonesurveyor.aggregates
 
-import android.Manifest
 import android.app.ActivityManager
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.*
-import android.content.pm.PackageManager
 import android.location.Location
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
 import android.os.IBinder
-import android.preference.PreferenceManager
-import androidx.core.app.ActivityCompat
 import android.util.Log
 import android.widget.Toast
-import androidx.room.Room
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import org.openapitools.client.models.V3ApplicationUp
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.NetworkAggregate.getGatewayFromTtnMapper
-import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.model.MapLine
 import org.ttnmapper.phonesurveyor.model.MapPoint
-import org.ttnmapper.phonesurveyor.model.TTNMessage
+import org.ttnmapper.phonesurveyor.model.TtnMapperUplinkMessage
+import org.ttnmapper.phonesurveyor.model.chirpstack.UplinkEvent
+import org.ttnmapper.phonesurveyor.model.ttnV2.TtnUplinkMessage
+import org.ttnmapper.phonesurveyor.model.ttnV3.OffsetDateTimeAdapter
 import org.ttnmapper.phonesurveyor.room.AppDatabase
 import org.ttnmapper.phonesurveyor.room.Gateway
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.ui.MainActivity
-import org.ttnmapper.phonesurveyor.utils.AppConstants
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
+import org.ttnmapper.phonesurveyor.utils.ObjectCopy.Companion.ChirpStackUplinkToTtnMapperUplink
+import org.ttnmapper.phonesurveyor.utils.ObjectCopy.Companion.ttnV2UplinkToTtnMapperUplink
+import org.ttnmapper.phonesurveyor.utils.ObjectCopy.Companion.ttnV3UplinkToTtnMapperUplink
 import org.ttnmapper.phonesurveyor.utils.getBackgroundNotification
-import java.io.File
-import java.io.FileOutputStream
-import java.io.PrintWriter
 import java.util.*
 
 
@@ -52,7 +49,7 @@ object AppAggregate {
 
     var currentSessionStart: Date? = null
     var phoneLocation: Location? = null
-    var lastTTNMessage: TTNMessage? = null
+    var lastTTNMessage: TtnMapperUplinkMessage? = null
     var numberOfPacketsRx = 0
 
     private val myConnection = object : ServiceConnection {
@@ -192,6 +189,7 @@ object AppAggregate {
         notificationManager.notify(1000, mNotification)
     }
 
+    @ExperimentalUnsignedTypes
     fun processMessage(topic: String, data: String) {
         Log.e(TAG, "Processing new message")
         //sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance) // set in main activity
@@ -215,39 +213,97 @@ object AppAggregate {
             r.play()
         }
 
+        var ttnMapperUplinkMessage: TtnMapperUplinkMessage? = null
 
-        val moshi = Moshi.Builder()
-                .add(KotlinJsonAdapterFactory())
-                .build()
-        val jsonAdapter = moshi.adapter<TTNMessage>(TTNMessage::class.java)
-        val ttnMessage = jsonAdapter.fromJson(data)
+        if(false /*v3*/) {
+            val moshi = Moshi.Builder()
+                    .add(KotlinJsonAdapterFactory())
+                    .add(OffsetDateTimeAdapter())
+                    .build()
+            try {
+                val jsonAdapter = moshi.adapter<V3ApplicationUp>(V3ApplicationUp::class.java)
+                val ttnMessage = jsonAdapter.fromJson(data)
 
-        if(ttnMessage == null) {
-            Log.e(TAG, "Message not parsed")
-            return
-        } else {
-            Log.d(TAG, "Parsed")
+                if (ttnMessage == null) {
+                    Log.e(TAG, "V3 Message not parsed")
+                    return
+                } else {
+                    Log.d(TAG, "V3 Parsed")
+                }
+
+                ttnMapperUplinkMessage = ttnV3UplinkToTtnMapperUplink(ttnMessage)
+            } catch (e: Exception) {
+                Log.e(TAG, "V3 Can't parse received json")
+                return
+            }
+
+
+
+        } else if(false /*v2*/) {
+            val moshi = Moshi.Builder()
+                    .add(KotlinJsonAdapterFactory())
+                    .build()
+            try {
+                val jsonAdapter = moshi.adapter<TtnUplinkMessage>(TtnUplinkMessage::class.java)
+                val ttnMessage = jsonAdapter.fromJson(data)
+
+                if (ttnMessage == null) {
+                    Log.e(TAG, "V2 Message not parsed")
+                    return
+                } else {
+                    Log.d(TAG, "V2 Parsed")
+                }
+
+                ttnMapperUplinkMessage = ttnV2UplinkToTtnMapperUplink(ttnMessage)
+            } catch(e: java.lang.Exception) {
+                Log.e(TAG, "V2 Can't parse received json")
+                return
+            }
+        } else if(true /*chirp*/) {
+            try {
+                val moshi = Moshi.Builder()
+                        .add(KotlinJsonAdapterFactory())
+                        .build()
+                val jsonAdapter = moshi.adapter<UplinkEvent>(UplinkEvent::class.java)
+                val ttnMessage = jsonAdapter.fromJson(data)
+
+                if (ttnMessage == null) {
+                    Log.e(TAG, "Chirp Message not parsed")
+                    return
+                } else {
+                    Log.e(TAG, "Chirp Parsed")
+                }
+
+                ttnMapperUplinkMessage = ChirpStackUplinkToTtnMapperUplink(ttnMessage)
+
+            } catch(e: java.lang.Exception) {
+                Log.e(TAG, "Chirp can't parse received json")
+                return
+            }
         }
 
+        // If the message was not parsed, return
+        if(ttnMapperUplinkMessage == null) return
+
         // We can update the stats directly without adding info to it
-        lastTTNMessage = ttnMessage
+        lastTTNMessage = ttnMapperUplinkMessage
         numberOfPacketsRx++
         updateStats()
 
         // Make a copy, otherwise it might change while we process the packet
         val currentLocation = phoneLocation // This is likely not a deep copy, but let's hope the location service creates a new object and doesn't update this one.
         if(currentLocation != null) {
-            ttnMessage.phoneLat = currentLocation.latitude
-            ttnMessage.phoneLon = currentLocation.longitude
-            ttnMessage.phoneAlt = currentLocation.altitude
-            ttnMessage.phoneLocAcc = currentLocation.accuracy.toDouble()
-            ttnMessage.phoneLocProvider = currentLocation.provider
-            ttnMessage.phoneLocTime = CommonFunctions.getISO8601StringForMillis(currentLocation.time)
+            ttnMapperUplinkMessage.Latitude = currentLocation.latitude
+            ttnMapperUplinkMessage.Longitude = currentLocation.longitude
+            ttnMapperUplinkMessage.Altitude = currentLocation.altitude
+            ttnMapperUplinkMessage.AccuracyMeters = currentLocation.accuracy.toDouble()
+            ttnMapperUplinkMessage.AccuracySource = currentLocation.provider
         }
 
-        Log.e(TAG, "Loc Time: "+currentLocation!!.time.toString()+" == "+ttnMessage.phoneLocTime)
+        Log.e(TAG, "Loc time: "+currentLocation!!.time.toString())
+        Log.e(TAG, "Msg time: "+ttnMapperUplinkMessage.Time)
 
-        ttnMessage.phoneTime = CommonFunctions.getISO8601StringForDate(Date())
+//        ttnMapperUplinkMessage.phoneTime = CommonFunctions.getISO8601StringForDate(Date())
         val pInfo = SurveyorApp.instance.getPackageManager().getPackageInfo(SurveyorApp.instance.getPackageName(), 0)
         val version = pInfo.versionName
         val verCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
@@ -255,32 +311,18 @@ object AppAggregate {
         } else {
             pInfo.versionCode
         }
-        ttnMessage.userAgent = "Android" + android.os.Build.VERSION.RELEASE + " App" + verCode + ":" + version
-        ttnMessage.iid = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), "")
+        ttnMapperUplinkMessage.UserAgent = "Android" + android.os.Build.VERSION.RELEASE + " App" + verCode + ":" + version
+        ttnMapperUplinkMessage.UserId = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), "")
 
         // Mark as experiment
         if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_EXPERIMENT), false)) {
-            ttnMessage.experiment = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_EXPERIMENT_NAME), "experiment_" + sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), ""))
+            ttnMapperUplinkMessage.Experiment = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_EXPERIMENT_NAME), "experiment_" + sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MAPPER_IID), ""))
         }
 
-        // Find the maximum signal level used to draw circle
-        var maxLevel: Double? = null
-        for (gateway in ttnMessage.metadata?.gateways.orEmpty()) {
-            var level: Double = gateway!!.rssi!!
-            if (gateway.snr != null) {
-                if (gateway.snr!! < 0.0) {
-                    level = level + gateway.snr!!
-                }
-            }
-            if (maxLevel == null) maxLevel = level
-            if (level > maxLevel) maxLevel = level
-        }
-        ttnMessage.maxLevel = maxLevel
-
-        Log.v(TAG, ttnMessage.toString())
+        Log.v(TAG, ttnMapperUplinkMessage.toString())
 
         // Store all messages also in Room database for export to csv later
-        db?.linkDao()?.insertTtnMessage(currentSessionStart!!, ttnMessage)
+        db?.linkDao()?.insertTtnMessage(currentSessionStart!!, ttnMapperUplinkMessage)
 
         // We store the point in the database regardless of the location. But if we do not have a location, we can not draw on the map or send to server.
         if (currentLocation == null) {
@@ -295,32 +337,35 @@ object AppAggregate {
         }
 
         // Draw gateway line on map
-        for (gateway in ttnMessage.metadata?.gateways.orEmpty()) {
-            if(gateway == null) continue
+        // Find the maximum signal level used to draw circle
+        var maxLevel: Double? = null
+        for (gateway in ttnMapperUplinkMessage.Gateways.orEmpty()) {
 
-            var level: Double = gateway.rssi!!
-            if (gateway.snr != null) {
-                if (gateway.snr!! < 0.0) {
-                    level = level + gateway.snr!!
+            if(gateway.Rssi == null) continue
+
+            var level: Double = gateway.Rssi!!
+            if (gateway.Snr != null) {
+                if (gateway.Snr!! < 0.0) {
+                    level = level + gateway.Snr!!
                 }
             }
+            if (maxLevel == null) maxLevel = level
+            if (level > maxLevel) maxLevel = level
 
-//            if (gateway.latitude != null && gateway.longitude != null) {
-//                drawLineOnMap(gateway.latitude!!, gateway.longitude!!, ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(level))
-//            } else {
-                // Try and read the location from our local storage
-                val gatewayDb = db?.gatewayDao()?.findGateway(gateway.gtwId!!)
+
+            if(false /* ttn */) {
+                val gatewayDb = db?.gatewayDao()?.findGateway(gateway.GatewayId!!)
                 Log.e(TAG, "Gateway from db: "+gatewayDb.toString())
                 if(gatewayDb != null) {
                     if(gatewayDb.latitude != null && gatewayDb.longitude != null) {
                         addGatewayToMap(gatewayDb)
-                        drawLineOnMap(gatewayDb.latitude!!, gatewayDb.longitude!!, ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(level))
+                        drawLineOnMap(gatewayDb.latitude!!, gatewayDb.longitude!!, ttnMapperUplinkMessage.Latitude!!, ttnMapperUplinkMessage.Longitude!!, CommonFunctions.getColorForSignal(level))
                     }
                 } else {
                     // Finally try getting the gateway location from ttnmapper.org
-                    val gatewayData = getGatewayFromTtnMapper(gateway.gtwId!!)
+                    val gatewayData = getGatewayFromTtnMapper(gateway.GatewayId!!)
                     if(gatewayData != null) {
-                        val gatewayDbNew = Gateway(gtwId = gateway.gtwId!!)
+                        val gatewayDbNew = Gateway(gtwId = gateway.GatewayId!!)
                         gatewayDbNew.latitude = gatewayData.getDouble("latitude")
                         gatewayDbNew.longitude = gatewayData.getDouble("longitude")
                         gatewayDbNew.channels = gatewayData.getInt("channels")
@@ -329,30 +374,35 @@ object AppAggregate {
                         db?.gatewayDao()?.insertAll(gatewayDbNew)
 
                         addGatewayToMap(gatewayDbNew)
-                        drawLineOnMap(gatewayDbNew.latitude!!, gatewayDbNew.longitude!!, ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(level))
+                        drawLineOnMap(gatewayDbNew.latitude!!, gatewayDbNew.longitude!!, ttnMapperUplinkMessage.Latitude!!, ttnMapperUplinkMessage.Longitude!!, CommonFunctions.getColorForSignal(level))
                     }
                 }
-//            }
+            } else if(true /* chirp */) {
+                if (gateway.Latitude != null && gateway.Longitude != null) {
+                    drawLineOnMap(gateway.Latitude!!, gateway.Longitude!!, ttnMapperUplinkMessage.Latitude!!, ttnMapperUplinkMessage.Longitude!!, CommonFunctions.getColorForSignal(level))
+                }
+            }
         }
 
         // Draw point on map
         if (maxLevel != null) {
-            drawPointOnMap(ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(maxLevel))
+            drawPointOnMap(ttnMapperUplinkMessage.Latitude!!, ttnMapperUplinkMessage.Longitude!!, CommonFunctions.getColorForSignal(maxLevel))
         } else {
-            drawPointOnMap(ttnMessage.phoneLat!!, ttnMessage.phoneLon!!, CommonFunctions.getColorForSignal(0.0))
+            drawPointOnMap(ttnMapperUplinkMessage.Latitude!!, ttnMapperUplinkMessage.Longitude!!, CommonFunctions.getColorForSignal(0.0))
         }
 
         // And upload to TTN Mapper
         if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_UPLOAD), true)) {
-            NetworkAggregate.postToTTNMapper(ttnMessage)
+            NetworkAggregate.postToTTNMapper(ttnMapperUplinkMessage)
         }
         // Always upload to TTN Mapper before custom server, as we might modify the packet for custom servers.
         if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ENABLED), false)) {
             var serverUri = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ADDRESS), "")
             if (serverUri != null) {
-                NetworkAggregate.postToCustomServer(ttnMessage, serverUri)
+                NetworkAggregate.postToCustomServer(ttnMapperUplinkMessage, serverUri)
             }
         }
+
     }
 
     fun drawLineOnMap(startLat: Double, startLon: Double, endLat: Double, endLon: Double, colour: Long) {

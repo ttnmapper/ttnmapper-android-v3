@@ -3,7 +3,6 @@ package org.ttnmapper.phonesurveyor.aggregates
 import android.util.Log
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -12,7 +11,8 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
-import org.ttnmapper.phonesurveyor.model.TTNMessage
+import org.ttnmapper.phonesurveyor.model.TtnMapperUplinkMessage
+import org.ttnmapper.phonesurveyor.model.ttnV2.TtnUplinkMessage
 import java.io.IOException
 import java.lang.NullPointerException
 
@@ -39,11 +39,11 @@ object NetworkAggregate {
         }
     }
 
-    fun postPacket(url: String, packet: TTNMessage) {
+    fun postPacket(url: String, packet: TtnMapperUplinkMessage) {
         val moshi = Moshi.Builder()
                 .add(KotlinJsonAdapterFactory())
                 .build()
-        val jsonAdapter = moshi.adapter<TTNMessage>(TTNMessage::class.java)
+        val jsonAdapter = moshi.adapter<TtnMapperUplinkMessage>(TtnMapperUplinkMessage::class.java)
         val postBody = jsonAdapter.toJson(packet)
 
         Log.e(TAG, postBody)
@@ -65,11 +65,11 @@ object NetworkAggregate {
         }
     }
 
-    fun postToTTNMapper(packet: TTNMessage) {
+    fun postToTTNMapper(packet: TtnMapperUplinkMessage) {
         postPacket(SurveyorApp.instance.getString(R.string.TTN_MAPPER_UPLOAD_API), packet)
     }
 
-    fun postToCustomServer(packet: TTNMessage, serverUri: String) {
+    fun postToCustomServer(packet: TtnMapperUplinkMessage, serverUri: String) {
         postPacket(serverUri, packet)
     }
 

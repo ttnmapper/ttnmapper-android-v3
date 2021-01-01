@@ -75,8 +75,10 @@ class MyService : Service() {
     fun startMQTTConnection() {
         setMQTTStatusMessage("MQTT connecting")
 
-        serverUri = sanitiseMqttUri(sharedPref.getString(getString(R.string.PREF_BROKER), serverUri)
-                ?: "")
+//        serverUri = sanitiseMqttUri(sharedPref.getString(getString(R.string.PREF_BROKER), serverUri)
+//                ?: "")
+//        serverUri = "tcp://eu1.cloud.thethings.industries:1883"
+        serverUri = "tcp://192.168.86.33:1883"
         clientId = MqttClient.generateClientId()
 
         mqttAndroidClient = MqttAndroidClient(SurveyorApp.instance, serverUri, clientId)
@@ -153,8 +155,10 @@ class MyService : Service() {
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isAutomaticReconnect = true
         mqttConnectOptions.isCleanSession = true
-        mqttConnectOptions.userName = appId
-        mqttConnectOptions.password = appKey.toCharArray()
+//        mqttConnectOptions.userName = appId
+//        mqttConnectOptions.password = appKey.toCharArray()
+        mqttConnectOptions.userName = "test-app@the-box"
+        mqttConnectOptions.password = "NNSXS.5KGZLJBI23RR2BK3FRZTUVUUUEKEBER7E63X6BY.6TG3NID33ZO25AVE2S4AIPMITWSNVL5UWT2WBMQ5RKTZVODOBEXA".toCharArray()
 
         try {
 
@@ -221,7 +225,8 @@ class MyService : Service() {
     private fun subscribeToTopic() {
         deviceId = sharedPref.getString(getString(R.string.PREF_DEV_ID), deviceId)!!
 
-        val subscriptionTopic = appId + "/devices/" + deviceId + "/up"
+//        val subscriptionTopic = appId + "/devices/" + deviceId + "/up"
+        val subscriptionTopic = "#"
 
         try {
             mqttAndroidClient?.subscribe(subscriptionTopic, 0, null, object : IMqttActionListener {
@@ -233,13 +238,29 @@ class MyService : Service() {
                 override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
                     Log.w("Mqtt", "Subscribed fail!")
                     setMQTTStatusMessage("MQTT subscribe failed - check your keys")
+
+                    selfStop = true
+                    stopLocationTracking()
+                    AppAggregate.stopService()
                 }
             })
 
         } catch (ex: MqttException) {
             ex.printStackTrace()
+
+            setMQTTStatusMessage("MQTT subscribe failed - mqtt exception")
+
+            selfStop = true
+            stopLocationTracking()
+            AppAggregate.stopService()
         } catch (ex: IllegalArgumentException) {
             ex.printStackTrace()
+
+            setMQTTStatusMessage("MQTT subscribe failed - illegal argument")
+
+            selfStop = true
+            stopLocationTracking()
+            AppAggregate.stopService()
         }
 
     }

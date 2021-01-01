@@ -8,9 +8,9 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import org.json.JSONException
 import org.json.JSONObject
-import org.ttnmapper.phonesurveyor.model.Device
-import org.ttnmapper.phonesurveyor.model.TtnApplication
-import org.ttnmapper.phonesurveyor.model.TtnDevices
+import org.ttnmapper.phonesurveyor.model.ttnV2.Device
+import org.ttnmapper.phonesurveyor.model.ttnV2.TtnApplication
+import org.ttnmapper.phonesurveyor.model.ttnV2.TtnDevices
 import java.io.IOException
 
 object TtnLoginAggregate {
@@ -60,8 +60,9 @@ object TtnLoginAggregate {
                 .url(url)
                 .build()
 
-        NetworkAggregate.client.newCall(request).execute().use { response ->
-            /*
+        try {
+            NetworkAggregate.client.newCall(request).execute().use { response ->
+                /*
                 [
                     {"id":"sodaq_testing",
                      "name":"van alles",
@@ -80,21 +81,25 @@ object TtnLoginAggregate {
                     {"id":"jpm_testing","name":"general testing nodes","euis":["70B3D57EF0003304"],"created":"2017-01-17T14:47:09.740Z","rights":["settings","delete","collaborators","devices"],"collaborators":[{"username":"jpmeijers","email":"ttn@jpmeijers.com","rights":["settings","delete","collaborators","devices"]}],"access_keys":[{"name":"default key","key":"ttn-account-v2.76hcK6z-BE2aZwjjB9AcotZq2p9JDtN-MmMGB2jZe1w","_id":"587e2e6dbc438d00317f1544","rights":["messages:up:r","messages:down:w"]}]}
                 ]
                 */
-            val responseString = response.body?.string()
+                val responseString = response.body?.string()
 //            Log.e(TAG, responseString)
 
-            val moshi = Moshi.Builder()
-                    .add(KotlinJsonAdapterFactory())
-                    .build()
-            val listType = Types.newParameterizedType(List::class.java, TtnApplication::class.java)
-            val jsonAdapter = moshi.adapter<List<TtnApplication>>(listType)
-            try {
-                ttnApplications = jsonAdapter.fromJson(responseString!!)
-                return true
-            } catch (e: Exception) {
-                Log.e(TAG, e.message!!)
-                return false
+                val moshi = Moshi.Builder()
+                        .add(KotlinJsonAdapterFactory())
+                        .build()
+                val listType = Types.newParameterizedType(List::class.java, TtnApplication::class.java)
+                val jsonAdapter = moshi.adapter<List<TtnApplication>>(listType)
+                try {
+                    ttnApplications = jsonAdapter.fromJson(responseString!!)
+                    return true
+                } catch (e: Exception) {
+                    Log.e(TAG, e.message!!)
+                    return false
+                }
             }
+        } catch (e: Exception) {
+            Log.e(TAG, e.message!!)
+            return false
         }
 
     }
@@ -107,6 +112,7 @@ object TtnLoginAggregate {
                 .url(url)
                 .build()
 
+        try {
         NetworkAggregate.client.newCall(request).execute().use { response ->
 
             val responseString = response.body?.string()
@@ -164,6 +170,10 @@ object TtnLoginAggregate {
             } catch (e: Exception) {
                 return false
             }
+        }
+        } catch (e: Exception) {
+            Log.e(TAG, e.message!!)
+            return false
         }
     }
 

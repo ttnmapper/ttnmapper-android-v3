@@ -8,7 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.aggregates.TtnLoginAggregate
-import org.ttnmapper.phonesurveyor.model.Device
+import org.ttnmapper.phonesurveyor.model.ttnV2.Device
 
 class DevicesAdapter(private val context: Context) : BaseAdapter() {
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater

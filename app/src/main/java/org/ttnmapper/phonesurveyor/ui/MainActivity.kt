@@ -12,7 +12,6 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.util.Log
-import android.view.MenuItem
 import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -21,20 +20,17 @@ import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.osmdroid.config.Configuration
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
-import org.ttnmapper.phonesurveyor.databinding.ActivityDeepLinkConfigureBinding
 import org.ttnmapper.phonesurveyor.databinding.ActivityMainBinding
-import org.ttnmapper.phonesurveyor.model.GatewayMetadata
 import org.ttnmapper.phonesurveyor.room.AppDatabase
 import org.ttnmapper.phonesurveyor.room.Gateway
+import org.ttnmapper.phonesurveyor.room.MIGRATION_1_2
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions
-import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -121,7 +117,8 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         AppAggregate.db = Room.databaseBuilder(
                 applicationContext,
                 AppDatabase::class.java, "ttnmapper"
-        ).build()
+        )
+        .addMigrations(MIGRATION_1_2).build()
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)

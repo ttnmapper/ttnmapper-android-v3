@@ -3,20 +3,15 @@ package org.ttnmapper.phonesurveyor.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.media.MediaScannerConnection
-import android.net.Uri
 import android.os.Build
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import org.ttnmapper.phonesurveyor.SurveyorApp
-import org.ttnmapper.phonesurveyor.model.GatewayMetadata
-import org.ttnmapper.phonesurveyor.model.TTNMessage
+import org.ttnmapper.phonesurveyor.model.ttnV2.GatewayMetadata
+import org.ttnmapper.phonesurveyor.model.ttnV2.TtnUplinkMessage
 import org.ttnmapper.phonesurveyor.room.Link
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
@@ -122,63 +117,6 @@ class CommonFunctions {
                     targetProp.setter.call(this, matchingProp.getter.call(fromObject))
                 }
             }
-        }
-
-        fun copyTtnToLink(sessionStart: Date, ttnMessage: TTNMessage, gatewayMetadata: GatewayMetadata): Link {
-            val link = Link(uid=0, session = getISO8601StringForDate(sessionStart))
-
-            link.appId = ttnMessage.appId
-            link.devId = ttnMessage.devId
-            link.hardwareSerial = ttnMessage.hardwareSerial
-            link.fPort = ttnMessage.fPort
-            link.fCnt = ttnMessage.fCnt
-
-            // Metadata
-            link.time = ttnMessage.metadata?.time
-            link.frequency = ttnMessage.metadata?.frequency
-            link.modulation = ttnMessage.metadata?.modulation
-            link.dataRate = ttnMessage.metadata?.dataRate
-            link.bitrate = ttnMessage.metadata?.bitrate
-            link.codingRate = ttnMessage.metadata?.codingRate
-
-            // Device Location Metadata
-            link.devLatitude = ttnMessage.metadata?.latitude
-            link.devLongitude = ttnMessage.metadata?.longitude
-            link.devAltitude = ttnMessage.metadata?.altitude
-            link.devLocationAccuracy = ttnMessage.metadata?.accuracy
-            link.devLocationSource = ttnMessage.metadata?.source
-
-            // If multiple gateways, store signal for strongest
-            link.maxSignal = ttnMessage.maxLevel
-
-            // Gateway
-            link.gtwId = gatewayMetadata.gtwId
-            link.antenna = gatewayMetadata.antenna
-            link.channel = gatewayMetadata.channel
-            link.rssi = gatewayMetadata.rssi
-            link.snr = gatewayMetadata.snr
-            link.rfChain = gatewayMetadata.rfChain
-
-            // Gateway Location Metadata
-            link.gtwLatitude = gatewayMetadata.latitude
-            link.gtwLongitude = gatewayMetadata.longitude
-            link.gtwAltitude = gatewayMetadata.altitude
-            link.gtwLocationAccuracy = gatewayMetadata.accuracy
-            link.gtwLocationSource = gatewayMetadata.source
-
-            // Custom attributes for ttn mapper
-            link.phoneLat = ttnMessage.phoneLat
-            link.phoneLon = ttnMessage.phoneLon
-            link.phoneAlt = ttnMessage.phoneAlt
-            link.phoneLocAcc = ttnMessage.phoneLocAcc
-            link.phoneLocProvider = ttnMessage.phoneLocProvider
-            link.phoneLocTime = ttnMessage.phoneLocTime
-            link.phoneTime = ttnMessage.phoneTime
-            link.userAgent = ttnMessage.userAgent
-            link.iid = ttnMessage.iid
-            link.experiment = ttnMessage.experiment
-
-            return link
         }
 
     }

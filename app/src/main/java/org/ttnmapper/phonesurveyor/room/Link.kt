@@ -3,6 +3,7 @@ package org.ttnmapper.phonesurveyor.room
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.squareup.moshi.Json
 import java.util.*
 
 @Entity
@@ -10,56 +11,52 @@ data class Link(
         @PrimaryKey(autoGenerate = true)
         val uid: Int = 0,
 
-        var session: String = "",
+        var Session: String = "",
 
-        var appId: String? = null, // jpm_sodaq_one
-        var devId: String? = null, // sodaq-one-v3-box
-        var hardwareSerial: String? = null, // 0004A30B00200CA5
-        var fPort: Int? = null, // 1
-        var fCnt: Int? = null, // 347
+        var AppID:  String? = null,
+        var DevID:  String? = null,
+        var DevEui: String? = null,
 
-        // Metadata
-        var time: String? = null, // 2018-03-18T10:05:45.391032906Z
-        var frequency: Double? = null, // 868.5
-        var modulation: String? = null, // LORA
-        var dataRate: String? = null, // SF7BW125
-        var bitrate: Int? = null,
-        var codingRate: String? = null, // 4/5
+        var Time: Long? = null,
 
-        // Device Location Metadata
-        var devLatitude: Double? = null,
-        var devLongitude: Double? = null,
-        var devAltitude: Int? = null,
-        var devLocationAccuracy: Int? = null,
-        var devLocationSource: String? = null,
+        var FPort: Int? = null,
+        var FCnt:  Long? = null,
 
-        // If multiple gateways, store signal for strongest
-        var maxSignal: Double? = null,
+        var Frequency: Long? = null,
+        var Modulation: String? = null,
+        var Bandwidth: Long? = null,
+        var SpreadingFactor: Int? = null,
+        var Bitrate: Long? = null,
+        var CodingRate: String? = null,
 
         // Gateway
-        var gtwId: String? = null, // eui-88c255fffe6dfb04
-        var antenna: Int? = null,
-        var channel: Int? = null, // 2
-        var rssi: Double? = null, // -95
-        var snr: Double? = null, // 6.8
-        var rfChain: Int? = null, // 1
+        var GatewayId: String? = null,
+        var GatewayEui: String? = null,
+        var AntennaIndex: Int? = null,
+        var GatewayTime: Long? = null,
+        var GatewayTimestamp: Long? = null,
+        var FineTimestamp: Long? = null,
+        var FineTimestampEncrypted: String? = null,
+        var FineTimestampEncryptedKeyId: String? = null,
+        var ChannelIndex: Int? = null,
+        var Rssi: Double? = null,
+        var SignalRssi: Double? = null,
+        var Snr: Double? = null,
+        var GatewayLatitude: Double? = null,
+        var GatewayLongitude: Double? = null,
+        var GatewayAltitude: Int? = null,
+        var GatewayLocationAccuracy: Int? = null,
+        var GatewayLocationSource: String? = null,
 
-        // Gateway Location Metadata
-        var gtwLatitude: Double? = null,
-        var gtwLongitude: Double? = null,
-        var gtwAltitude: Int? = null,
-        var gtwLocationAccuracy: Int? = null,
-        var gtwLocationSource: String? = null,
+        var Latitude: Double? = null,
+        var Longitude: Double? = null,
+        var Altitude: Double? = null,
+        var AccuracyMeters: Double? = null,
+        var Satellites: Int? = null,
+        var Hdop: Double? = null,
+        var AccuracySource: String? = null,
 
-        // Custom attributes for ttn mapper
-        var phoneLat: Double? = null, // -34.0484124
-        var phoneLon: Double? = null, // 18.8214014
-        var phoneAlt: Double? = null, // 184.9958825503345
-        var phoneLocAcc: Double? = null, // 10
-        var phoneLocProvider: String? = null, // fused
-        var phoneLocTime: String? = null, // 2018-03-18T10:05:44Z
-        var phoneTime: String? = null, // 2018-03-18T10:05:44Z
-        var userAgent: String? = null, // Android7.0 App30:2018.03.04
-        var iid: String? = null, //some random number
-        var experiment: String? = null // experiment name
+        var Experiment: String? = null,
+        var UserId: String? = null,
+        var UserAgent: String? = null,
 )
