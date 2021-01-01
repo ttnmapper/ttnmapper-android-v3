@@ -1,0 +1,318 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "2e97dc73268e26e00cc3e30f40672fb1",
+    "entities": [
+      {
+        "tableName": "Link",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `session` TEXT NOT NULL, `appId` TEXT, `devId` TEXT, `hardwareSerial` TEXT, `fPort` INTEGER, `fCnt` INTEGER, `time` TEXT, `frequency` REAL, `modulation` TEXT, `dataRate` TEXT, `bitrate` INTEGER, `codingRate` TEXT, `devLatitude` REAL, `devLongitude` REAL, `devAltitude` INTEGER, `devLocationAccuracy` INTEGER, `devLocationSource` TEXT, `maxSignal` REAL, `gtwId` TEXT, `antenna` INTEGER, `channel` INTEGER, `rssi` REAL, `snr` REAL, `rfChain` INTEGER, `gtwLatitude` REAL, `gtwLongitude` REAL, `gtwAltitude` INTEGER, `gtwLocationAccuracy` INTEGER, `gtwLocationSource` TEXT, `phoneLat` REAL, `phoneLon` REAL, `phoneAlt` REAL, `phoneLocAcc` REAL, `phoneLocProvider` TEXT, `phoneLocTime` TEXT, `phoneTime` TEXT, `userAgent` TEXT, `iid` TEXT, `experiment` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "uid",
+            "columnName": "uid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "session",
+            "columnName": "session",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appId",
+            "columnName": "appId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "devId",
+            "columnName": "devId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "hardwareSerial",
+            "columnName": "hardwareSerial",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fPort",
+            "columnName": "fPort",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "fCnt",
+            "columnName": "fCnt",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "time",
+            "columnName": "time",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "frequency",
+            "columnName": "frequency",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "modulation",
+            "columnName": "modulation",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "dataRate",
+            "columnName": "dataRate",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bitrate",
+            "columnName": "bitrate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "codingRate",
+            "columnName": "codingRate",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "devLatitude",
+            "columnName": "devLatitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "devLongitude",
+            "columnName": "devLongitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "devAltitude",
+            "columnName": "devAltitude",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "devLocationAccuracy",
+            "columnName": "devLocationAccuracy",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "devLocationSource",
+            "columnName": "devLocationSource",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "maxSignal",
+            "columnName": "maxSignal",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gtwId",
+            "columnName": "gtwId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "antenna",
+            "columnName": "antenna",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "channel",
+            "columnName": "channel",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "rssi",
+            "columnName": "rssi",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "snr",
+            "columnName": "snr",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "rfChain",
+            "columnName": "rfChain",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gtwLatitude",
+            "columnName": "gtwLatitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gtwLongitude",
+            "columnName": "gtwLongitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gtwAltitude",
+            "columnName": "gtwAltitude",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gtwLocationAccuracy",
+            "columnName": "gtwLocationAccuracy",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gtwLocationSource",
+            "columnName": "gtwLocationSource",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "phoneLat",
+            "columnName": "phoneLat",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "phoneLon",
+            "columnName": "phoneLon",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "phoneAlt",
+            "columnName": "phoneAlt",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "phoneLocAcc",
+            "columnName": "phoneLocAcc",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "phoneLocProvider",
+            "columnName": "phoneLocProvider",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "phoneLocTime",
+            "columnName": "phoneLocTime",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "phoneTime",
+            "columnName": "phoneTime",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "userAgent",
+            "columnName": "userAgent",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "iid",
+            "columnName": "iid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "experiment",
+            "columnName": "experiment",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uid"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Gateway",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `gtwId` TEXT NOT NULL, `description` TEXT, `latitude` REAL, `longitude` REAL, `channels` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "uid",
+            "columnName": "uid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gtwId",
+            "columnName": "gtwId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "channels",
+            "columnName": "channels",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uid"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2e97dc73268e26e00cc3e30f40672fb1')"
+    ]
+  }
+}

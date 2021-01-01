@@ -1,0 +1,324 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "58c25a80f8ce6a83048effe12ea035fe",
+    "entities": [
+      {
+        "tableName": "Link",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Session` TEXT NOT NULL, `AppID` TEXT, `DevID` TEXT, `DevEui` TEXT, `Time` INTEGER, `FPort` INTEGER, `FCnt` INTEGER, `Frequency` INTEGER, `Modulation` TEXT, `Bandwidth` INTEGER, `SpreadingFactor` INTEGER, `Bitrate` INTEGER, `CodingRate` TEXT, `GatewayId` TEXT, `GatewayEui` TEXT, `AntennaIndex` INTEGER, `GatewayTime` INTEGER, `GatewayTimestamp` INTEGER, `FineTimestamp` INTEGER, `FineTimestampEncrypted` TEXT, `FineTimestampEncryptedKeyId` TEXT, `ChannelIndex` INTEGER, `Rssi` REAL, `SignalRssi` REAL, `Snr` REAL, `GatewayLatitude` REAL, `GatewayLongitude` REAL, `GatewayAltitude` INTEGER, `GatewayLocationAccuracy` INTEGER, `GatewayLocationSource` TEXT, `Latitude` REAL, `Longitude` REAL, `Altitude` REAL, `AccuracyMeters` REAL, `Satellites` INTEGER, `Hdop` REAL, `AccuracySource` TEXT, `Experiment` TEXT, `UserId` TEXT, `UserAgent` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "uid",
+            "columnName": "uid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "Session",
+            "columnName": "Session",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "AppID",
+            "columnName": "AppID",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "DevID",
+            "columnName": "DevID",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "DevEui",
+            "columnName": "DevEui",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Time",
+            "columnName": "Time",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "FPort",
+            "columnName": "FPort",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "FCnt",
+            "columnName": "FCnt",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Frequency",
+            "columnName": "Frequency",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Modulation",
+            "columnName": "Modulation",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Bandwidth",
+            "columnName": "Bandwidth",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "SpreadingFactor",
+            "columnName": "SpreadingFactor",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Bitrate",
+            "columnName": "Bitrate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "CodingRate",
+            "columnName": "CodingRate",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "GatewayId",
+            "columnName": "GatewayId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "GatewayEui",
+            "columnName": "GatewayEui",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "AntennaIndex",
+            "columnName": "AntennaIndex",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "GatewayTime",
+            "columnName": "GatewayTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "GatewayTimestamp",
+            "columnName": "GatewayTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "FineTimestamp",
+            "columnName": "FineTimestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "FineTimestampEncrypted",
+            "columnName": "FineTimestampEncrypted",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "FineTimestampEncryptedKeyId",
+            "columnName": "FineTimestampEncryptedKeyId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ChannelIndex",
+            "columnName": "ChannelIndex",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Rssi",
+            "columnName": "Rssi",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "SignalRssi",
+            "columnName": "SignalRssi",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Snr",
+            "columnName": "Snr",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "GatewayLatitude",
+            "columnName": "GatewayLatitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "GatewayLongitude",
+            "columnName": "GatewayLongitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "GatewayAltitude",
+            "columnName": "GatewayAltitude",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "GatewayLocationAccuracy",
+            "columnName": "GatewayLocationAccuracy",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "GatewayLocationSource",
+            "columnName": "GatewayLocationSource",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Latitude",
+            "columnName": "Latitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Longitude",
+            "columnName": "Longitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Altitude",
+            "columnName": "Altitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "AccuracyMeters",
+            "columnName": "AccuracyMeters",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Satellites",
+            "columnName": "Satellites",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Hdop",
+            "columnName": "Hdop",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "AccuracySource",
+            "columnName": "AccuracySource",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "Experiment",
+            "columnName": "Experiment",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "UserId",
+            "columnName": "UserId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "UserAgent",
+            "columnName": "UserAgent",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uid"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Gateway",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `gtwId` TEXT NOT NULL, `description` TEXT, `latitude` REAL, `longitude` REAL, `channels` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "uid",
+            "columnName": "uid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gtwId",
+            "columnName": "gtwId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "channels",
+            "columnName": "channels",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uid"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '58c25a80f8ce6a83048effe12ea035fe')"
+    ]
+  }
+}
