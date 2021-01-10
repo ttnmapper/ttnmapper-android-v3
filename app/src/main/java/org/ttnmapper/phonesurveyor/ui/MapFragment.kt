@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
@@ -221,7 +222,6 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
             }
 
             override fun onScroll(scrollEvent: ScrollEvent): Boolean {
-                Log.d(TAG, "map onScroll")
                 if (scrollEvent.x == 0 && scrollEvent.y == 0) {
                     //Ignore onScroll that is called onCreate and on screen rotate
                 } else {
@@ -381,19 +381,30 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
             return
         }
 
-        var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+
+        val icon = when(sharedPreferences.getString(getString(R.string.PREF_NETWORK_SERVER), "")) {
+            getString(R.string.NS_TTN_V2) -> ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_gateway_dot_24dp, null)
+            getString(R.string.NS_TTS_V3) -> ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_tts_24dp, null)
+            getString(R.string.NS_CHIRP) -> ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_chirp_24dp, null)
+            else -> ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.ic_gateway_dot_24dp, null)
+        }
+
         if (sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
 
             if (gateway.latitude != null && gateway.longitude != null) {
-                var gatewayMarker = Marker(binding.map);
-                gatewayMarker.icon = SurveyorApp.instance.getDrawable(R.drawable.ic_gateway_dot_vector)
+                val gatewayMarker = Marker(binding.map)
+                gatewayMarker.icon = icon
                 gatewayMarker.setPosition(GeoPoint(gateway.latitude!!, gateway.longitude!!))
                 gatewayMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                gatewayMarker.title = gateway.gtwId + "\n" + gateway.description
+                if(gateway.description.isNullOrBlank()) {
+                    gatewayMarker.title = gateway.gtwId
+                } else {
+                    gatewayMarker.title = gateway.gtwId + "\n" + gateway.description
+                }
                 binding.map.getOverlays().add(gatewayMarker)
                 binding.map.invalidate()
 
-                MapAggregate.seenGateways.put(gateway.gtwId!!, gateway)
             }
         }
     }

@@ -7,38 +7,50 @@
         android:key="device_preference_screen"
         android:title="Linked device"
         android:summary="Modify the linked device">
-        <EditTextPreference
-            android:key="@string/PREF_APP_ID"
-            android:title="Application ID"
-            android:summary="The ID of the application. This is also the MQTT username."
-            android:dialogTitle="Application ID"
-            android:defaultValue="app_id" />
-        <EditTextPreference
-            android:key="@string/PREF_APP_KEY"
-            android:title="Application Key"
-            android:summary="The Access Key of the application. This is also the MQTT password. ex: ttn-account-v2.aB..."
-            android:dialogTitle="Application Key"
-            android:defaultValue="ttn-account-v2.zFhflrXwHYwAY2Tqb1KkRyx0xWz8M_f6p2lm7zzl87A" />
-        <EditTextPreference
-            android:key="@string/PREF_DEV_ID"
-            android:title="Device ID"
-            android:summary="The ID of the device you are mapping with."
-            android:dialogTitle="Device ID"
-            android:defaultValue="+" />
-        <EditTextPreference
-            android:key="@string/PREF_BROKER"
-            android:title="MQTT URL"
-            android:summary="The MQTT URL of the TTN message broker. ex: eu.thethings.network:1883"
-            android:dialogTitle="MQTT URL"
-            android:defaultValue="tcp://eu.thethings.network:1883" />
         <Preference
-            android:title="Log in to TTNv2 and choose a device"
-            android:icon="@drawable/ic_ttncropped">
+            android:title="Link a new device"
+            android:summary="Click here to choose your server and link a device">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:targetPackage="org.ttnmapper.phonesurveyor"
-                android:targetClass="org.ttnmapper.phonesurveyor.ui.TtnLoginActivity" />
+                android:targetClass="org.ttnmapper.phonesurveyor.ui.LinkSelectNetworkActivity" />
         </Preference>
+        <ListPreference
+            android:key="@string/PREF_NETWORK_SERVER"
+            android:title="Network server"
+            android:summary="Choose the network server type your network is using."
+            android:defaultValue="@string/NS_TTN_V2"
+            android:entries="@array/networkServerTypes"
+            android:entryValues="@array/networkServerTypesKeys"
+            android:enabled="false" />
+        <EditTextPreference
+            android:key="@string/PREF_MQTT_USERNAME"
+            android:title="MQTT username"
+            android:summary="The MQTT username. This is normally also the ID of the application."
+            android:dialogTitle="MQTT username"
+            android:defaultValue="mqtt_username"
+            android:enabled="false" />
+        <EditTextPreference
+            android:key="@string/PREF_MQTT_PASSWORD"
+            android:title="MQTT Password"
+            android:summary="The MQTT password. This is sometimes called the Access Key of the application. ex: ttn-account-v2.aB..."
+            android:dialogTitle="MQTT Password"
+            android:defaultValue="mqtt_password"
+            android:enabled="false" />
+        <EditTextPreference
+            android:key="@string/PREF_MQTT_TOPIC"
+            android:title="MQTT topic"
+            android:summary="The MQTT topic to subscribe to for receiving uplink messages from the mapping device."
+            android:dialogTitle="MQTT topic"
+            android:defaultValue="#"
+            android:enabled="false" />
+        <EditTextPreference
+            android:key="@string/PREF_MQTT_BROKER"
+            android:title="MQTT broker URL"
+            android:summary="The MQTT URL of the message broker. ex: eu.thethings.network:1883"
+            android:dialogTitle="MQTT URL"
+            android:defaultValue="eu.thethings.network:1883"
+            android:enabled="false" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -146,6 +158,10 @@
     <PreferenceCategory
         android:key="about"
         android:title="About">
+        <Preference
+            android:title="Copy Log Output"
+            android:key="bugreport"
+            android:summary="To report a bug you can paste these logs into an email and send it to android@ttnmapper.org" />
         <!--<Preference-->
         <!--android:title="App Version"-->
         <!--android:summary="3" />-->

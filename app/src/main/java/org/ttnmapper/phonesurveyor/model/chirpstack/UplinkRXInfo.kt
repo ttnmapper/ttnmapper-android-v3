@@ -5,6 +5,7 @@ package org.ttnmapper.phonesurveyor.model.chirpstack
 class UplinkRXInfo {
     var gatewayID: String? = null
     var uplinkID: String? = null
+    var name: String? = null
     var time: String? = null
     var time_since_gps_epoch: Long? = null
     var rssi: Int? = null

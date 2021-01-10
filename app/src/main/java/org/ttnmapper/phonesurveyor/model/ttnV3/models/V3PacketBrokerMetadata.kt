@@ -32,7 +32,7 @@ data class V3PacketBrokerMetadata (
     val messageId: kotlin.String? = null,
     /* LoRa Alliance NetID of the Packet Broker Forwarder Member. */
     @Json(name = "forwarder_net_id")
-    val forwarderNetId: kotlin.ByteArray? = null,
+    val forwarderNetId: kotlin.String? = null,
     /* Tenant ID managed by the Packet Broker Forwarder Member. */
     @Json(name = "forwarder_tenant_id")
     val forwarderTenantId: kotlin.String? = null,
@@ -41,7 +41,7 @@ data class V3PacketBrokerMetadata (
     val forwarderId: kotlin.String? = null,
     /* LoRa Alliance NetID of the Packet Broker Home Network Member. */
     @Json(name = "home_network_net_id")
-    val homeNetworkNetId: kotlin.ByteArray? = null,
+    val homeNetworkNetId: kotlin.String? = null,
     /* Tenant ID managed by the Packet Broker Home Network Member. This value is empty if it cannot be determined by the Packet Broker Router. */
     @Json(name = "home_network_tenant_id")
     val homeNetworkTenantId: kotlin.String? = null,

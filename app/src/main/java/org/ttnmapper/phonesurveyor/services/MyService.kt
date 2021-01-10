@@ -2,26 +2,21 @@ package org.ttnmapper.phonesurveyor.services
 
 import android.app.Service
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.net.Uri
 import android.os.*
 import android.preference.PreferenceManager
-import android.provider.Settings
 import androidx.core.content.ContextCompat
 import android.util.Log
-import androidx.appcompat.app.AlertDialog
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
-import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 import org.ttnmapper.phonesurveyor.utils.AppConstants
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.sanitiseMqttUri
 import java.util.*
@@ -39,9 +34,10 @@ class MyService : Service() {
 
     var serverUri = ""
     var clientId = ""
+    var networkType = ""
     var deviceId = ""
-    var appId = ""
-    var appKey = ""
+    var mqttUsername = ""
+    var mqttPassword = ""
 
     var handlerMqttStatus = Handler()
     var handlerGpsStatus = Handler()
@@ -75,10 +71,7 @@ class MyService : Service() {
     fun startMQTTConnection() {
         setMQTTStatusMessage("MQTT connecting")
 
-//        serverUri = sanitiseMqttUri(sharedPref.getString(getString(R.string.PREF_BROKER), serverUri)
-//                ?: "")
-//        serverUri = "tcp://eu1.cloud.thethings.industries:1883"
-        serverUri = "tcp://192.168.86.33:1883"
+        serverUri = sanitiseMqttUri(sharedPref.getString(getString(R.string.PREF_MQTT_BROKER), serverUri) ?: "")
         clientId = MqttClient.generateClientId()
 
         mqttAndroidClient = MqttAndroidClient(SurveyorApp.instance, serverUri, clientId)
@@ -146,19 +139,17 @@ class MyService : Service() {
     }
 
     private fun connect() {
-        appId = sharedPref.getString(getString(R.string.PREF_APP_ID), appId)!!
-        appKey = sharedPref.getString(getString(R.string.PREF_APP_KEY), appKey)!!
+        mqttUsername = sharedPref.getString(getString(R.string.PREF_MQTT_USERNAME), mqttUsername).toString()
+        mqttPassword = sharedPref.getString(getString(R.string.PREF_MQTT_PASSWORD), mqttPassword).toString()
 
-        Log.e(TAG, "Using appId: " + appId)
-        Log.e(TAG, "Using appKey: " + appKey)
+        Log.e(TAG, "Using MQTT username: " + mqttUsername)
+        Log.e(TAG, "Using MQTT password: " + mqttPassword)
 
         val mqttConnectOptions = MqttConnectOptions()
         mqttConnectOptions.isAutomaticReconnect = true
         mqttConnectOptions.isCleanSession = true
-//        mqttConnectOptions.userName = appId
-//        mqttConnectOptions.password = appKey.toCharArray()
-        mqttConnectOptions.userName = "test-app@the-box"
-        mqttConnectOptions.password = "NNSXS.5KGZLJBI23RR2BK3FRZTUVUUUEKEBER7E63X6BY.6TG3NID33ZO25AVE2S4AIPMITWSNVL5UWT2WBMQ5RKTZVODOBEXA".toCharArray()
+        mqttConnectOptions.userName = mqttUsername
+        mqttConnectOptions.password = mqttPassword.toCharArray()
 
         try {
 
@@ -223,10 +214,7 @@ class MyService : Service() {
     }
 
     private fun subscribeToTopic() {
-        deviceId = sharedPref.getString(getString(R.string.PREF_DEV_ID), deviceId)!!
-
-//        val subscriptionTopic = appId + "/devices/" + deviceId + "/up"
-        val subscriptionTopic = "#"
+        val subscriptionTopic = sharedPref.getString(getString(R.string.PREF_MQTT_TOPIC), "#").toString()
 
         try {
             mqttAndroidClient?.subscribe(subscriptionTopic, 0, null, object : IMqttActionListener {
@@ -272,10 +260,10 @@ class MyService : Service() {
 
     fun setMQTTCountupMessage(date: Date) {
         handlerMqttStatus.removeCallbacksAndMessages(null);
-        AppAggregate.setMQTTStatusMessage("TTN message received now")
+        AppAggregate.setMQTTStatusMessage("Packet received now")
         val r = object : Runnable {
             override fun run() {
-                AppAggregate.setMQTTStatusMessage("TTN message received " + datesToDurationString(date, Date()))
+                AppAggregate.setMQTTStatusMessage("Packet received " + datesToDurationString(date, Date()))
                 handlerMqttStatus.postDelayed(this, 1000) //ms
             }
         }

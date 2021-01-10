@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
+import androidx.preference.PreferenceManager
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.openapitools.client.models.V3ApplicationUp
@@ -71,12 +72,12 @@ object AppAggregate {
     fun startService() {
         val serviceClass = MyService::class.java
         val serviceIntent = Intent(SurveyorApp.instance.applicationContext, serviceClass)
+        currentSessionStart = Date()
 
         // If the service is not running then start it
         if (!isServiceRunning(serviceClass)) {
             // Start the service
             Log.e(TAG, "Starting new service")
-            currentSessionStart = Date()
             SurveyorApp.instance.startService(serviceIntent)
             SurveyorApp.instance.bindService(serviceIntent, myConnection, Context.BIND_AUTO_CREATE)
         } else {
@@ -95,14 +96,14 @@ object AppAggregate {
         try {
             SurveyorApp.instance.unbindService(myConnection)
         } catch (e: IllegalArgumentException) {
-            Log.w("MainActivity", "Error Unbinding Service.")
+            Log.e(TAG, "Error Unbinding Service.")
         }
         // If the service is not running then start it
         if (isServiceRunning(serviceClass)) {
             // Stop the service
             SurveyorApp.instance.stopService(serviceIntent)
         } else {
-            toast("Service already stopped.")
+            Log.e(TAG, "Service already stopped.")
         }
 
         mainActivity?.updateStartStopButton(false)
@@ -189,33 +190,38 @@ object AppAggregate {
         notificationManager.notify(1000, mNotification)
     }
 
-    @ExperimentalUnsignedTypes
     fun processMessage(topic: String, data: String) {
         Log.e(TAG, "Processing new message")
-        //sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance) // set in main activity
 
-        if(sharedPref == null) {
-            Log.e(TAG, "sharedPref is null at start of processMessage")
+        if(currentSessionStart == null) {
+            Log.e(TAG, "currentSessionStart is null at start of processMessage")
+            stopService()
             return
         }
 
-        if (!topic.endsWith("up")) {
-            //TODO: Not an uplink message
-            Log.e(TAG, "Not an uplink message")
-            return
+        if(sharedPref == null) { // set in main activity if all is good
+            sharedPref = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+            if (sharedPref == null) {
+                Log.e(TAG, "sharedPref is null at start of processMessage")
+                stopService()
+                return
+            }
         }
 
-        // Play a ringtone if enabled
-        if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_PLAY_SOUND), false)) {
-            val defaultNotification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-            val notification = Uri.parse(sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_SOUND_URI), defaultNotification.toString()))
-            val r = RingtoneManager.getRingtone(mainActivity, notification)
-            r.play()
-        }
 
-        var ttnMapperUplinkMessage: TtnMapperUplinkMessage? = null
+        val ttnMapperUplinkMessage: TtnMapperUplinkMessage?
 
-        if(false /*v3*/) {
+        val networkServer = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_NETWORK_SERVER), "").toString()
+
+        var networkAddress =
+                CommonFunctions.sanitiseMqttUri(
+                        sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MQTT_BROKER), "")!!
+                ).removePrefix("tcp://")
+        // Remove port
+        networkAddress = networkAddress.substringBeforeLast(':')
+
+        // TTI v3
+        if(networkServer.equals(SurveyorApp.instance.getString(R.string.NS_TTS_V3))) {
             val moshi = Moshi.Builder()
                     .add(KotlinJsonAdapterFactory())
                     .add(OffsetDateTimeAdapter())
@@ -232,14 +238,25 @@ object AppAggregate {
                 }
 
                 ttnMapperUplinkMessage = ttnV3UplinkToTtnMapperUplink(ttnMessage)
+
+                ttnMapperUplinkMessage.NetworkType = networkServer
+
+                val tenant = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_MQTT_USERNAME), "")?.split("@")
+                if(tenant?.size == 2) {
+                    ttnMapperUplinkMessage.NetworkAddress = tenant[1] + "." + networkAddress
+                } else {
+                    ttnMapperUplinkMessage.NetworkAddress = networkAddress
+                }
+
             } catch (e: Exception) {
                 Log.e(TAG, "V3 Can't parse received json")
+                Log.e(TAG, e.toString())
                 return
             }
 
 
-
-        } else if(false /*v2*/) {
+        // TTN v2
+        } else if(networkServer.equals(SurveyorApp.instance.getString(R.string.NS_TTN_V2))) {
             val moshi = Moshi.Builder()
                     .add(KotlinJsonAdapterFactory())
                     .build()
@@ -255,11 +272,17 @@ object AppAggregate {
                 }
 
                 ttnMapperUplinkMessage = ttnV2UplinkToTtnMapperUplink(ttnMessage)
+
+                ttnMapperUplinkMessage.NetworkType = networkServer
+                ttnMapperUplinkMessage.NetworkAddress = networkAddress
             } catch(e: java.lang.Exception) {
                 Log.e(TAG, "V2 Can't parse received json")
                 return
             }
-        } else if(true /*chirp*/) {
+
+
+        // Chirp Stack
+        } else if(networkServer.equals(SurveyorApp.instance.getString(R.string.NS_CHIRP))) {
             try {
                 val moshi = Moshi.Builder()
                         .add(KotlinJsonAdapterFactory())
@@ -276,14 +299,26 @@ object AppAggregate {
 
                 ttnMapperUplinkMessage = ChirpStackUplinkToTtnMapperUplink(ttnMessage)
 
+                ttnMapperUplinkMessage.NetworkType = networkServer
+                ttnMapperUplinkMessage.NetworkAddress = networkAddress
+
             } catch(e: java.lang.Exception) {
                 Log.e(TAG, "Chirp can't parse received json")
                 return
             }
+        } else {
+            return
         }
 
-        // If the message was not parsed, return
-        if(ttnMapperUplinkMessage == null) return
+
+        // Play a ringtone if enabled
+        if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_PLAY_SOUND), false)) {
+            val defaultNotification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val notification = Uri.parse(sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_SOUND_URI), defaultNotification.toString()))
+            val r = RingtoneManager.getRingtone(mainActivity, notification)
+            r.play()
+        }
+
 
         // We can update the stats directly without adding info to it
         lastTTNMessage = ttnMapperUplinkMessage
@@ -300,10 +335,6 @@ object AppAggregate {
             ttnMapperUplinkMessage.AccuracySource = currentLocation.provider
         }
 
-        Log.e(TAG, "Loc time: "+currentLocation!!.time.toString())
-        Log.e(TAG, "Msg time: "+ttnMapperUplinkMessage.Time)
-
-//        ttnMapperUplinkMessage.phoneTime = CommonFunctions.getISO8601StringForDate(Date())
         val pInfo = SurveyorApp.instance.getPackageManager().getPackageInfo(SurveyorApp.instance.getPackageName(), 0)
         val version = pInfo.versionName
         val verCode = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
@@ -353,7 +384,8 @@ object AppAggregate {
             if (level > maxLevel) maxLevel = level
 
 
-            if(false /* ttn */) {
+            if(networkServer.equals(SurveyorApp.instance.getString(R.string.NS_TTN_V2))) {
+                // For TTN v2 always ignore the gateway location in metadata, and rather fetch from ttnmapper.org
                 val gatewayDb = db?.gatewayDao()?.findGateway(gateway.GatewayId!!)
                 Log.e(TAG, "Gateway from db: "+gatewayDb.toString())
                 if(gatewayDb != null) {
@@ -377,8 +409,19 @@ object AppAggregate {
                         drawLineOnMap(gatewayDbNew.latitude!!, gatewayDbNew.longitude!!, ttnMapperUplinkMessage.Latitude!!, ttnMapperUplinkMessage.Longitude!!, CommonFunctions.getColorForSignal(level))
                     }
                 }
-            } else if(true /* chirp */) {
+
+            } else {
+                // For TTI v3 and Chirp Stack use gateway locations from metadata
                 if (gateway.Latitude != null && gateway.Longitude != null) {
+                    val gatewayDbNew = Gateway(gtwId = gateway.GatewayId!!)
+                    gatewayDbNew.latitude = gateway.Latitude
+                    gatewayDbNew.longitude = gateway.Longitude
+                    gatewayDbNew.channels = 0
+                    gatewayDbNew.description = gateway.Description
+
+//                    db?.gatewayDao()?.insertAll(gatewayDbNew)
+
+                    addGatewayToMap(gatewayDbNew)
                     drawLineOnMap(gateway.Latitude!!, gateway.Longitude!!, ttnMapperUplinkMessage.Latitude!!, ttnMapperUplinkMessage.Longitude!!, CommonFunctions.getColorForSignal(level))
                 }
             }
@@ -397,7 +440,7 @@ object AppAggregate {
         }
         // Always upload to TTN Mapper before custom server, as we might modify the packet for custom servers.
         if (sharedPref!!.getBoolean(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ENABLED), false)) {
-            var serverUri = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ADDRESS), "")
+            val serverUri = sharedPref!!.getString(SurveyorApp.instance.getString(R.string.PREF_CUSTOM_SERVER_ADDRESS), "")
             if (serverUri != null) {
                 NetworkAggregate.postToCustomServer(ttnMapperUplinkMessage, serverUri)
             }
@@ -407,24 +450,25 @@ object AppAggregate {
 
     fun drawLineOnMap(startLat: Double, startLon: Double, endLat: Double, endLon: Double, colour: Long) {
         MapAggregate.lineList.add(MapLine(startLat, startLon, endLat, endLon, colour))
-        mainActivity!!.drawLineOnMap(startLat, startLon, endLat, endLon, colour)
+        mainActivity?.drawLineOnMap(startLat, startLon, endLat, endLon, colour)
     }
 
     fun drawPointOnMap(lat: Double, lon: Double, colour: Long) {
         MapAggregate.pointList.add(MapPoint(lat, lon, colour))
-        mainActivity!!.drawPointOnMap(lat, lon, colour)
+        mainActivity?.drawPointOnMap(lat, lon, colour)
     }
 
     fun addGatewayToMap(gateway: Gateway) {
         if (!MapAggregate.seenGateways.containsKey(gateway.gtwId)) {
             if (gateway.latitude != null && gateway.longitude != null) {
-                mainActivity!!.addGatewayToMap(gateway)
+                mainActivity?.addGatewayToMap(gateway)
+                MapAggregate.seenGateways.put(gateway.gtwId, gateway)
             }
         }
     }
 
     fun updateStats() {
-        mainActivity!!.updateStats()
+        mainActivity?.updateStats()
     }
 
 }

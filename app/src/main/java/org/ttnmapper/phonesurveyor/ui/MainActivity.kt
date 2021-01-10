@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.os.StrictMode
 import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.util.Log
 import android.view.WindowManager
@@ -83,7 +84,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         }
 
         // Sanitise the handler address
-        if (key == getString(R.string.PREF_BROKER)) {
+        if (key == getString(R.string.PREF_MQTT_BROKER)) {
             val mqttUri = CommonFunctions.sanitiseMqttUri(sharedPreferences!!.getString(key, "eu.tehtings.network")!!)
             val editor = sharedPreferences.edit()
             editor.putString(key, mqttUri)
@@ -101,6 +102,12 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         Log.e(TAG, "Creating main activity")
 
+        // osmdroid sqlite needs this - https://github.com/osmdroid/osmdroid/issues/1313#issuecomment-481238741
+        val policy = StrictMode.ThreadPolicy.Builder()
+                .permitAll()
+                .build()
+        StrictMode.setThreadPolicy(policy)
+
         // Initialize osmdroid
         Configuration.getInstance().load(applicationContext, PreferenceManager.getDefaultSharedPreferences(applicationContext))
 
@@ -117,7 +124,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         AppAggregate.db = Room.databaseBuilder(
                 applicationContext,
                 AppDatabase::class.java, "ttnmapper"
-            )
+        )
             .addMigrations(MIGRATION_1_2)
             .fallbackToDestructiveMigrationOnDowngrade()
             .build()

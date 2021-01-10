@@ -69,9 +69,9 @@ class CommonFunctions {
             var mqttUri = handler
 
             // Assume a handler name will never contain a dot
-            if (!mqttUri.contains(".")) {
-                mqttUri = mqttUri + ".thethings.network"
-            }
+//            if (!mqttUri.contains(".")) {
+//                mqttUri = mqttUri + ".thethings.network"
+//            }
 
             if (mqttUri.startsWith("mqtt://")) {
                 mqttUri = mqttUri.substring(7)

@@ -19,4 +19,16 @@
         <item>@string/MAP_OSM_MAPNIK_NIGHTMODE</item>
     </string-array>
 
+    <string-array name="networkServerTypes">
+        <item>The Things Network V2</item>
+        <item>The Things Industries V3</item>
+        <item>Chirp Stack</item>
+    </string-array>
+
+    <string-array name="networkServerTypesKeys">
+        <item>@string/NS_TTN_V2</item>
+        <item>@string/NS_TTS_V3</item>
+        <item>@string/NS_CHIRP</item>
+    </string-array>
+
 </resources>

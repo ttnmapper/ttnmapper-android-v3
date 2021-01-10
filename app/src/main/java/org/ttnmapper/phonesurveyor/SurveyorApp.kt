@@ -2,6 +2,7 @@ package org.ttnmapper.phonesurveyor
 
 import android.app.Application
 
+
 class SurveyorApp : Application() {
 
     override fun onCreate() {

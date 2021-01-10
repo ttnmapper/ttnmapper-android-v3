@@ -97,3 +97,71 @@ v3/test-app@the-box/devices/thingsuno/up
       "consumed_airtime":"0.046336s"
    }
 }
+
+
+v3/test-app@the-box/devices/thingsuno/up {"end_device_ids":{"device_id":"thingsuno","application_ids":{"application_id":"test-app"},"dev_eui":"0004A30B001C684F","join_eui":"0000000000000000","dev_addr":"26082AE6"},"correlation_ids":["as:up:01EVP5Z1CN16YTF84XM2P1B75Z","gs:conn:01EVFZ5G2MWAWDTPAT269E4HSB","gs:up:host:01EVFZ5G39W5XXYJKAA2CBDSQT","gs:uplink:01EVP5Z152HWKWRNE34BTYS1F3","ns:uplink:01EVP5Z153FDZ3V7RSRANM40T4","rpc:/ttn.lorawan.v3.GsNs/HandleUplink:01EVP5Z153M5S5YDXEG2MXWE3X"],"received_at":"2021-01-10T12:57:31.798301204Z","uplink_message":{"session_key_id":"AXbsX3CZ/uhbYj0Hg779qQ==","f_port":1,"frm_payload":"AA==","rx_metadata":[{"gateway_ids":{"gateway_id":"eui-60c5a8fffe761551","eui":"60C5A8FFFE761551"},"timestamp":2349868563,"rssi":-98,"channel_rssi":-98,"snr":0.3,"location":{"latitude":-33.9547580563964,"longitude":22.4345138669014,"source":"SOURCE_REGISTRY"},"uplink_token":"CiIKIAoUZXVpLTYwYzVhOGZmZmU3NjE1NTESCGDFqP/+dhVREJPMwOAIGgwIu/Pr/wUQpaO0iAIguPTS+LG0Lw==","channel_index":1}],"settings":{"data_rate":{"lora":{"bandwidth":125000,"spreading_factor":7}},"data_rate_index":5,"coding_rate":"4/5","frequency":"867300000","timestamp":2349868563},"received_at":"2021-01-10T12:57:31.555636804Z","consumed_airtime":"0.046336s","locations":{"user":{"latitude":-33.95466732476762,"longitude":22.433730661869053,"source":"SOURCE_REGISTRY"}}}}
+{
+   "end_device_ids":{
+      "device_id":"thingsuno",
+      "application_ids":{
+         "application_id":"test-app"
+      },
+      "dev_eui":"0004A30B001C684F",
+      "join_eui":"0000000000000000",
+      "dev_addr":"26082AE6"
+   },
+   "correlation_ids":[
+      "as:up:01EVP5Z1CN16YTF84XM2P1B75Z",
+      "gs:conn:01EVFZ5G2MWAWDTPAT269E4HSB",
+      "gs:up:host:01EVFZ5G39W5XXYJKAA2CBDSQT",
+      "gs:uplink:01EVP5Z152HWKWRNE34BTYS1F3",
+      "ns:uplink:01EVP5Z153FDZ3V7RSRANM40T4",
+      "rpc:/ttn.lorawan.v3.GsNs/HandleUplink:01EVP5Z153M5S5YDXEG2MXWE3X"
+   ],
+   "received_at":"2021-01-10T12:57:31.798301204Z",
+   "uplink_message":{
+      "session_key_id":"AXbsX3CZ/uhbYj0Hg779qQ==",
+      "f_port":1,
+      "frm_payload":"AA==",
+      "rx_metadata":[
+         {
+            "gateway_ids":{
+               "gateway_id":"eui-60c5a8fffe761551",
+               "eui":"60C5A8FFFE761551"
+            },
+            "timestamp":2349868563,
+            "rssi":-98,
+            "channel_rssi":-98,
+            "snr":0.3,
+            "location":{
+               "latitude":-33.9547580563964,
+               "longitude":22.4345138669014,
+               "source":"SOURCE_REGISTRY"
+            },
+            "uplink_token":"CiIKIAoUZXVpLTYwYzVhOGZmZmU3NjE1NTESCGDFqP/+dhVREJPMwOAIGgwIu/Pr/wUQpaO0iAIguPTS+LG0Lw==",
+            "channel_index":1
+         }
+      ],
+      "settings":{
+         "data_rate":{
+            "lora":{
+               "bandwidth":125000,
+               "spreading_factor":7
+            }
+         },
+         "data_rate_index":5,
+         "coding_rate":"4/5",
+         "frequency":"867300000",
+         "timestamp":2349868563
+      },
+      "received_at":"2021-01-10T12:57:31.555636804Z",
+      "consumed_airtime":"0.046336s",
+      "locations":{
+         "user":{
+            "latitude":-33.95466732476762,
+            "longitude":22.433730661869053,
+            "source":"SOURCE_REGISTRY"
+         }
+      }
+   }
+}

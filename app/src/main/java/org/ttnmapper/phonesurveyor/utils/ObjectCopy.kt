@@ -1,6 +1,7 @@
 package org.ttnmapper.phonesurveyor.utils
 
 import android.util.Base64
+import com.squareup.moshi.Json
 import org.openapitools.client.models.V3ApplicationUp
 import org.ttnmapper.phonesurveyor.model.TtnMapperGateway
 import org.ttnmapper.phonesurveyor.model.TtnMapperUplinkMessage
@@ -43,7 +44,9 @@ class ObjectCopy {
             link.GatewayTime = gateway.Time
             link.GatewayTimestamp = gateway.Timestamp?.toLong()
             link.FineTimestamp = gateway.FineTimestamp?.toLong()
-            link.FineTimestampEncrypted = Base64.encodeToString(gateway.FineTimestampEncrypted?.toByteArray(), Base64.DEFAULT)
+            if(gateway.FineTimestampEncrypted != null) {
+                link.FineTimestampEncrypted = Base64.encodeToString(gateway.FineTimestampEncrypted?.toByteArray(), Base64.DEFAULT)
+            }
             link.FineTimestampEncryptedKeyId = gateway.FineTimestampEncryptedKeyId
 
             link.ChannelIndex = gateway.ChannelIndex
@@ -84,10 +87,10 @@ class ObjectCopy {
 
             dest.Time = source.metadata?.time?.let { getDateForISO8601String(it).time }?.times(1000000) //nanoseconds
 
-            dest.FPort = source.fPort?.toUByte()
+            dest.FPort = source.fPort
             dest.FCnt = source.fCnt?.toLong()
 
-            dest.Frequency = (source.metadata?.frequency?.times(1000000))?.toULong() //Herz
+            dest.Frequency = source.metadata?.frequency?.times(1000000)?.toLong() // Herz
             dest.Modulation = source.metadata?.modulation
 
             if (dest.Modulation == "LORA") {
@@ -96,16 +99,16 @@ class ObjectCopy {
                     if(drParts.size == 2) {
                         val bandwidth = drParts[1].toIntOrNull()
                         if (bandwidth != null) {
-                            dest.Bandwidth = (bandwidth * 1000).toULong()
+                            dest.Bandwidth = (bandwidth * 1000).toLong()
                         } // kHz to Hz
                         val sf = drParts[0].removePrefix("SF")
-                        dest.SpreadingFactor = sf.toUByteOrNull()
+                        dest.SpreadingFactor = sf.toIntOrNull()
                     }
                 }
             }
 
             if (dest.Modulation == "FSK") {
-                dest.Bitrate = source.metadata?.bitrate?.toULong()
+                dest.Bitrate = source.metadata?.bitrate?.toLong()
             }
 
             dest.CodingRate = source.metadata?.codingRate
@@ -119,12 +122,12 @@ class ObjectCopy {
                     if (it.gtwId?.startsWith("eui-") == true) {
                         gateway.GatewayEui = it.gtwId!!.removePrefix("eui-").toUpperCase(Locale.ROOT)
                     }
-                    gateway.AntennaIndex = it.antenna?.toUByte()
+                    gateway.AntennaIndex = it.antenna
                     if(it.time != null) {
                         gateway.Time = getDateForISO8601String(it.time!!).time.times(1000000) //nanoseconds
                     }
-                    gateway.Timestamp = it.timestamp?.toULong()
-                    gateway.FineTimestamp = it.fineTimestamp?.toULong()
+                    gateway.Timestamp = it.timestamp
+                    gateway.FineTimestamp = it.fineTimestamp
                     gateway.FineTimestampEncrypted = null
                     gateway.FineTimestampEncryptedKeyId = null
                     gateway.ChannelIndex = it.channel
@@ -163,7 +166,56 @@ class ObjectCopy {
 
         fun ttnV3UplinkToTtnMapperUplink(source: V3ApplicationUp): TtnMapperUplinkMessage {
             val dest = TtnMapperUplinkMessage()
-            // TODO
+
+            dest.AppID = source.endDeviceIds?.applicationIds?.applicationId
+            dest.DevID = source.endDeviceIds?.deviceId
+            dest.DevEui = source.endDeviceIds?.devEui
+            dest.Time = source.receivedAt?.toInstant()?.toEpochMilli()?.times(1000000) //nanoseconds
+            dest.FPort = source.uplinkMessage?.fPort?.toInt()
+            dest.FCnt = source.uplinkMessage?.fCnt
+            dest.Frequency = source.uplinkMessage?.settings?.frequency?.toLongOrNull()
+            if(source.uplinkMessage?.settings?.dataRate?.lora != null) {
+                dest.Modulation = "LORA"
+                dest.Bandwidth = source.uplinkMessage.settings.dataRate.lora.bandwidth
+                dest.SpreadingFactor = source.uplinkMessage.settings.dataRate.lora.spreadingFactor?.toInt()
+            }
+            if(source.uplinkMessage?.settings?.dataRate?.fsk != null) {
+                dest.Modulation = "FSK"
+                dest.Bitrate = source.uplinkMessage.settings.dataRate.fsk.bitRate
+            }
+            dest.CodingRate = source.uplinkMessage?.settings?.codingRate
+
+            val gateways = mutableListOf<TtnMapperGateway>()
+
+            source.uplinkMessage?.rxMetadata?.forEach {
+                val gateway = TtnMapperGateway()
+
+                gateway.GatewayId = it.gatewayIds?.gatewayId
+                gateway.GatewayEui = it.gatewayIds?.eui
+                //                gateway.Description =
+                gateway.AntennaIndex = it.antennaIndex?.toInt()
+                gateway.Time = it.time?.toInstant()?.toEpochMilli()?.times(1000000) //nanoseconds
+                gateway.Timestamp = it.timestamp
+                gateway.FineTimestamp = it.fineTimestamp?.toLongOrNull()
+                gateway.FineTimestampEncrypted = it.encryptedFineTimestamp
+                gateway.FineTimestampEncryptedKeyId = it.encryptedFineTimestampKeyId
+                gateway.ChannelIndex = it.channelIndex?.toInt()
+                gateway.Rssi = it.rssi
+                gateway.SignalRssi = it.signalRssi
+                gateway.Snr = it.snr
+                gateway.Latitude = it.location?.latitude
+                gateway.Longitude = it.location?.longitude
+                gateway.Altitude = it.location?.altitude
+                gateway.LocationAccuracy = it.location?.accuracy
+                if(it.location?.source != null) {
+                    gateway.LocationSource = it.location.source.toString()
+                }
+
+                gateways.add(gateway)
+            }
+
+            dest.Gateways = gateways.toList()
+
             return dest
         }
 
@@ -172,14 +224,16 @@ class ObjectCopy {
         fun ChirpStackUplinkToTtnMapperUplink(source: UplinkEvent): TtnMapperUplinkMessage {
             val dest = TtnMapperUplinkMessage()
 
+            dest.Time = Date().time.times(1000000) // ms to ns
+
             dest.AppID = source.applicationName
             dest.DevID = source.deviceName
-            dest.DevEui = source.devEUI
+            dest.DevEui = source.devEUI?.toUpperCase(Locale.ROOT)
 
-            dest.FPort = source.fPort?.toUByte()
+            dest.FPort = source.fPort
             dest.FCnt = source.fCnt?.toLong()
 
-            dest.Frequency = source.txInfo?.frequency?.toULong()
+            dest.Frequency = source.txInfo?.frequency?.toLong()
 
             /*
             Assume EU868
@@ -195,42 +249,42 @@ class ObjectCopy {
             when (source.txInfo?.dr) {
                 0 -> {
                     dest.Modulation = "LORA"
-                    dest.SpreadingFactor = 12u
-                    dest.Bandwidth = 125000u
+                    dest.SpreadingFactor = 12
+                    dest.Bandwidth = 125000
                 }
                 1 -> {
                     dest.Modulation = "LORA"
-                    dest.SpreadingFactor = 11u
-                    dest.Bandwidth = 125000u
+                    dest.SpreadingFactor = 11
+                    dest.Bandwidth = 125000
                 }
                 2 -> {
                     dest.Modulation = "LORA"
-                    dest.SpreadingFactor = 10u
-                    dest.Bandwidth = 125000u
+                    dest.SpreadingFactor = 10
+                    dest.Bandwidth = 125000
                 }
                 3 -> {
                     dest.Modulation = "LORA"
-                    dest.SpreadingFactor = 9u
-                    dest.Bandwidth = 125000u
+                    dest.SpreadingFactor = 9
+                    dest.Bandwidth = 125000
                 }
                 4 -> {
                     dest.Modulation = "LORA"
-                    dest.SpreadingFactor = 8u
-                    dest.Bandwidth = 125000u
+                    dest.SpreadingFactor = 8
+                    dest.Bandwidth = 125000
                 }
                 5 -> {
                     dest.Modulation = "LORA"
-                    dest.SpreadingFactor = 7u
-                    dest.Bandwidth = 125000u
+                    dest.SpreadingFactor = 7
+                    dest.Bandwidth = 125000
                 }
                 6 -> {
                     dest.Modulation = "LORA"
-                    dest.SpreadingFactor = 7u
-                    dest.Bandwidth = 250000u
+                    dest.SpreadingFactor = 7
+                    dest.Bandwidth = 250000
                 }
                 7 -> {
                     dest.Modulation = "FSK"
-                    dest.Bitrate = 50000u
+                    dest.Bitrate = 50000
                 }
             }
 
@@ -238,11 +292,18 @@ class ObjectCopy {
 
             source.rxInfo?.forEach {
                 val gateway = TtnMapperGateway()
+
+                if(it.time != null) {
+                    dest.Time = getDateForISO8601String(it.time!!).time.times(1000000) // ms to ns
+                }
+
                 if(it.gatewayID != null) {
                     gateway.GatewayId = "eui-" + it.gatewayID!!.toLowerCase(Locale.ROOT)
                 }
                 gateway.GatewayEui = it.gatewayID?.toUpperCase(Locale.ROOT)
-                gateway.AntennaIndex = it.antenna?.toUByte()
+                gateway.Description = it.name
+
+                gateway.AntennaIndex = it.antenna
                 if(it.time != null) {
                     gateway.Time = getDateForISO8601String(it.time!!).time.times(1000000) //nanoseconds
                 }
@@ -258,41 +319,10 @@ class ObjectCopy {
 
                 gateways.add(gateway)
             }
+            dest.Gateways = gateways
 
             return dest
         }
 
     }
 }
-
-/*
-{
-   "applicationID":"1",
-   "applicationName":"test-application",
-   "deviceName":"test-device",
-   "devEUI":"0004a30b001c684f",
-   "rxInfo":[
-      {
-         "gatewayID":"3133303748005c00",
-         "uplinkID":"aca88e64-7c09-4866-9da9-828003110996",
-         "name":"mikrotik",
-         "time":"2020-12-28T12:00:10.947155Z",
-         "rssi":-104,
-         "loRaSNR":5.25,
-         "location":{
-            "latitude":-33.9586553,
-            "longitude":22.441055499999997,
-            "altitude":200
-         }
-      }
-   ],
-   "txInfo":{
-      "frequency":868500000,
-      "dr":5
-   },
-   "adr":true,
-   "fCnt":23,
-   "fPort":1,
-   "data":"AA=="
-}
- */

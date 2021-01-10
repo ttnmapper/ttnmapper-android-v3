@@ -25,6 +25,6 @@ data class V3GatewayIdentifiers (
     val gatewayId: kotlin.String? = null,
     /* Secondary identifier, which can only be used in specific requests. */
     @Json(name = "eui")
-    val eui: kotlin.ByteArray? = null
+    val eui: kotlin.String? = null
 )
 

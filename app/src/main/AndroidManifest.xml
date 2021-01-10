@@ -18,6 +18,10 @@
         android:roundIcon="@drawable/ic_ttn_mapper_20180116"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
+        <activity android:name=".ui.LinkChirpActivity"></activity>
+        <activity android:name=".ui.LinkTtsV3Activity" />
+        <activity android:name=".ui.LinkTtnV2Activity" />
+        <activity android:name=".ui.LinkSelectNetworkActivity" />
         <activity
             android:name=".ui.MainActivity"
             android:label="@string/app_name">

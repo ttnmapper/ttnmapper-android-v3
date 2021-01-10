@@ -58,24 +58,24 @@ data class V3RxMetadata (
     val fineTimestamp: kotlin.String? = null,
     /* Encrypted gateway's internal fine timestamp when the Rx finished (nanoseconds). */
     @Json(name = "encrypted_fine_timestamp")
-    val encryptedFineTimestamp: kotlin.ByteArray? = null,
+    val encryptedFineTimestamp: kotlin.String? = null,
     @Json(name = "encrypted_fine_timestamp_key_id")
     val encryptedFineTimestampKeyId: kotlin.String? = null,
     /* Received signal strength indicator (dBm). This value equals `channel_rssi`. */
     @Json(name = "rssi")
-    val rssi: kotlin.Float? = null,
+    val rssi: kotlin.Double? = null,
     /* Received signal strength indicator of the signal (dBm). */
     @Json(name = "signal_rssi")
-    val signalRssi: kotlin.Float? = null,
+    val signalRssi: kotlin.Double? = null,
     /* Received signal strength indicator of the channel (dBm). */
     @Json(name = "channel_rssi")
-    val channelRssi: kotlin.Float? = null,
+    val channelRssi: kotlin.Double? = null,
     /* Standard deviation of the RSSI during preamble. */
     @Json(name = "rssi_standard_deviation")
-    val rssiStandardDeviation: kotlin.Float? = null,
+    val rssiStandardDeviation: kotlin.Double? = null,
     /* Signal-to-noise ratio (dB). */
     @Json(name = "snr")
-    val snr: kotlin.Float? = null,
+    val snr: kotlin.Double? = null,
     /* Frequency offset (Hz). */
     @Json(name = "frequency_offset")
     val frequencyOffset: kotlin.String? = null,
@@ -85,7 +85,7 @@ data class V3RxMetadata (
     val downlinkPathConstraint: V3DownlinkPathConstraint? = null,
     /* Uplink token to be included in the Tx request in class A downlink; injected by gateway, Gateway Server or fNS. */
     @Json(name = "uplink_token")
-    val uplinkToken: kotlin.ByteArray? = null,
+    val uplinkToken: kotlin.String? = null,
     /* Index of the gateway channel that received the message. */
     @Json(name = "channel_index")
     val channelIndex: kotlin.Long? = null,

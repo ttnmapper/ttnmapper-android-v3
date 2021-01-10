@@ -14,7 +14,7 @@ import kotlin.concurrent.thread
 
 
 class DeepLinkConfigureActivity : AppCompatActivity() {
-    private val TAG = AppCompatActivity::class.java.getName()
+    private val TAG = DeepLinkConfigureActivity::class.java.getName()
 
     private lateinit var binding: ActivityDeepLinkConfigureBinding
 
@@ -37,18 +37,10 @@ class DeepLinkConfigureActivity : AppCompatActivity() {
             val accessKey = data.getQueryParameter("accesskey")!!
             val handler = data.getQueryParameter("handler")!!
 
-            if (appId.equals(sharedPreferences.getString(getString(R.string.PREF_APP_ID), ""))
-                    && devId.equals(sharedPreferences.getString(getString(R.string.PREF_DEV_ID), ""))
-                    && accessKey.equals(sharedPreferences.getString(getString(R.string.PREF_APP_KEY), ""))) {
-
-                goToMainActivity()
-
-            } else {
-                binding.editTextAppId.setText(appId)
-                binding.editTextDevId.setText(devId)
-                binding.editTextAccessKey.setText(accessKey)
-                lookupAndFillMqtt(handler)
-            }
+            binding.editTextAppId.setText(appId)
+            binding.editTextDevId.setText(devId)
+            binding.editTextAccessKey.setText(accessKey)
+            lookupAndFillMqtt(handler)
         } else {
             goToMainActivity()
         }
@@ -56,10 +48,14 @@ class DeepLinkConfigureActivity : AppCompatActivity() {
         binding.buttonLinkDevice.setOnClickListener {
             val editor = sharedPreferences.edit()
 
-            editor.putString(getString(R.string.PREF_APP_ID), binding.editTextAppId.text.toString())
-            editor.putString(getString(R.string.PREF_DEV_ID), binding.editTextDevId.text.toString())
-            editor.putString(getString(R.string.PREF_APP_KEY), binding.editTextAccessKey.text.toString())
-            editor.putString(getString(R.string.PREF_BROKER), binding.editTextMqttAddress.text.toString())
+            editor.putString(getString(R.string.PREF_NETWORK_SERVER), getString(R.string.NS_TTN_V2))
+
+            editor.putString(getString(R.string.PREF_MQTT_USERNAME), binding.editTextAppId.text.toString())
+            editor.putString(getString(R.string.PREF_MQTT_PASSWORD), binding.editTextAccessKey.text.toString())
+            editor.putString(getString(R.string.PREF_MQTT_BROKER), binding.editTextMqttAddress.text.toString())
+
+            val mqttTopic = binding.editTextAppId.text.toString() + "/devices/" + binding.editTextDevId.text.toString() + "/up"
+            editor.putString(getString(R.string.PREF_MQTT_TOPIC), mqttTopic)
 
             editor.apply()
 

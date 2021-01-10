@@ -1,23 +1,28 @@
 package org.ttnmapper.phonesurveyor.model
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
-@ExperimentalUnsignedTypes
+@JsonClass(generateAdapter = true)
 data class TtnMapperGateway(
     @Json(name = "gtw_id")
     var GatewayId: String? = null,
     @Json(name = "gtw_eui")
     var GatewayEui: String? = null,
+
+    @Json(name = "gtw_description")
+    var Description: String? = null,
+
     @Json(name = "antenna_index")
-    var AntennaIndex: UByte? = null,
+    var AntennaIndex: Int? = null,
     @Json(name = "time")
     var Time: Long? = null,
     @Json(name = "timestamp")
-    var Timestamp: ULong? = null,
+    var Timestamp: Long? = null,
     @Json(name = "fine_timestamp")
-    var FineTimestamp: ULong? = null,
+    var FineTimestamp: Long? = null,
     @Json(name = "fine_timestamp_encrypted")
-    var FineTimestampEncrypted: List<Byte>? = null,
+    var FineTimestampEncrypted: String? = null,
     @Json(name = "encrypted_fine_timestamp_key_id")
     var FineTimestampEncryptedKeyId: String? = null,
     @Json(name = "channel")

@@ -5,13 +5,21 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
+    signingConfigs {
+        ttnmapper {
+            storeFile file('/home/jpmeijers/PhoneSurveyor/keystore.jks')
+            storePassword 'ttnmapper'
+            keyAlias 'ttnmapper'
+            keyPassword 'ttnmapper'
+        }
+    }
     compileSdkVersion 30
     defaultConfig {
         applicationId "org.ttnmapper.phonesurveyor"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 21
-        versionName "2020.12.25"
+        versionCode 23
+        versionName "2021.01.10"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
@@ -27,6 +35,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.ttnmapper
         }
     }
     buildFeatures {
@@ -67,7 +76,9 @@ dependencies {
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 
-    implementation 'com.squareup.moshi:moshi-kotlin:1.10.0'
+    implementation 'com.squareup.moshi:moshi-kotlin:1.11.0'
+    kapt("com.squareup.moshi:moshi-kotlin-codegen:1.11.0")
+
     implementation 'com.squareup.okhttp3:okhttp:4.8.1'
 
     // Room database

@@ -12,11 +12,14 @@ import org.json.JSONObject
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.model.TtnMapperUplinkMessage
+import org.ttnmapper.phonesurveyor.model.UByteAdapter
+import org.ttnmapper.phonesurveyor.model.ULongAdapter
 import org.ttnmapper.phonesurveyor.model.ttnV2.TtnUplinkMessage
 import java.io.IOException
 import java.lang.NullPointerException
 
 
+@ExperimentalUnsignedTypes
 object NetworkAggregate {
     private val TAG = NetworkAggregate::class.java.getName()
 
@@ -41,6 +44,8 @@ object NetworkAggregate {
 
     fun postPacket(url: String, packet: TtnMapperUplinkMessage) {
         val moshi = Moshi.Builder()
+//                .add(ULongAdapter)
+//                .add(UByteAdapter)
                 .add(KotlinJsonAdapterFactory())
                 .build()
         val jsonAdapter = moshi.adapter<TtnMapperUplinkMessage>(TtnMapperUplinkMessage::class.java)

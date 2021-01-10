@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="TTN_MAPPER_UPLOAD_API">https://integrations.ttnmapper.org/android/v4/</string>
+
+    <string name="PATREON_URL">https://www.patreon.com/ttnmapper</string>
+    <string name="PAYPAL_URL">https://paypal.me/ttnmapper</string>
+</resources>

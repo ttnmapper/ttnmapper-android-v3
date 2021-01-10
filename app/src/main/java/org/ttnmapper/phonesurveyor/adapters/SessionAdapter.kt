@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import org.ttnmapper.phonesurveyor.R
-import org.ttnmapper.phonesurveyor.databinding.SessionRowBinding
+import org.ttnmapper.phonesurveyor.databinding.ListItemSessionBinding
 import org.ttnmapper.phonesurveyor.room.SessionLinkCount
 import org.ttnmapper.phonesurveyor.ui.SessionRowClickListener
 
@@ -14,11 +14,11 @@ class SessionAdapter(private var sessionList: List<SessionLinkCount>, private va
 
     // holder class to hold reference
     inner class ViewHolder(view: View, listener: SessionRowClickListener) : RecyclerView.ViewHolder(view) {
-        val binding = SessionRowBinding.bind(view)
+        val binding = ListItemSessionBinding.bind(view)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.session_row, parent, false), listener)
+        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.list_item_session, parent, false), listener)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

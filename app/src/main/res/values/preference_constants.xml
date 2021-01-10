@@ -9,10 +9,11 @@
     <string name="PREF_COVERAGE">PREF_COVERAGE</string>
     <string name="PREF_BACKGROUND_MAP">PREF_BACKGROUND_MAP</string>
 
-    <string name="PREF_BROKER">PREF_BROKER</string>
-    <string name="PREF_APP_ID">PREF_APP_ID</string>
-    <string name="PREF_APP_KEY">PREF_APP_KEY</string>
-    <string name="PREF_DEV_ID">PREF_DEV_ID</string>
+    <string name="PREF_NETWORK_SERVER">PREF_NETWORK_SERVER</string>
+    <string name="PREF_MQTT_BROKER">PREF_MQTT_BROKER</string>
+    <string name="PREF_MQTT_USERNAME">PREF_MQTT_USERNAME</string>
+    <string name="PREF_MQTT_PASSWORD">PREF_MQTT_PASSWORD</string>
+    <string name="PREF_MQTT_TOPIC">PREF_MQTT_TOPIC</string>
 
     <string name="PREF_UPLOAD">PREF_UPLOAD</string>
     <string name="PREF_EXPERIMENT">PREF_EXPERIMENT</string>
@@ -25,8 +26,6 @@
     <string name="PREF_MAP_START_LON">PREF_MAP_START_LON</string>
     <string name="PREF_MAP_START_ZOOM">PREF_MAP_START_ZOOM</string>
 
-    <string name="TTN_MAPPER_UPLOAD_API">https://integrations.ttnmapper.org/android/v4/</string>
-
     <!--Map types-->
     <string name="MAP_STAMEN_TONER_LIGHT">MAP_STAMEN_TONER_LIGHT</string>
     <string name="MAP_TERRAIN">MAP_TERRAIN</string>
@@ -34,5 +33,11 @@
     <string name="MAP_OSM_MAPNIK">MAP_OSM_MAPNIK</string>
     <string name="MAP_OSM_MAPNIK_GREYSCALE">MAP_OSM_MAPNIK_GREYSCALE</string>
     <string name="MAP_OSM_MAPNIK_NIGHTMODE">MAP_OSM_MAPNIK_NIGHTMODE</string>
+
+    <!--NS types-->
+    <string name="NS_TTN_V2">NS_TTN_V2</string>
+    <string name="NS_TTS_V3">NS_TTS_V3</string>
+    <string name="NS_CHIRP">NS_CHIRP</string>
+
 
 </resources>
