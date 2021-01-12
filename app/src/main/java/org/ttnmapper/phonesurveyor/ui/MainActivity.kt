@@ -102,11 +102,8 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         Log.e(TAG, "Creating main activity")
 
-        // osmdroid sqlite needs this - https://github.com/osmdroid/osmdroid/issues/1313#issuecomment-481238741
-        val policy = StrictMode.ThreadPolicy.Builder()
-                .permitAll()
-                .build()
-        StrictMode.setThreadPolicy(policy)
+        // Clear old preferences if we upgraded the app from before v23
+        updatePreferences()
 
         // Initialize osmdroid
         Configuration.getInstance().load(applicationContext, PreferenceManager.getDefaultSharedPreferences(applicationContext))
@@ -333,6 +330,59 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     fun updateStats() {
         runOnUiThread {
             statsFragment.updateStats()
+        }
+    }
+
+    fun updatePreferences() {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+
+        // Handle app version upgrades
+        val currentVersionCode: Long
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            currentVersionCode = packageManager.getPackageInfo(getPackageName(), 0).longVersionCode
+        } else {
+            currentVersionCode = packageManager.getPackageInfo(getPackageName(), 0).versionCode.toLong()
+        }
+        val previousVersionCode = prefs.getLong("appVersionCode", 0)
+
+        if (currentVersionCode != previousVersionCode) {
+            try {
+                val editor = prefs.edit();
+
+                // Before 23 we need to handle osmdroid's wrong storage location
+                if(previousVersionCode < 23) {
+                    Log.e(TAG, "App upgraded from before build 23. Clearing all preferences.")
+                    editor.clear()
+                }
+
+                editor.putLong("appVersionCode", currentVersionCode)
+                editor.apply()
+            } catch(e: Exception) {
+                Log.e(TAG, "Can't migrate preferences")
+                e.printStackTrace()
+            }
+        }
+
+        // Handle android version upgrades
+        val currentApiVersion = Build.VERSION.SDK_INT
+        val previousApiVersion = prefs.getInt("androidSdkInt", 0)
+
+        if(currentApiVersion != previousApiVersion) {
+            try {
+                val editor = prefs.edit();
+
+                // Before API 30 we need to handle osmdroid's wrong storage location
+                if(previousApiVersion < 30) {
+                    Log.e(TAG, "Android SDK version changed to 30. Clearing all preferences.")
+                    editor.clear()
+                }
+
+                editor.putInt("androidSdkInt", currentApiVersion)
+                editor.apply()
+            } catch(e: Exception) {
+                Log.e(TAG, "Can't migrate preferences")
+                e.printStackTrace()
+            }
         }
     }
 }

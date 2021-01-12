@@ -18,8 +18,8 @@ android {
         applicationId "org.ttnmapper.phonesurveyor"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 23
-        versionName "2021.01.10"
+        versionCode 24
+        versionName "2021.01.12"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
