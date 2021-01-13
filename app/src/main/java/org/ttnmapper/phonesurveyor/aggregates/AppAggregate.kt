@@ -250,7 +250,7 @@ object AppAggregate {
 
             } catch (e: Exception) {
                 Log.e(TAG, "V3 Can't parse received json")
-                Log.e(TAG, e.toString())
+                e.printStackTrace()
                 return
             }
 
@@ -277,6 +277,7 @@ object AppAggregate {
                 ttnMapperUplinkMessage.NetworkAddress = networkAddress
             } catch(e: java.lang.Exception) {
                 Log.e(TAG, "V2 Can't parse received json")
+                e.printStackTrace()
                 return
             }
 
@@ -304,6 +305,7 @@ object AppAggregate {
 
             } catch(e: java.lang.Exception) {
                 Log.e(TAG, "Chirp can't parse received json")
+                e.printStackTrace()
                 return
             }
         } else {
@@ -398,10 +400,18 @@ object AppAggregate {
                     val gatewayData = getGatewayFromTtnMapper(gateway.GatewayId!!)
                     if(gatewayData != null) {
                         val gatewayDbNew = Gateway(gtwId = gateway.GatewayId!!)
-                        gatewayDbNew.latitude = gatewayData.getDouble("latitude")
-                        gatewayDbNew.longitude = gatewayData.getDouble("longitude")
-                        gatewayDbNew.channels = gatewayData.getInt("channels")
-                        gatewayDbNew.description = gatewayData.getString("description")
+                        if(gatewayData.has("latitude")) {
+                            gatewayDbNew.latitude = gatewayData.getDouble("latitude")
+                        }
+                        if(gatewayData.has("longitude")) {
+                            gatewayDbNew.longitude = gatewayData.getDouble("longitude")
+                        }
+                        if(gatewayData.has("channels")) {
+                            gatewayDbNew.channels = gatewayData.getInt("channels")
+                        }
+                        if(gatewayData.has("description")) {
+                            gatewayDbNew.description = gatewayData.getString("description")
+                        }
 
                         db?.gatewayDao()?.insertAll(gatewayDbNew)
 

@@ -48,7 +48,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.e(TAG, "onCreate")
+        Log.d(TAG, "onCreate")
 
         tmsSource = object : OnlineTileSourceBase("TTN Mapper TMS", 3, 15, 256, "png", arrayOf("")) {
             override fun getTileURLString(pMapTileIndex: Long): String {
@@ -72,7 +72,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
     }
 
     override fun onPause() {
-        Log.e(TAG, "onPause")
+        Log.d(TAG, "onPause")
         MapAggregate.zoom = binding.map.zoomLevelDouble
         MapAggregate.latitude = binding.map.mapCenter.latitude
         MapAggregate.longitude = binding.map.mapCenter.longitude
@@ -81,7 +81,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        Log.e(TAG, "onCreateView")
+        Log.d(TAG, "onCreateView")
 
         // Inflate the layout for this fragment
         _binding = FragmentMapBinding.inflate(inflater, container, false)
@@ -235,7 +235,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
         // get map controller
         val controller = binding.map.controller
 
-        Log.e(TAG, "Restoring map location to: " + MapAggregate.latitude + "," + MapAggregate.longitude)
+        Log.d(TAG, "Restoring map location to: " + MapAggregate.latitude + "," + MapAggregate.longitude)
         val position = GeoPoint(MapAggregate.latitude, MapAggregate.longitude)
         controller.setCenter(position)
         controller.setZoom(MapAggregate.zoom)
@@ -250,6 +250,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
     }
 
     override fun onDestroyView() {
+        Log.d(TAG, "onDestroyView")
         super.onDestroyView()
         _binding = null
     }

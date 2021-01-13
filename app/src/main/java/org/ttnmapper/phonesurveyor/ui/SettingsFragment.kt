@@ -23,12 +23,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private val TAG = SettingsFragment::class.java.getName()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "onCreate")
         super.onCreate(savedInstanceState)
         addPreferencesFromResource(R.xml.preferences)
     }
 
     override fun onResume() {
-        Log.e(TAG, "onResume")
+        Log.d(TAG, "onResume")
         super.onResume()
 
         val sharedPreferences = preferenceManager.sharedPreferences

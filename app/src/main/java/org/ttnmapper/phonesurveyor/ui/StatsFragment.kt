@@ -21,6 +21,7 @@ class StatsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        Log.d(TAG, "onCreateView")
         // Inflate the layout for this fragment
         _binding = FragmentStatsBinding.inflate(inflater, container, false)
         val view = binding.root
@@ -28,11 +29,13 @@ class StatsFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        Log.d(TAG, "onDestroyView")
         super.onDestroyView()
         _binding = null
     }
 
     override fun onResume() {
+        Log.d(TAG, "onResume")
         super.onResume()
 
         updateStats()

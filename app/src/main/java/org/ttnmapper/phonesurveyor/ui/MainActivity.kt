@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         val view = binding.root
         setContentView(view)
 
-        Log.e(TAG, "Creating main activity")
+        Log.e(TAG, "onCreate")
 
         // Clear old preferences if we upgraded the app from before v23
         updatePreferences()
@@ -336,6 +336,12 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     fun updatePreferences() {
         val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
 
+        /*
+        osmdroid stores it's previously discovered paths in sharedpreferences:
+        edit.putString("osmdroid.basePath",discoveredBasePath.getAbsolutePath());
+        edit.putString("osmdroid.cachePath",discoveredCachePath.getAbsolutePath());
+         */
+
         // Handle app version upgrades
         val currentVersionCode: Long
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -350,7 +356,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
                 val editor = prefs.edit();
 
                 // Before 23 we need to handle osmdroid's wrong storage location
-                if(previousVersionCode < 23) {
+                if(previousVersionCode < 25) {
                     Log.e(TAG, "App upgraded from before build 23. Clearing all preferences.")
                     editor.clear()
                 }
@@ -369,10 +375,16 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         if(currentApiVersion != previousApiVersion) {
             try {
-                val editor = prefs.edit();
+                val editor = prefs.edit()
+
+                // API 29 had a transitional storage system. Clear prefs so that we are sure to use the new system.
+                if(currentApiVersion == 29 && previousApiVersion < 29) {
+                    Log.e(TAG, "Android SDK version changed to 29. Clearing all preferences.")
+                    editor.clear()
+                }
 
                 // Before API 30 we need to handle osmdroid's wrong storage location
-                if(previousApiVersion < 30) {
+                if(currentApiVersion == 30 && previousApiVersion < 30) {
                     Log.e(TAG, "Android SDK version changed to 30. Clearing all preferences.")
                     editor.clear()
                 }
