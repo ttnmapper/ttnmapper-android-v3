@@ -49,7 +49,7 @@
             android:title="MQTT broker URL"
             android:summary="The MQTT URL of the message broker. ex: eu.thethings.network:1883"
             android:dialogTitle="MQTT URL"
-            android:defaultValue="eu.thethings.network:1883"
+            android:defaultValue="tcp://eu.thethings.network:1883"
             android:enabled="false" />
     </PreferenceCategory>
 

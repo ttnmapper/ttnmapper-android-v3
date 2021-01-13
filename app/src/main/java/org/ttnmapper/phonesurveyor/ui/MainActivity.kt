@@ -188,6 +188,8 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         } else {
             if (!hasPermissions(this, PERMISSIONS)) {
                 setupPermissions()
+            } else if (!deviceLinked()) {
+                AppAggregate.showAlertDialog("No device linked", "Did you link a device for mapping? Please check your settings and try again.")
             } else {
                 AppAggregate.startService()
                 binding.fab.setImageResource(android.R.drawable.ic_media_pause)
@@ -342,7 +344,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         edit.putString("osmdroid.cachePath",discoveredCachePath.getAbsolutePath());
          */
 
-        // Handle app version upgrades
+        // App version
         val currentVersionCode: Long
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             currentVersionCode = packageManager.getPackageInfo(getPackageName(), 0).longVersionCode
@@ -351,50 +353,54 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         }
         val previousVersionCode = prefs.getLong("appVersionCode", 0)
 
-        if (currentVersionCode != previousVersionCode) {
-            try {
-                val editor = prefs.edit();
 
-                // Before 23 we need to handle osmdroid's wrong storage location
-                if(previousVersionCode < 25) {
-                    Log.e(TAG, "App upgraded from before build 23. Clearing all preferences.")
-                    editor.clear()
-                }
-
-                editor.putLong("appVersionCode", currentVersionCode)
-                editor.apply()
-            } catch(e: Exception) {
-                Log.e(TAG, "Can't migrate preferences")
-                e.printStackTrace()
-            }
-        }
-
-        // Handle android version upgrades
+        // Android version
         val currentApiVersion = Build.VERSION.SDK_INT
         val previousApiVersion = prefs.getInt("androidSdkInt", 0)
 
-        if(currentApiVersion != previousApiVersion) {
-            try {
-                val editor = prefs.edit()
+        val editor = prefs.edit()
 
-                // API 29 had a transitional storage system. Clear prefs so that we are sure to use the new system.
-                if(currentApiVersion == 29 && previousApiVersion < 29) {
-                    Log.e(TAG, "Android SDK version changed to 29. Clearing all preferences.")
-                    editor.clear()
-                }
-
-                // Before API 30 we need to handle osmdroid's wrong storage location
-                if(currentApiVersion == 30 && previousApiVersion < 30) {
-                    Log.e(TAG, "Android SDK version changed to 30. Clearing all preferences.")
-                    editor.clear()
-                }
-
-                editor.putInt("androidSdkInt", currentApiVersion)
-                editor.apply()
-            } catch(e: Exception) {
-                Log.e(TAG, "Can't migrate preferences")
-                e.printStackTrace()
+        if (currentVersionCode != previousVersionCode) {
+            // Before 26 we need to handle osmdroid's wrong storage location
+            if(previousVersionCode < 26) {
+                Log.e(TAG, "App upgraded from before build 26. Clearing all preferences.")
+                editor.clear()
             }
         }
+
+        if(currentApiVersion != previousApiVersion) {
+            // API 29 had a transitional storage system. Clear prefs so that we are sure to use the new system.
+            if(currentApiVersion == 29 && previousApiVersion < 29) {
+                Log.e(TAG, "Android SDK version changed to 29. Clearing all preferences.")
+                editor.clear()
+            }
+
+            // Before API 30 we need to handle osmdroid's wrong storage location
+            if(currentApiVersion == 30 && previousApiVersion < 30) {
+                Log.e(TAG, "Android SDK version changed to 30. Clearing all preferences.")
+                editor.clear()
+            }
+        }
+
+        editor.putLong("appVersionCode", currentVersionCode)
+        editor.putInt("androidSdkInt", currentApiVersion)
+        editor.commit()
+    }
+
+    fun deviceLinked(): Boolean {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+
+        val broker = prefs.getString(getString(R.string.PREF_MQTT_BROKER), "")
+        val topic = prefs.getString(getString(R.string.PREF_MQTT_TOPIC), "#")
+
+        // If broker is blank, no device is linked
+        if(broker!!.isBlank()) {
+            return false
+        }
+        if(broker.equals("tcp://eu.thethings.network:1883") && topic.equals("#")) {
+            return false
+        }
+
+        return true
     }
 }

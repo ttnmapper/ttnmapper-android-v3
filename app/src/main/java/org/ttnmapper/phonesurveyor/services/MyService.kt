@@ -32,10 +32,8 @@ class MyService : Service() {
 
     lateinit var sharedPref: SharedPreferences
 
-    var serverUri = ""
+    var serverUri = "tcp://eu.thethings.network:1883"
     var clientId = ""
-    var networkType = ""
-    var deviceId = ""
     var mqttUsername = ""
     var mqttPassword = ""
 
