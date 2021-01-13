@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -52,10 +53,33 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val prefBugReport = findPreference("bugreport") as Preference?
         prefBugReport!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { //open browser or intent here
 
+            val log = StringBuilder()
+
+            log.appendLine("Manufacturer: " + Build.MANUFACTURER)
+            log.appendLine("Board: " + Build.BOARD)
+            log.appendLine("Display: " + Build.DISPLAY)
+
+            log.appendLine("MODEL: " + Build.MODEL)
+            log.appendLine("BRAND: " + Build.BRAND)
+            log.appendLine("HOST: " + Build.HOST)
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                log.appendLine("BASE_OS: "+Build.VERSION.BASE_OS)
+                log.appendLine("PREVIEW_SDK_INT: "+Build.VERSION.PREVIEW_SDK_INT)
+                log.appendLine("SECURITY_PATCH: "+Build.VERSION.SECURITY_PATCH)
+            }
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                log.appendLine("RELEASE_OR_CODENAME: "+Build.VERSION.RELEASE_OR_CODENAME)
+            }
+            log.appendLine("CODENAME: "+Build.VERSION.CODENAME)
+            log.appendLine("INCREMENTAL: "+Build.VERSION.INCREMENTAL)
+            log.appendLine("RELEASE: "+Build.VERSION.RELEASE)
+            log.appendLine("SDK_INT: "+Build.VERSION.SDK_INT)
+            log.appendLine()
+            log.appendLine()
 
             val process = Runtime.getRuntime().exec("logcat -d")
             val bufferedReader = BufferedReader(InputStreamReader(process.inputStream))
-            val log = StringBuilder()
             var line: String? = ""
             while (bufferedReader.readLine().also { line = it } != null) {
                 log.appendLine(line)
@@ -67,7 +91,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
             val intent = Intent(Intent.ACTION_SENDTO)
             intent.data = Uri.parse("mailto:") // only email apps should handle this
             intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("android@ttnmapper.org"))
-            intent.putExtra(Intent.EXTRA_SUBJECT, "Bug report " + pInfo.versionName + " (build " + pInfo.versionCode +")")
+            intent.putExtra(Intent.EXTRA_SUBJECT, "Bug report " + pInfo.versionName + " (build " + pInfo.versionCode + ")")
             intent.putExtra(Intent.EXTRA_TEXT, log.toString())
             if (intent.resolveActivity(requireActivity().packageManager) != null) {
                 startActivity(intent)
