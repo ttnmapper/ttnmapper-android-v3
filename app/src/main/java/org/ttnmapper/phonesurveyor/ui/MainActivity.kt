@@ -362,8 +362,8 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         if (currentVersionCode != previousVersionCode) {
             // Before 26 we need to handle osmdroid's wrong storage location
-            if(previousVersionCode < 26) {
-                Log.e(TAG, "App upgraded from before build 26. Clearing all preferences.")
+            if(previousVersionCode < 27) {
+                Log.e(TAG, "App upgraded from before build 27. Clearing all preferences.")
                 editor.clear()
             }
         }

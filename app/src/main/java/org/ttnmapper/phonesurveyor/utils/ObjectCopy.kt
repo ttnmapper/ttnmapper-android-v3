@@ -85,7 +85,11 @@ class ObjectCopy {
             dest.DevID = source.devId
             dest.DevEui = source.hardwareSerial
 
-            dest.Time = source.metadata?.time?.let { getDateForISO8601String(it).time }?.times(1000000) //nanoseconds
+            if(source.metadata != null) {
+                if (!source.metadata!!.time.isNullOrBlank()) {
+                    dest.Time = getDateForISO8601String(source.metadata!!.time!!).time.times(1000000) //nanoseconds
+                }
+            }
 
             dest.FPort = source.fPort
             dest.FCnt = source.fCnt?.toLong()
@@ -123,7 +127,7 @@ class ObjectCopy {
                         gateway.GatewayEui = it.gtwId!!.removePrefix("eui-").toUpperCase(Locale.ROOT)
                     }
                     gateway.AntennaIndex = it.antenna
-                    if(it.time != null) {
+                    if(!it.time.isNullOrBlank()) {
                         gateway.Time = getDateForISO8601String(it.time!!).time.times(1000000) //nanoseconds
                     }
                     gateway.Timestamp = it.timestamp
@@ -293,7 +297,7 @@ class ObjectCopy {
             source.rxInfo?.forEach {
                 val gateway = TtnMapperGateway()
 
-                if(it.time != null) {
+                if(!it.time.isNullOrBlank()) {
                     dest.Time = getDateForISO8601String(it.time!!).time.times(1000000) // ms to ns
                 }
 
@@ -304,7 +308,7 @@ class ObjectCopy {
                 gateway.Description = it.name
 
                 gateway.AntennaIndex = it.antenna
-                if(it.time != null) {
+                if(!it.time.isNullOrBlank()) {
                     gateway.Time = getDateForISO8601String(it.time!!).time.times(1000000) //nanoseconds
                 }
                 gateway.ChannelIndex = it.channel
