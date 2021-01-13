@@ -343,8 +343,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="outputName" value="ic_patreon_logo" />
-                            <entry key="sourceFile" value="$PROJECT_DIR$/../Downloads/patreon_logo.svg" />
+                            <entry key="outputName" value="ic_chirpstack_logo" />
+                            <entry key="sourceFile" value="$PROJECT_DIR$/../Downloads/chirpstack-logo.svg" />
                           </map>
                         </option>
                       </PersistentState>
