@@ -159,7 +159,7 @@
         android:key="about"
         android:title="About">
         <Preference
-            android:title="Copy Log Output"
+            android:title="Email &amp; Copy Log Output"
             android:key="bugreport"
             android:summary="To report a bug you can paste these logs into an email and send it to android@ttnmapper.org" />
         <!--<Preference-->

@@ -93,7 +93,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
         when (sharedPreferences.getString(getString(R.string.PREF_BACKGROUND_MAP), getString(R.string.MAP_STAMEN_TONER_LIGHT))) {
             // Stamen Toner Light
             getString(R.string.MAP_STAMEN_TONER_LIGHT) -> {
-                Log.e(TAG, "Stamen toner light")
+                Log.d(TAG, "Stamen toner light")
                 binding.map.setTileSource(object : OnlineTileSourceBase("Stamen Toner Light",
                         0, 20, 256, ".png",
                         arrayOf("https://stamen-tiles-a.a.ssl.fastly.net/toner-lite/",
@@ -113,7 +113,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
 
             // Terrain
             getString(R.string.MAP_TERRAIN) -> {
-                Log.e(TAG, "Map terrain")
+                Log.d(TAG, "Map terrain")
                 binding.map.setTileSource(object : OnlineTileSourceBase("Arcgis World Shaded Relief",
                         0, 14, 256, "",
                         arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/")) {
@@ -130,7 +130,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
 
             // Satellite
             getString(R.string.MAP_SATELLITE) -> {
-                Log.e(TAG, "Map satellite")
+                Log.d(TAG, "Map satellite")
                 binding.map.setTileSource(object : OnlineTileSourceBase("Arcgis World Imagery",
                         0, 20, 256, "",
                         arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/")) {
@@ -147,7 +147,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
 
             // OSM Mapnik
             getString(R.string.MAP_OSM_MAPNIK) -> {
-                Log.e(TAG, "Map osm mapnik")
+                Log.d(TAG, "Map osm mapnik")
                 binding.map.setTileSource(object : OnlineTileSourceBase("Open Street Map Mapnik",
                         0, 20, 256, ".png",
                         arrayOf("https://a.tile.openstreetmap.org/",
@@ -165,7 +165,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
 
             // OSM Mapnik greyscale
             getString(R.string.MAP_OSM_MAPNIK_GREYSCALE) -> {
-                Log.e(TAG, "Map osm mapnik greyscale")
+                Log.d(TAG, "Map osm mapnik greyscale")
                 binding.map.setTileSource(object : OnlineTileSourceBase("Open Street Map Mapnik",
                         0, 20, 256, ".png",
                         arrayOf("https://a.tile.openstreetmap.org/",
@@ -190,7 +190,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
 
             // OSM Mapnik night mode
             getString(R.string.MAP_OSM_MAPNIK_NIGHTMODE) -> {
-                Log.e(TAG, "Map osm mapnik greyscale")
+                Log.d(TAG, "Map osm mapnik greyscale")
                 binding.map.setTileSource(object : OnlineTileSourceBase("Open Street Map Mapnik",
                         0, 20, 256, ".png",
                         arrayOf("https://a.tile.openstreetmap.org/",

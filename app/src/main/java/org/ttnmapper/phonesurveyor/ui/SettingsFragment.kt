@@ -52,20 +52,33 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val prefBugReport = findPreference("bugreport") as Preference?
         prefBugReport!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { //open browser or intent here
 
+
             val process = Runtime.getRuntime().exec("logcat -d")
-            val bufferedReader = BufferedReader(
-                    InputStreamReader(process.inputStream))
+            val bufferedReader = BufferedReader(InputStreamReader(process.inputStream))
             val log = StringBuilder()
             var line: String? = ""
             while (bufferedReader.readLine().also { line = it } != null) {
                 log.appendLine(line)
             }
 
+
+            val pInfo = requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
+
+            val intent = Intent(Intent.ACTION_SENDTO)
+            intent.data = Uri.parse("mailto:") // only email apps should handle this
+            intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("android@ttnmapper.org"))
+            intent.putExtra(Intent.EXTRA_SUBJECT, "Bug report " + pInfo.versionName + " (build " + pInfo.versionCode +")")
+            intent.putExtra(Intent.EXTRA_TEXT, log.toString())
+            if (intent.resolveActivity(requireActivity().packageManager) != null) {
+                startActivity(intent)
+            }
+
+
             val clipboard = activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("TTN Mapper Logcat", log)
             clipboard.setPrimaryClip(clip)
 
-            Toast.makeText(activity, "Log output copied to the clipboard", Toast.LENGTH_LONG).show()
+            Toast.makeText(activity, "Log output copied to the clipboard", Toast.LENGTH_SHORT).show()
 
             true
         }
