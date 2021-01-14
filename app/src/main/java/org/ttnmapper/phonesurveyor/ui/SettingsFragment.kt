@@ -53,30 +53,32 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val prefBugReport = findPreference("bugreport") as Preference?
         prefBugReport!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { //open browser or intent here
 
-            val log = StringBuilder()
+            val systemInfo = StringBuilder()
 
-            log.appendLine("Manufacturer: " + Build.MANUFACTURER)
-            log.appendLine("Board: " + Build.BOARD)
-            log.appendLine("Display: " + Build.DISPLAY)
+            systemInfo.appendLine("Manufacturer: " + Build.MANUFACTURER)
+            systemInfo.appendLine("Board: " + Build.BOARD)
+            systemInfo.appendLine("Display: " + Build.DISPLAY)
 
-            log.appendLine("MODEL: " + Build.MODEL)
-            log.appendLine("BRAND: " + Build.BRAND)
-            log.appendLine("HOST: " + Build.HOST)
+            systemInfo.appendLine("MODEL: " + Build.MODEL)
+            systemInfo.appendLine("BRAND: " + Build.BRAND)
+            systemInfo.appendLine("HOST: " + Build.HOST)
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                log.appendLine("BASE_OS: "+Build.VERSION.BASE_OS)
-                log.appendLine("PREVIEW_SDK_INT: "+Build.VERSION.PREVIEW_SDK_INT)
-                log.appendLine("SECURITY_PATCH: "+Build.VERSION.SECURITY_PATCH)
+                systemInfo.appendLine("BASE_OS: "+Build.VERSION.BASE_OS)
+                systemInfo.appendLine("PREVIEW_SDK_INT: "+Build.VERSION.PREVIEW_SDK_INT)
+                systemInfo.appendLine("SECURITY_PATCH: "+Build.VERSION.SECURITY_PATCH)
             }
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                log.appendLine("RELEASE_OR_CODENAME: "+Build.VERSION.RELEASE_OR_CODENAME)
+                systemInfo.appendLine("RELEASE_OR_CODENAME: "+Build.VERSION.RELEASE_OR_CODENAME)
             }
-            log.appendLine("CODENAME: "+Build.VERSION.CODENAME)
-            log.appendLine("INCREMENTAL: "+Build.VERSION.INCREMENTAL)
-            log.appendLine("RELEASE: "+Build.VERSION.RELEASE)
-            log.appendLine("SDK_INT: "+Build.VERSION.SDK_INT)
-            log.appendLine()
-            log.appendLine()
+            systemInfo.appendLine("CODENAME: "+Build.VERSION.CODENAME)
+            systemInfo.appendLine("INCREMENTAL: "+Build.VERSION.INCREMENTAL)
+            systemInfo.appendLine("RELEASE: "+Build.VERSION.RELEASE)
+            systemInfo.appendLine("SDK_INT: "+Build.VERSION.SDK_INT)
+            systemInfo.appendLine()
+            systemInfo.appendLine()
+
+            val log = StringBuilder()
 
             val process = Runtime.getRuntime().exec("logcat -d")
             val bufferedReader = BufferedReader(InputStreamReader(process.inputStream))
@@ -85,6 +87,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 log.appendLine(line)
             }
 
+            systemInfo.append(log)
 
             val pInfo = requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
 
@@ -92,14 +95,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
             intent.data = Uri.parse("mailto:") // only email apps should handle this
             intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("android@ttnmapper.org"))
             intent.putExtra(Intent.EXTRA_SUBJECT, "Bug report " + pInfo.versionName + " (build " + pInfo.versionCode + ")")
-            intent.putExtra(Intent.EXTRA_TEXT, log.toString())
+            intent.putExtra(Intent.EXTRA_TEXT, systemInfo.toString())
             if (intent.resolveActivity(requireActivity().packageManager) != null) {
                 startActivity(intent)
             }
 
 
             val clipboard = activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("TTN Mapper Logcat", log)
+            val clip = ClipData.newPlainText("TTN Mapper Logcat", systemInfo)
             clipboard.setPrimaryClip(clip)
 
             Toast.makeText(activity, "Log output copied to the clipboard", Toast.LENGTH_SHORT).show()

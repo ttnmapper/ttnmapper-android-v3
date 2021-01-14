@@ -36,6 +36,7 @@ import org.ttnmapper.phonesurveyor.utils.ObjectCopy.Companion.ttnV2UplinkToTtnMa
 import org.ttnmapper.phonesurveyor.utils.ObjectCopy.Companion.ttnV3UplinkToTtnMapperUplink
 import org.ttnmapper.phonesurveyor.utils.getBackgroundNotification
 import java.util.*
+import kotlin.math.absoluteValue
 
 
 object AppAggregate {
@@ -391,7 +392,7 @@ object AppAggregate {
                 val gatewayDb = db?.gatewayDao()?.findGateway(gateway.GatewayId!!)
                 Log.e(TAG, "Gateway from db: "+gatewayDb.toString())
                 if(gatewayDb != null) {
-                    if(gatewayDb.latitude != null && gatewayDb.longitude != null) {
+                    if (isGatewayLocationValid(gatewayDb)) {
                         addGatewayToMap(gatewayDb)
                         drawLineOnMap(gatewayDb.latitude!!, gatewayDb.longitude!!, ttnMapperUplinkMessage.Latitude!!, ttnMapperUplinkMessage.Longitude!!, CommonFunctions.getColorForSignal(level))
                     }
@@ -415,8 +416,10 @@ object AppAggregate {
 
                         db?.gatewayDao()?.insertAll(gatewayDbNew)
 
-                        addGatewayToMap(gatewayDbNew)
-                        drawLineOnMap(gatewayDbNew.latitude!!, gatewayDbNew.longitude!!, ttnMapperUplinkMessage.Latitude!!, ttnMapperUplinkMessage.Longitude!!, CommonFunctions.getColorForSignal(level))
+                        if (isGatewayLocationValid(gatewayDbNew)) {
+                            addGatewayToMap(gatewayDbNew)
+                            drawLineOnMap(gatewayDbNew.latitude!!, gatewayDbNew.longitude!!, ttnMapperUplinkMessage.Latitude!!, ttnMapperUplinkMessage.Longitude!!, CommonFunctions.getColorForSignal(level))
+                        }
                     }
                 }
 
@@ -431,8 +434,10 @@ object AppAggregate {
 
 //                    db?.gatewayDao()?.insertAll(gatewayDbNew)
 
-                    addGatewayToMap(gatewayDbNew)
-                    drawLineOnMap(gateway.Latitude!!, gateway.Longitude!!, ttnMapperUplinkMessage.Latitude!!, ttnMapperUplinkMessage.Longitude!!, CommonFunctions.getColorForSignal(level))
+                    if (isGatewayLocationValid(gatewayDbNew)) {
+                        addGatewayToMap(gatewayDbNew)
+                        drawLineOnMap(gateway.Latitude!!, gateway.Longitude!!, ttnMapperUplinkMessage.Latitude!!, ttnMapperUplinkMessage.Longitude!!, CommonFunctions.getColorForSignal(level))
+                    }
                 }
             }
         }
@@ -470,11 +475,33 @@ object AppAggregate {
 
     fun addGatewayToMap(gateway: Gateway) {
         if (!MapAggregate.seenGateways.containsKey(gateway.gtwId)) {
-            if (gateway.latitude != null && gateway.longitude != null) {
-                mainActivity?.addGatewayToMap(gateway)
-                MapAggregate.seenGateways.put(gateway.gtwId, gateway)
-            }
+            mainActivity?.addGatewayToMap(gateway)
+            MapAggregate.seenGateways.put(gateway.gtwId, gateway)
         }
+    }
+
+    fun isGatewayLocationValid(gateway: Gateway): Boolean {
+
+        if (gateway.latitude == null || gateway.longitude == null) {
+            return false
+        }
+
+        if(gateway.latitude!!.absoluteValue < 1 && gateway.longitude!!.absoluteValue < 1) {
+            // NULL island
+            return false
+        }
+
+        if(gateway.latitude!!.absoluteValue > 90) {
+            // Past poles
+            return false
+        }
+
+        if(gateway.longitude!!.absoluteValue > 180) {
+            // Wrap around
+            return false
+        }
+
+        return true
     }
 
     fun updateStats() {
