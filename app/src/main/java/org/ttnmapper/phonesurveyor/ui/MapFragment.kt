@@ -290,24 +290,29 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
         val pt = SimplePointTheme(points, false)
 
         var mPointStyle = Paint()
-        mPointStyle.setStyle(Paint.Style.FILL)
-        mPointStyle.setColor(colour.toInt())
 
 
         val opt: SimpleFastPointOverlayOptions
         if(packetbroker) {
-            opt = SimpleFastPointOverlayOptions.getDefaultStyle()
-                    .setSymbol(SimpleFastPointOverlayOptions.Shape.SQUARE) //square is faster than circle
-                    .setPointStyle(mPointStyle)
-                    .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MEDIUM_OPTIMIZATION)
-                    .setRadius(15f).setIsClickable(false).setCellSize(15)
+            mPointStyle.setStyle(Paint.Style.STROKE)
+            mPointStyle.setColor(colour.toInt())
+            mPointStyle.strokeWidth = 10.0F
 
-        } else {
             opt = SimpleFastPointOverlayOptions.getDefaultStyle()
                     .setSymbol(SimpleFastPointOverlayOptions.Shape.CIRCLE) //square is faster than circle
                     .setPointStyle(mPointStyle)
                     .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MEDIUM_OPTIMIZATION)
-                    .setRadius(15f).setIsClickable(false).setCellSize(15)
+                    .setRadius(20f).setIsClickable(false).setCellSize(20)
+
+        } else {
+            mPointStyle.setStyle(Paint.Style.FILL)
+            mPointStyle.setColor(colour.toInt())
+
+            opt = SimpleFastPointOverlayOptions.getDefaultStyle()
+                    .setSymbol(SimpleFastPointOverlayOptions.Shape.CIRCLE) //square is faster than circle
+                    .setPointStyle(mPointStyle)
+                    .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MEDIUM_OPTIMIZATION)
+                    .setRadius(20f).setIsClickable(false).setCellSize(20)
         }
 
 
