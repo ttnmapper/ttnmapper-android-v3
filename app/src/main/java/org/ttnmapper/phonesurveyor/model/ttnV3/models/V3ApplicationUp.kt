@@ -21,6 +21,7 @@ import org.openapitools.client.models.V3ApplicationUplink
 import org.openapitools.client.models.V3EndDeviceIdentifiers
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -40,6 +41,7 @@ import com.squareup.moshi.Json
  * @param simulated Signals if the message is coming from the Network Server or is simulated.
  */
 
+//@JsonClass(generateAdapter = true)
 data class V3ApplicationUp (
     @Json(name = "end_device_ids")
     val endDeviceIds: V3EndDeviceIdentifiers? = null,

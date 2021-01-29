@@ -277,7 +277,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
         }
     }
 
-    fun drawPointOnMap(lat: Double, lon: Double, colour: Long) {
+    fun drawPointOnMap(lat: Double, lon: Double, colour: Long, packetbroker: Boolean) {
         if(_binding == null) {
             Log.w(TAG, "Binding is null, so fragment does not exist")
             return
@@ -293,11 +293,23 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
         mPointStyle.setStyle(Paint.Style.FILL)
         mPointStyle.setColor(colour.toInt())
 
-        val opt = SimpleFastPointOverlayOptions.getDefaultStyle()
-                .setSymbol(SimpleFastPointOverlayOptions.Shape.CIRCLE) //square is faster than circle
-                .setPointStyle(mPointStyle)
-                .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MAXIMUM_OPTIMIZATION)
-                .setRadius(15f).setIsClickable(false).setCellSize(15)
+
+        val opt: SimpleFastPointOverlayOptions
+        if(packetbroker) {
+            opt = SimpleFastPointOverlayOptions.getDefaultStyle()
+                    .setSymbol(SimpleFastPointOverlayOptions.Shape.SQUARE) //square is faster than circle
+                    .setPointStyle(mPointStyle)
+                    .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MEDIUM_OPTIMIZATION)
+                    .setRadius(15f).setIsClickable(false).setCellSize(15)
+
+        } else {
+            opt = SimpleFastPointOverlayOptions.getDefaultStyle()
+                    .setSymbol(SimpleFastPointOverlayOptions.Shape.CIRCLE) //square is faster than circle
+                    .setPointStyle(mPointStyle)
+                    .setAlgorithm(SimpleFastPointOverlayOptions.RenderingAlgorithm.MEDIUM_OPTIMIZATION)
+                    .setRadius(15f).setIsClickable(false).setCellSize(15)
+        }
+
 
         val sfpo = SimpleFastPointOverlay(pt, opt)
 
@@ -355,7 +367,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
 
         if (sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
 
-            for (gateway in MapAggregate.seenGateways) {
+            for (gateway in MapAggregate.mappedGateways) {
                 addGatewayToMap(gateway.value)
             }
 
@@ -366,7 +378,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
         }
 
         for (point in MapAggregate.pointList) {
-            drawPointOnMap(point.lat, point.lon, point.colour)
+            drawPointOnMap(point.lat, point.lon, point.colour, point.packetbroker)
         }
 
         binding.map.invalidate()

@@ -1,7 +1,9 @@
 package org.ttnmapper.phonesurveyor.model.ttnV2
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Metadata(
         var time: String?, // 2018-03-18T10:05:45.391032906Z
         var frequency: Double?, // 868.5

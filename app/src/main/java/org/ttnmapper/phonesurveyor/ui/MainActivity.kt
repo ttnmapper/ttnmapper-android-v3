@@ -317,9 +317,9 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         }
     }
 
-    fun drawPointOnMap(lat: Double, lon: Double, colour: Long) {
+    fun drawPointOnMap(lat: Double, lon: Double, colour: Long, packetbroker: Boolean) {
         runOnUiThread {
-            mapFragment.drawPointOnMap(lat, lon, colour)
+            mapFragment.drawPointOnMap(lat, lon, colour, packetbroker)
         }
     }
 

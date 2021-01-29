@@ -1,7 +1,9 @@
 package org.ttnmapper.phonesurveyor.model.ttnV2
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class TtnApplication(
         var id: String?,
         var name: String?,
@@ -19,6 +21,7 @@ data class TtnApplication(
         var devices: List<Device?>?
 )
 
+@JsonClass(generateAdapter = true)
 data class AccessKey(
         var name: String?,
         var rights: List<String?>?,
@@ -27,12 +30,14 @@ data class AccessKey(
         var id: String?
 )
 
+@JsonClass(generateAdapter = true)
 data class Collaborator(
         var username: String?,
         var email: String?,
         var rights: List<String?>?
 )
 
+@JsonClass(generateAdapter = true)
 class TtnDevices(
         var devices: List<Device?>?
 ) {
@@ -47,6 +52,7 @@ class TtnDevices(
     }
 }
 
+@JsonClass(generateAdapter = true)
 class Device(
         var app_id: String?,
         var dev_id: String?,
@@ -57,6 +63,7 @@ class Device(
     override fun toString(): String = dev_id ?: "<dev_id not set>"
 }
 
+@JsonClass(generateAdapter = true)
 class LorawanDevice(
         var app_eui: String?,
         var dev_eui: String?,

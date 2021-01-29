@@ -1,5 +1,8 @@
 package org.ttnmapper.phonesurveyor.model.ttnV2
 
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class PayloadFields(
         var alt: Int?, // 154
         var batvolt: Int?, // 120

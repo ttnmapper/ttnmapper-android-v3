@@ -37,7 +37,7 @@ object MapAggregate {
 
     var lineList: MutableList<MapLine> = ArrayList()
     var pointList: MutableList<MapPoint> = ArrayList()
-    var seenGateways: MutableMap<String, Gateway> = HashMap();
+    var mappedGateways: MutableMap<String, Gateway> = HashMap()
 
     var gpsStatusMessage: String = "GPS stopped"
     var mqttStatusMessage: String = "MQTT disconnected"

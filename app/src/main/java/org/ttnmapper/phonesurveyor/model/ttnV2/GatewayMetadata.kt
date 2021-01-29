@@ -1,7 +1,9 @@
 package org.ttnmapper.phonesurveyor.model.ttnV2
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class GatewayMetadata(
         @Json(name = "gtw_id")
         var gtwId: String?, // eui-88c255fffe6dfb04

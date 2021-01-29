@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
 import org.ttnmapper.phonesurveyor.databinding.FragmentStatsBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class StatsFragment : Fragment() {
@@ -52,26 +54,32 @@ class StatsFragment : Fragment() {
             return
         }
 
-        binding.totalGtws.text = MapAggregate.seenGateways.size.toString()
         binding.totalPkts.text = AppAggregate.numberOfPacketsRx.toString()
+        binding.totalGtwsSeen.text = AppAggregate.seenGateways.size.toString()
+        binding.totalGtwsMapped.text = MapAggregate.mappedGateways.size.toString()
 
         var gatewayCount = 0
         var maxRssi: Double = 0.0
         var maxSnr: Double = 0.0
-        var gtwId: String = ""
+        var gtwIds: String = ""
 
         ttnMessage?.Gateways?.forEach {
             gatewayCount++
 
-            gtwId = it?.GatewayId ?: "<unknown>"
+            val gtwId = it.GatewayId ?: "<unknown>"
+            if(gtwIds.isEmpty()) {
+                gtwIds = gtwId
+            } else {
+                gtwIds += "\n" + gtwId
+            }
 
-            if (it?.Rssi != null) {
+            if (it.Rssi != null) {
                 if (maxRssi == 0.0 || it.Rssi!! > maxRssi) {
                     maxRssi = it.Rssi!!
                 }
             }
 
-            if (it?.Snr != null) {
+            if (it.Snr != null) {
                 if (maxSnr == 0.0 || it.Snr!! > maxSnr) {
                     maxSnr = it.Snr!!
                 }
@@ -79,31 +87,34 @@ class StatsFragment : Fragment() {
         }
 
         if (ttnMessage?.Time != null) {
-            binding.lastPktTime.text = ttnMessage.Time.toString()
+            val tz = TimeZone.getTimeZone("UTC")
+            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'") // Quoted "Z" to indicate UTC, no timezone offset
+            df.setTimeZone(tz)
+            binding.lastPktTime.text = df.format(Date(ttnMessage.Time!! / 1000000))
         }
 
-        if (gatewayCount == 1) {
-            binding.lastPktGtwsLabel.text = "Gateway ID"
-            binding.lastPktGtws.text = gtwId
-        } else {
-            binding.lastPktGtwsLabel.text = "Number of gateways"
-            binding.lastPktGtws.text = gatewayCount.toString()
-        }
+        binding.lastPktGtwsLabel.text = "Gateway IDs"
+        binding.lastPktGtws.text = gtwIds
 
         if (maxRssi != 0.0) {
-            binding.lastPktRssiMax.text = maxRssi.toString()
+            binding.lastPktRssiMax.text = maxRssi.toString() + " dBm"
         } else {
             binding.lastPktRssiMax.text = ""
         }
 
         if (maxSnr != 0.0) {
-            binding.lastPktSnrMax.text = maxSnr.toString()
+            binding.lastPktSnrMax.text = maxSnr.toString() + " dB"
         } else {
             binding.lastPktSnrMax.text = ""
         }
 
-            binding.lastPktFreq.text = ttnMessage?.Frequency.toString()
+        val freqMhz = ttnMessage?.Frequency?.toDouble()?.div(1000000)
+        if (freqMhz != null) {
+            binding.lastPktFreq.text = freqMhz.toString() + " MHz"
+        }
 
-            binding.lastPktDatarate.text = ttnMessage?.SpreadingFactor.toString()
+        if(ttnMessage?.SpreadingFactor != null && ttnMessage.Bandwidth != null) {
+            binding.lastPktDatarate.text = "SF" + ttnMessage.SpreadingFactor.toString() + "BW" + (ttnMessage.Bandwidth?.div(1000)).toString()
+        }
     }
 }

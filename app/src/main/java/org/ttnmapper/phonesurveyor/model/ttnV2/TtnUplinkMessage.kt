@@ -1,6 +1,7 @@
 package org.ttnmapper.phonesurveyor.model.ttnV2
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /*
 {
@@ -35,6 +36,7 @@ import com.squareup.moshi.Json
 }
  */
 
+@JsonClass(generateAdapter = true)
 data class TtnUplinkMessage(
         @Json(name = "app_id")
         var appId: String?, // jpm_sodaq_one

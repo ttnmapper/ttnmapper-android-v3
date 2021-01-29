@@ -46,7 +46,11 @@ class SessionListActivity : AppCompatActivity() {
 
         GlobalScope.launch {
 
-            val sessionLinkCounts = AppAggregate.db?.linkDao()?.getSessions()!!
+            var sessionLinkCounts: List<SessionLinkCount>? = AppAggregate.db?.linkDao()?.getSessions()
+
+            if(sessionLinkCounts == null) {
+                sessionLinkCounts = emptyList()
+            }
 
             runOnUiThread{
                 binding.textViewNumberSessions.text = "Number of recorded sessions: ${sessionLinkCounts.count()}"
@@ -104,10 +108,10 @@ class SessionListActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Are you sure you want to delete " + sessionId + "?")
                 .setCancelable(false)
-                .setPositiveButton("Yes") { dialog, id ->
+                .setPositiveButton("Yes") { _, _ ->
                     deleteSession(sessionId)
                 }
-                .setNegativeButton("No") { dialog, id ->
+                .setNegativeButton("No") { dialog, _ ->
                     // Dismiss the dialog
                     dialog.dismiss()
                 }
@@ -119,14 +123,14 @@ class SessionListActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Are you sure you want to delete all mapping data?")
                 .setCancelable(false)
-                .setPositiveButton("Yes") { dialog, id ->
+                .setPositiveButton("Yes") { _, _ ->
                     GlobalScope.launch {
                         AppAggregate.db?.linkDao()?.deleteAll()
                         AppAggregate.db?.gatewayDao()?.deleteAll()
                         refreshUi()
                     }
                 }
-                .setNegativeButton("No") { dialog, id ->
+                .setNegativeButton("No") { dialog, _ ->
                     // Dismiss the dialog
                     dialog.dismiss()
                 }
