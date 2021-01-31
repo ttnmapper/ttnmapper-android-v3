@@ -86,8 +86,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
             while (bufferedReader.readLine().also { line = it } != null) {
                 log.appendLine(line)
             }
+            var logString = log.toString()
 
-            systemInfo.append(log)
+            // Limit logs to last 100k chars
+            if(logString.length > 100000) {
+                logString = logString.substring(logString.length - 100000)
+            }
+
+            systemInfo.append(logString)
 
             val pInfo = requireActivity().packageManager.getPackageInfo(requireActivity().packageName, 0)
 
