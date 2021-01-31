@@ -17,6 +17,7 @@ import org.openapitools.client.models.V3RxMetadata
 import org.openapitools.client.models.V3TxSettings
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -36,6 +37,7 @@ import com.squareup.moshi.Json
  * @param locations End device location metadata, set by the Application Server while handling the message.
  */
 
+@JsonClass(generateAdapter = true)
 data class V3ApplicationUplink (
     /* Join Server issued identifier for the session keys used by this uplink. */
     @Json(name = "session_key_id")

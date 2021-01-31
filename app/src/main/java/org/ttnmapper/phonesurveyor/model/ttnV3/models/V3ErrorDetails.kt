@@ -14,6 +14,7 @@ package org.openapitools.client.models
 import org.openapitools.client.models.ProtobufAny
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * Error details that are communicated over gRPC (and HTTP) APIs. The messages (for translation) are stored as \"error:<namespace>:<name>\".
@@ -27,6 +28,7 @@ import com.squareup.moshi.Json
  * @param details The details of the error.
  */
 
+@JsonClass(generateAdapter = true)
 data class V3ErrorDetails (
     /* Namespace of the error (typically the package name in The Things Stack). */
     @Json(name = "namespace")

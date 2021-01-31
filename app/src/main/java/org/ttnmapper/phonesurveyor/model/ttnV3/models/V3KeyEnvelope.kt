@@ -13,6 +13,7 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -21,6 +22,7 @@ import com.squareup.moshi.Json
  * @param encryptedKey 
  */
 
+@JsonClass(generateAdapter = true)
 data class V3KeyEnvelope (
     /* The unencrypted AES key. */
     @Json(name = "key")

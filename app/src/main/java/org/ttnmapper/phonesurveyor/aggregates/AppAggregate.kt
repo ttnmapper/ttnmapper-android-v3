@@ -256,6 +256,7 @@ object AppAggregate {
                     ttnMapperUplinkMessage.NetworkAddress = networkAddress
                 } catch(e: java.lang.Exception) {
                     Log.e(TAG, "V2 Can't parse received json")
+                    Log.e(TAG, data)
                     e.printStackTrace()
                     return
                 }
@@ -291,6 +292,7 @@ object AppAggregate {
 
                 } catch (e: Exception) {
                     Log.e(TAG, "V3 Can't parse received json")
+                    Log.e(TAG, data)
                     e.printStackTrace()
                     return
                 }
@@ -319,6 +321,7 @@ object AppAggregate {
 
                 } catch(e: java.lang.Exception) {
                     Log.e(TAG, "Chirp can't parse received json")
+                    Log.e(TAG, data)
                     e.printStackTrace()
                     return
                 }

@@ -15,6 +15,7 @@ import org.openapitools.client.models.V3ApplicationDownlink
 import org.openapitools.client.models.V3ErrorDetails
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -22,6 +23,7 @@ import com.squareup.moshi.Json
  * @param error 
  */
 
+@JsonClass(generateAdapter = true)
 data class V3ApplicationDownlinkFailed (
     @Json(name = "downlink")
     val downlink: V3ApplicationDownlink? = null,

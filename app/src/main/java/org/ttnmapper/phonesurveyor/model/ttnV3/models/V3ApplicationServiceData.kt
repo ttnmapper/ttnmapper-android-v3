@@ -13,6 +13,7 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -20,6 +21,7 @@ import com.squareup.moshi.Json
  * @param data 
  */
 
+@JsonClass(generateAdapter = true)
 data class V3ApplicationServiceData (
     @Json(name = "service")
     val service: kotlin.String? = null,

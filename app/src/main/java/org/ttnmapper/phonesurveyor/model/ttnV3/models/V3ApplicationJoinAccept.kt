@@ -15,6 +15,7 @@ import org.openapitools.client.models.V3ApplicationDownlink
 import org.openapitools.client.models.V3KeyEnvelope
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -25,6 +26,7 @@ import com.squareup.moshi.Json
  * @param receivedAt Server time when the Network Server received the message.
  */
 
+@JsonClass(generateAdapter = true)
 data class V3ApplicationJoinAccept (
     /* Join Server issued identifier for the session keys negotiated in this join. */
     @Json(name = "session_key_id")

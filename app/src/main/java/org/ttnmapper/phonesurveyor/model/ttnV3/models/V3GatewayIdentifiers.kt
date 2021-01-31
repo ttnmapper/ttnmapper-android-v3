@@ -13,6 +13,7 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -20,6 +21,7 @@ import com.squareup.moshi.Json
  * @param eui Secondary identifier, which can only be used in specific requests.
  */
 
+@JsonClass(generateAdapter = true)
 data class V3GatewayIdentifiers (
     @Json(name = "gateway_id")
     val gatewayId: kotlin.String? = null,

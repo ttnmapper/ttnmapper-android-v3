@@ -17,6 +17,7 @@ import org.openapitools.client.models.V3GatewayIdentifiers
 import org.openapitools.client.models.V3PacketBrokerMetadata
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * Contains metadata for a received message. Each antenna that receives a message corresponds to one RxMetadata.
@@ -41,6 +42,7 @@ import com.squareup.moshi.Json
  * @param advanced 
  */
 
+@JsonClass(generateAdapter = true)
 data class V3RxMetadata (
     @Json(name = "gateway_ids")
     val gatewayIds: V3GatewayIdentifiers? = null,

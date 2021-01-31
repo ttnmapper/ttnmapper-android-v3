@@ -14,6 +14,7 @@ package org.openapitools.client.models
 import org.openapitools.client.models.V3LocationSource
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -24,6 +25,7 @@ import com.squareup.moshi.Json
  * @param source 
  */
 
+@JsonClass(generateAdapter = true)
 data class Lorawanv3Location (
     /* The North–South position (degrees; -90 to +90), where 0 is the equator, North pole is positive, South pole is negative. */
     @Json(name = "latitude")

@@ -14,6 +14,7 @@ package org.openapitools.client.models
 import org.openapitools.client.models.V3ApplicationDownlink
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -21,6 +22,7 @@ import com.squareup.moshi.Json
  * @param lastFCntDown 
  */
 
+@JsonClass(generateAdapter = true)
 data class V3ApplicationInvalidatedDownlinks (
     @Json(name = "downlinks")
     val downlinks: kotlin.collections.List<V3ApplicationDownlink>? = null,

@@ -14,6 +14,7 @@ package org.openapitools.client.models
 import org.openapitools.client.models.V3ApplicationIdentifiers
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -24,6 +25,7 @@ import com.squareup.moshi.Json
  * @param devAddr The LoRaWAN DevAddr.
  */
 
+@JsonClass(generateAdapter = true)
 data class V3EndDeviceIdentifiers (
     @Json(name = "device_id")
     val deviceId: kotlin.String? = null,

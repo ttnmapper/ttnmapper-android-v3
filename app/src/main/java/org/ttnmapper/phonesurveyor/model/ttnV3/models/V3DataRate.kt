@@ -15,6 +15,7 @@ import org.openapitools.client.models.V3FSKDataRate
 import org.openapitools.client.models.V3LoRaDataRate
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -22,6 +23,7 @@ import com.squareup.moshi.Json
  * @param fsk 
  */
 
+@JsonClass(generateAdapter = true)
 data class V3DataRate (
     @Json(name = "lora")
     val lora: V3LoRaDataRate? = null,

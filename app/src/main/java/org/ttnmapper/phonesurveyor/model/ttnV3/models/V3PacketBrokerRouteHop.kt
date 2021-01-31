@@ -13,6 +13,7 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -23,6 +24,7 @@ import com.squareup.moshi.Json
  * @param receiverAgent Receiver agent.
  */
 
+@JsonClass(generateAdapter = true)
 data class V3PacketBrokerRouteHop (
     /* Time when the service received the message. */
     @Json(name = "received_at")

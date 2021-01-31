@@ -14,6 +14,7 @@ package org.openapitools.client.models
 import org.openapitools.client.models.V3GatewayAntennaIdentifiers
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -21,6 +22,7 @@ import com.squareup.moshi.Json
  * @param absoluteTime Absolute time when the downlink message should be transmitted. This requires the gateway to have GPS time synchronization. If the time is in the past or if there is a scheduling conflict, the downlink message fails. If null, the time is selected based on slot availability. This is recommended in class B mode.
  */
 
+@JsonClass(generateAdapter = true)
 data class ApplicationDownlinkClassBC (
     /* Possible gateway identifiers and antenna index to use for this downlink message. The Network Server selects one of these gateways for downlink, based on connectivity, signal quality, channel utilization and an available slot. If none of the gateways can be selected, the downlink message fails. If empty, a gateway and antenna is selected automatically from the gateways seen in recent uplinks. */
     @Json(name = "gateways")

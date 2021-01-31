@@ -14,6 +14,7 @@ package org.openapitools.client.models
 import org.openapitools.client.models.V3GatewayIdentifiers
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -21,6 +22,7 @@ import com.squareup.moshi.Json
  * @param antennaIndex 
  */
 
+@JsonClass(generateAdapter = true)
 data class V3GatewayAntennaIdentifiers (
     @Json(name = "gateway_ids")
     val gatewayIds: V3GatewayIdentifiers? = null,

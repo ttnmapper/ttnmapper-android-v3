@@ -41,7 +41,7 @@ import com.squareup.moshi.JsonClass
  * @param simulated Signals if the message is coming from the Network Server or is simulated.
  */
 
-//@JsonClass(generateAdapter = true)
+@JsonClass(generateAdapter = true)
 data class V3ApplicationUp (
     @Json(name = "end_device_ids")
     val endDeviceIds: V3EndDeviceIdentifiers? = null,

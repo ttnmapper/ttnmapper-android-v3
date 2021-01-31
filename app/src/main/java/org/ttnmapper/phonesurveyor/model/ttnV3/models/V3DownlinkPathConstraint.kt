@@ -13,6 +13,7 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
 *  - DOWNLINK_PATH_CONSTRAINT_NONE: Indicates that the gateway can be selected for downlink without constraints by the Network Server.  - DOWNLINK_PATH_CONSTRAINT_PREFER_OTHER: Indicates that the gateway can be selected for downlink only if no other or better gateway can be selected.  - DOWNLINK_PATH_CONSTRAINT_NEVER: Indicates that this gateway will never be selected for downlink, even if that results in no available downlink path.

@@ -13,12 +13,14 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
  * @param applicationId 
  */
 
+@JsonClass(generateAdapter = true)
 data class V3ApplicationIdentifiers (
     @Json(name = "application_id")
     val applicationId: kotlin.String? = null

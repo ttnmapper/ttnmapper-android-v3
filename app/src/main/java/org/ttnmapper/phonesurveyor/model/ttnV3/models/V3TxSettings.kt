@@ -16,6 +16,7 @@ import org.openapitools.client.models.V3DataRate
 import org.openapitools.client.models.V3DataRateIndex
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * TxSettings contains the settings for a transmission. This message is used on both uplink and downlink. On downlink, this is a scheduled transmission.
@@ -29,6 +30,7 @@ import com.squareup.moshi.Json
  * @param downlink 
  */
 
+@JsonClass(generateAdapter = true)
 data class V3TxSettings (
     @Json(name = "data_rate")
     val dataRate: V3DataRate? = null,

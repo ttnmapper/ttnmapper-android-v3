@@ -13,6 +13,7 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * Transmission settings for downlink.
@@ -21,6 +22,7 @@ import com.squareup.moshi.Json
  * @param invertPolarization Invert LoRa polarization; false for LoRaWAN uplink, true for downlink.
  */
 
+@JsonClass(generateAdapter = true)
 data class TxSettingsDownlink (
     /* Index of the antenna on which the uplink was received and/or downlink must be sent. */
     @Json(name = "antenna_index")

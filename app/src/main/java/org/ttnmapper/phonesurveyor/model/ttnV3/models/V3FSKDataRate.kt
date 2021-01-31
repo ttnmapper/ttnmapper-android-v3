@@ -13,12 +13,14 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
  * @param bitRate Bit rate (bps).
  */
 
+@JsonClass(generateAdapter = true)
 data class V3FSKDataRate (
     /* Bit rate (bps). */
     @Json(name = "bit_rate")

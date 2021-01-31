@@ -14,6 +14,7 @@ package org.openapitools.client.models
 import org.openapitools.client.models.Lorawanv3Location
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -22,6 +23,7 @@ import com.squareup.moshi.Json
  * @param attributes 
  */
 
+@JsonClass(generateAdapter = true)
 data class V3ApplicationLocation (
     @Json(name = "service")
     val service: kotlin.String? = null,

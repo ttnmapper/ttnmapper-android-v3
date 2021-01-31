@@ -15,6 +15,7 @@ import org.openapitools.client.models.ApplicationDownlinkClassBC
 import org.openapitools.client.models.V3TxSchedulePriority
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -30,6 +31,7 @@ import com.squareup.moshi.Json
  * @param correlationIds 
  */
 
+@JsonClass(generateAdapter = true)
 data class V3ApplicationDownlink (
     /* Join Server issued identifier for the session keys used by this downlink. */
     @Json(name = "session_key_id")

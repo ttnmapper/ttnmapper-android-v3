@@ -13,6 +13,7 @@ package org.openapitools.client.models
 
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
 /**
  * 
@@ -20,6 +21,7 @@ import com.squareup.moshi.Json
  * @param spreadingFactor 
  */
 
+@JsonClass(generateAdapter = true)
 data class V3LoRaDataRate (
     /* Bandwidth (Hz). */
     @Json(name = "bandwidth")
