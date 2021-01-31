@@ -82,7 +82,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
             val process = Runtime.getRuntime().exec("logcat -d")
             val bufferedReader = BufferedReader(InputStreamReader(process.inputStream))
-            var line: String? = ""
+            var line: String?
             while (bufferedReader.readLine().also { line = it } != null) {
                 log.appendLine(line)
             }
