@@ -11,9 +11,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.os.StrictMode
-import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+import android.provider.Settings.*
 import android.util.Log
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -41,7 +42,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
     private lateinit var binding: ActivityMainBinding
 
-    val PERMISSIONS = listOf(android.Manifest.permission.WAKE_LOCK, android.Manifest.permission.ACCESS_FINE_LOCATION)
+    val PERMISSIONS = listOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION, android.Manifest.permission.WAKE_LOCK)
 
     private val RECORD_REQUEST_CODE = 101
     val PERMISSION_ALL = 1
@@ -85,7 +86,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         // Sanitise the handler address
         if (key == getString(R.string.PREF_MQTT_BROKER)) {
-            val mqttUri = CommonFunctions.sanitiseMqttUri(sharedPreferences!!.getString(key, "eu.tehtings.network")!!)
+            val mqttUri = CommonFunctions.sanitiseMqttUri(sharedPreferences!!.getString(key, "eu.thetings.network")!!)
             val editor = sharedPreferences.edit()
             editor.putString(key, mqttUri)
             editor.apply()
@@ -191,6 +192,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
             } else if (!deviceLinked()) {
                 AppAggregate.showAlertDialog("No device linked", "Did you link a device for mapping? Please check your settings and try again.")
             } else {
+                showBackgroundLocationInfo()
                 AppAggregate.startService()
                 binding.fab.setImageResource(android.R.drawable.ic_media_pause)
                 binding.fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext,
@@ -227,6 +229,10 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     fun hasPermissions(context: Context?, permissions: List<String>): Boolean {
         if (context != null) {
             for (permission in permissions) {
+                if ( permission == android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) {
+                    // ACCESS_BACKGROUND_LOCATION is a nice to have, but not necessity
+                    continue
+                }
                 if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
                     return false
                 }
@@ -237,13 +243,12 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
     private fun setupPermissions() {
         if (!hasPermissions(this, PERMISSIONS)) {
-            ActivityCompat.requestPermissions(this, PERMISSIONS.toTypedArray(), PERMISSION_ALL)
+            for (permission in PERMISSIONS) {
+                ActivityCompat.requestPermissions(this, arrayOf(permission), PERMISSION_ALL)
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-            var packageName = packageName;
-
             val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
 
             if (!pm.isIgnoringBatteryOptimizations(packageName)) {
@@ -254,14 +259,42 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
                 alertBuilder.setPositiveButton(android.R.string.ok, object : DialogInterface.OnClickListener {
                     override fun onClick(dialog: DialogInterface?, which: Int) {
                         var intent = Intent()
-                        intent.action = ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
-                        intent.data = Uri.parse("package:" + packageName);
-                        startActivity(intent);
+                        intent.action = ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                        intent.data = Uri.parse("package:" + packageName)
+                        startActivity(intent)
                     }
                 })
                 val alert: AlertDialog = alertBuilder.create()
                 alert.show()
             }
+        }
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            if (shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) ||
+                    ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                val alertBuilder: AlertDialog.Builder = AlertDialog.Builder(this)
+                alertBuilder.setCancelable(true)
+                alertBuilder.setTitle("Location in background")
+                alertBuilder.setMessage("TTN Mapper needs permission to read your location in background.\n\nThis is required to track your location with TTN when the app is in the background or your phone's screen is off.")
+                alertBuilder.setPositiveButton(android.R.string.ok, object : DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface?, which: Int) {
+                        var intent = Intent()
+                        intent.action = ACTION_APPLICATION_DETAILS_SETTINGS
+                        intent.data = Uri.parse("package:" + packageName)
+                        startActivity(intent)
+                    }
+                })
+                val alert: AlertDialog = alertBuilder.create()
+                alert.show()
+            }
+        }
+    }
+
+    private fun showBackgroundLocationInfo() {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P &&
+                (shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) ||
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+            Toast.makeText(this, "Started without background location", Toast.LENGTH_SHORT).show()
         }
     }
 
