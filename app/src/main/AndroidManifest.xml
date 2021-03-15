@@ -18,7 +18,7 @@
         android:roundIcon="@drawable/ic_ttn_mapper_20180116"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-        <activity android:name=".ui.LinkChirpActivity"></activity>
+        <activity android:name=".ui.LinkChirpActivity" />
         <activity android:name=".ui.LinkTtsV3Activity" />
         <activity android:name=".ui.LinkTtnV2Activity" />
         <activity android:name=".ui.LinkSelectNetworkActivity" />
@@ -36,7 +36,7 @@
             android:name=".services.MyService"
             android:foregroundServiceType="location"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
         <service android:name="org.eclipse.paho.android.service.MqttService" />
 
         <activity android:name=".ui.RequestPermissionsActivity" />

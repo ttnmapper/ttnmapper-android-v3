@@ -1,11 +1,10 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.4.21'
+    ext.kotlin_version = '1.4.31'
     repositories {
         google()
         jcenter()
-        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.2'
@@ -23,7 +22,7 @@ allprojects {
     }
 
 
-    // forces all changing dependencies (i.e. SNAPSHOTs) to automagicially download
+    // forces all changing dependencies (i.e. SNAPSHOTs) to automatically download
     configurations.all {
         resolutionStrategy {
             cacheChangingModulesFor 0, 'seconds'
