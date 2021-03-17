@@ -109,6 +109,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
                                 + mImageFilenameEnding)
                     }
                 })
+                this.setStatusMessageColor(Color.BLACK)
             }
 
             // Terrain
@@ -126,6 +127,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
                                 + mImageFilenameEnding)
                     }
                 })
+                this.setStatusMessageColor(Color.BLACK)
             }
 
             // Satellite
@@ -143,6 +145,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
                                 + mImageFilenameEnding)
                     }
                 })
+                this.setStatusMessageColor(Color.WHITE)
             }
 
             // OSM Mapnik
@@ -161,6 +164,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
                                 + mImageFilenameEnding)
                     }
                 })
+                this.setStatusMessageColor(Color.BLACK)
             }
 
             // OSM Mapnik greyscale
@@ -183,9 +187,10 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
                 // Apply grayscale filter
                 val matrix = ColorMatrix()
                 matrix.setSaturation(0.0f)
-                val filter = ColorMatrixColorFilter(matrix);
+                val filter = ColorMatrixColorFilter(matrix)
                 //map.getOverlayManager().getTilesOverlay().setColorFilter(TilesOverlay.INVERT_COLORS) //night mode
-                binding.map.getOverlayManager().getTilesOverlay().setColorFilter(filter);
+                binding.map.getOverlayManager().getTilesOverlay().setColorFilter(filter)
+                this.setStatusMessageColor(Color.BLACK)
             }
 
             // OSM Mapnik night mode
@@ -207,6 +212,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
 
                 // Apply grayscale filter
                 binding.map.getOverlayManager().getTilesOverlay().setColorFilter(TilesOverlay.INVERT_COLORS) //night mode
+                this.setStatusMessageColor(Color.WHITE)
             }
         }
 
@@ -443,6 +449,15 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
         }
         MapAggregate.gpsStatusMessage = message
         binding.textViewGPSStatus.setText(message)
+    }
+
+    fun setStatusMessageColor(color: Int) {
+        if(_binding == null) {
+            Log.w(TAG, "Binding is null, so fragment does not exist")
+            return
+        }
+        binding.textViewMQTTStatus.setTextColor(color)
+        binding.textViewGPSStatus.setTextColor(color)
     }
 
 }
