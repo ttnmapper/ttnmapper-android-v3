@@ -53,11 +53,11 @@ android {
 
 repositories {
     mavenCentral()
-    maven{
-        // For osmdroid
-        url  'https://oss.sonatype.org/content/repositories/snapshots/'
-        name 'OSS-Sonatype'
-    }
+//    maven{
+//        // For osmdroid SNAPSHOT releases
+//        url  'https://oss.sonatype.org/content/repositories/snapshots/'
+//        name 'OSS-Sonatype'
+//    }
 }
 
 dependencies {
@@ -71,7 +71,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.preference:preference-ktx:1.1.1'
 
-    implementation "org.osmdroid:osmdroid-android:6.1.9-SNAPSHOT:debug@aar"
+    implementation 'org.osmdroid:osmdroid-android:6.1.10'
 
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'

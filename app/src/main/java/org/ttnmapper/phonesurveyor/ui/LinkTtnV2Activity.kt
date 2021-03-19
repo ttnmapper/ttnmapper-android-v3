@@ -7,11 +7,7 @@ import android.os.Bundle
 import android.preference.PreferenceManager
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
-import org.ttnmapper.phonesurveyor.aggregates.NetworkAggregate
-import org.ttnmapper.phonesurveyor.databinding.ActivityDeepLinkConfigureBinding
 import org.ttnmapper.phonesurveyor.databinding.ActivityLinkTtnV2Binding
-import org.ttnmapper.phonesurveyor.utils.CommonFunctions
-import kotlin.concurrent.thread
 
 class LinkTtnV2Activity : AppCompatActivity() {
     private val TAG = LinkTtnV2Activity::class.java.getName()
@@ -29,27 +25,25 @@ class LinkTtnV2Activity : AppCompatActivity() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
 
         // load old values as default values
-        if (sharedPreferences.getString(getString(R.string.PREF_NETWORK_SERVER),"").equals(getString(R.string.NS_TTN_V2))) {
-            binding.editTextAppId.setText(sharedPreferences.getString(getString(R.string.PREF_MQTT_USERNAME), ""))
-            binding.editTextAccessKey.setText(sharedPreferences.getString(getString(R.string.PREF_MQTT_PASSWORD), ""))
-            binding.editTextMqttAddress.setText(sharedPreferences.getString(getString(R.string.PREF_MQTT_BROKER), ""))
-            var deviceId: String = sharedPreferences.getString(getString(R.string.PREF_MQTT_TOPIC), "")!!
-            if (!deviceId.equals("")) {
-                deviceId = deviceId.substring(0, deviceId.length - 3)
-                deviceId = deviceId.substring(deviceId.lastIndexOf('/') + 1)
-            }
-            binding.editTextDevId.setText(deviceId)
-        }
+        binding.editTextAppId.setText(sharedPreferences.getString(getString(R.string.PREF_TTN_V2_APP_ID), ""))
+        binding.editTextAccessKey.setText(sharedPreferences.getString(getString(R.string.PREF_TTN_V2_ACCESS_KEY), "ttn-account-v2..."))
+        binding.editTextMqttAddress.setText(sharedPreferences.getString(getString(R.string.PREF_TTN_V2_MQTT_ADDRESS), "tcp://eu.thethings.network:1883"))
+        binding.editTextDevId.setText(sharedPreferences.getString(getString(R.string.PREF_TTN_V2_DEV_ID), ""))
 
         binding.buttonLinkDevice.setOnClickListener {
             val editor = sharedPreferences.edit()
 
-            editor.putString(getString(R.string.PREF_NETWORK_SERVER), getString(R.string.NS_TTN_V2))
+            // Store specific V2 settings for pre-filling the form next time
+            editor.putString(getString(R.string.PREF_TTN_V2_APP_ID), binding.editTextAppId.text.toString())
+            editor.putString(getString(R.string.PREF_TTN_V2_ACCESS_KEY), binding.editTextAccessKey.text.toString())
+            editor.putString(getString(R.string.PREF_TTN_V2_MQTT_ADDRESS), binding.editTextMqttAddress.text.toString())
+            editor.putString(getString(R.string.PREF_TTN_V2_DEV_ID), binding.editTextDevId.text.toString())
 
+            // Store generic details used by mqtt library
+            editor.putString(getString(R.string.PREF_NETWORK_SERVER), getString(R.string.NS_TTN_V2))
             editor.putString(getString(R.string.PREF_MQTT_USERNAME), binding.editTextAppId.text.toString())
             editor.putString(getString(R.string.PREF_MQTT_PASSWORD), binding.editTextAccessKey.text.toString())
             editor.putString(getString(R.string.PREF_MQTT_BROKER), binding.editTextMqttAddress.text.toString())
-
             val mqttTopic = binding.editTextAppId.text.toString() + "/devices/" + binding.editTextDevId.text.toString() + "/up"
             editor.putString(getString(R.string.PREF_MQTT_TOPIC), mqttTopic)
 

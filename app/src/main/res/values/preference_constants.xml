@@ -15,6 +15,22 @@
     <string name="PREF_MQTT_PASSWORD">PREF_MQTT_PASSWORD</string>
     <string name="PREF_MQTT_TOPIC">PREF_MQTT_TOPIC</string>
 
+    <string name="PREF_TTN_V2_APP_ID">PREF_TTN_V2_APP_ID</string>
+    <string name="PREF_TTN_V2_DEV_ID">PREF_TTN_V2_DEV_ID</string>
+    <string name="PREF_TTN_V2_ACCESS_KEY">PREF_TTN_V2_ACCESS_KEY</string>
+    <string name="PREF_TTN_V2_MQTT_ADDRESS">PREF_TTN_V2_MQTT_ADDRESS</string>
+
+    <string name="PREF_TTS_V3_PUBLIC_ADDRESS">PREF_TTS_V3_PUBLIC_ADDRESS</string>
+    <string name="PREF_TTS_V3_USERNAME">PREF_TTS_V3_USERNAME</string>
+    <string name="PREF_TTS_V3_PASSWORD">PREF_TTS_V3_PASSWORD</string>
+    <string name="PREF_TTS_V3_END_DEVICE_ID">PREF_TTS_V3_END_DEVICE_ID</string>
+
+    <string name="PREF_CHIRP_APP_ID">PREF_CHIRP_APP_ID</string>
+    <string name="PREF_CHIRP_DEVICE_EUI">PREF_CHIRP_DEVICE_EUI</string>
+    <string name="PREF_CHIRP_MQTT_ADDRESS">PREF_CHIRP_MQTT_ADDRESS</string>
+    <string name="PREF_CHIRP_MQTT_USERNAME">PREF_CHIRP_MQTT_USERNAME</string>
+    <string name="PREF_CHIRP_MQTT_PASSWORD">PREF_CHIRP_MQTT_PASSWORD</string>
+
     <string name="PREF_UPLOAD">PREF_UPLOAD</string>
     <string name="PREF_EXPERIMENT">PREF_EXPERIMENT</string>
     <string name="PREF_EXPERIMENT_NAME">PREF_EXPERIMENT_NAME</string>

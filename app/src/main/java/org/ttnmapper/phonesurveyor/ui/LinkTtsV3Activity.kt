@@ -24,27 +24,25 @@ class LinkTtsV3Activity : AppCompatActivity() {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
 
         // load old values as default values
-        if (sharedPreferences.getString(getString(R.string.PREF_NETWORK_SERVER),"").equals(getString(R.string.NS_TTS_V3))) {
-            binding.editTextUsername.setText(sharedPreferences.getString(getString(R.string.PREF_MQTT_USERNAME), ""))
-            binding.editTextPassword.setText(sharedPreferences.getString(getString(R.string.PREF_MQTT_PASSWORD), ""))
-            binding.editTextPublicAddress.setText(sharedPreferences.getString(getString(R.string.PREF_MQTT_BROKER), ""))
-            var deviceId: String = sharedPreferences.getString(getString(R.string.PREF_MQTT_TOPIC), "")!!
-            if (!deviceId.equals("")) {
-                deviceId = deviceId.substring(0, deviceId.length - 3)
-                deviceId = deviceId.substring(deviceId.lastIndexOf('/') + 1)
-            }
-            binding.editTextEndDeviceId.setText(deviceId)
-        }
+        binding.editTextUsername.setText(sharedPreferences.getString(getString(R.string.PREF_TTS_V3_USERNAME), ""))
+        binding.editTextPassword.setText(sharedPreferences.getString(getString(R.string.PREF_TTS_V3_PASSWORD), ""))
+        binding.editTextPublicAddress.setText(sharedPreferences.getString(getString(R.string.PREF_TTS_V3_PUBLIC_ADDRESS), ""))
+        binding.editTextEndDeviceId.setText(sharedPreferences.getString(getString(R.string.PREF_TTS_V3_END_DEVICE_ID), ""))
 
         binding.buttonLinkDevice.setOnClickListener {
             val editor = sharedPreferences.edit()
 
-            editor.putString(getString(R.string.PREF_NETWORK_SERVER), getString(R.string.NS_TTS_V3))
+            // Store specific V3 settings for pre-filling the form next time
+            editor.putString(getString(R.string.PREF_TTS_V3_USERNAME), binding.editTextUsername.text.toString())
+            editor.putString(getString(R.string.PREF_TTS_V3_PASSWORD), binding.editTextPassword.text.toString())
+            editor.putString(getString(R.string.PREF_TTS_V3_PUBLIC_ADDRESS), binding.editTextPublicAddress.text.toString())
+            editor.putString(getString(R.string.PREF_TTS_V3_END_DEVICE_ID), binding.editTextEndDeviceId.text.toString())
 
+            // Store generic details used by mqtt library
+            editor.putString(getString(R.string.PREF_NETWORK_SERVER), getString(R.string.NS_TTS_V3))
             editor.putString(getString(R.string.PREF_MQTT_USERNAME), binding.editTextUsername.text.toString())
             editor.putString(getString(R.string.PREF_MQTT_PASSWORD), binding.editTextPassword.text.toString())
             editor.putString(getString(R.string.PREF_MQTT_BROKER), binding.editTextPublicAddress.text.toString())
-
             // v3/test-app@the-box/devices/thingsuno/up
             val mqttTopic = "v3/" + binding.editTextUsername.text.toString() + "/devices/" + binding.editTextEndDeviceId.text.toString() + "/up"
             editor.putString(getString(R.string.PREF_MQTT_TOPIC), mqttTopic)
