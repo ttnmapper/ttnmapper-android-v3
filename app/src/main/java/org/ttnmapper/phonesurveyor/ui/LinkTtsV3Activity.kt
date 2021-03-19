@@ -23,6 +23,19 @@ class LinkTtsV3Activity : AppCompatActivity() {
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
 
+        // load old values as default values
+        if (sharedPreferences.getString(getString(R.string.PREF_NETWORK_SERVER),"").equals(getString(R.string.NS_TTS_V3))) {
+            binding.editTextUsername.setText(sharedPreferences.getString(getString(R.string.PREF_MQTT_USERNAME), ""))
+            binding.editTextPassword.setText(sharedPreferences.getString(getString(R.string.PREF_MQTT_PASSWORD), ""))
+            binding.editTextPublicAddress.setText(sharedPreferences.getString(getString(R.string.PREF_MQTT_BROKER), ""))
+            var deviceId: String = sharedPreferences.getString(getString(R.string.PREF_MQTT_TOPIC), "")!!
+            if (!deviceId.equals("")) {
+                deviceId = deviceId.substring(0, deviceId.length - 3)
+                deviceId = deviceId.substring(deviceId.lastIndexOf('/') + 1)
+            }
+            binding.editTextEndDeviceId.setText(deviceId)
+        }
+
         binding.buttonLinkDevice.setOnClickListener {
             val editor = sharedPreferences.edit()
 

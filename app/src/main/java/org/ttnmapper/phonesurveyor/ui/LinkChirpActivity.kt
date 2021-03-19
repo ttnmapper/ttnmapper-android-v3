@@ -25,6 +25,27 @@ class LinkChirpActivity : AppCompatActivity() {
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
 
+        // load old values as default values
+        if (sharedPreferences.getString(getString(R.string.PREF_NETWORK_SERVER),"").equals(getString(R.string.NS_CHIRP))) {
+            binding.editTextMqttUsername.setText(sharedPreferences.getString(getString(R.string.PREF_MQTT_USERNAME), ""))
+            binding.editTextMqttPassword.setText(sharedPreferences.getString(getString(R.string.PREF_MQTT_PASSWORD), ""))
+            binding.editTextMqttAddress.setText(sharedPreferences.getString(getString(R.string.PREF_MQTT_BROKER), ""))
+
+            var deviceEui: String = sharedPreferences.getString(getString(R.string.PREF_MQTT_TOPIC), "")!!
+            if (!deviceEui.equals("")) {
+                deviceEui = deviceEui.substring(0, deviceEui.length - 9)
+                deviceEui = deviceEui.substring(deviceEui.lastIndexOf('/') + 1)
+            }
+            binding.editTextDeviceEui.setText(deviceEui)
+
+            var appId: String = sharedPreferences.getString(getString(R.string.PREF_MQTT_TOPIC), "")!!
+            if (!appId.equals("")) {
+                appId = appId.substring(12)
+                appId = appId.substring(0, appId.indexOf('/'))
+            }
+            binding.editTextAppId.setText(appId)
+        }
+
         binding.buttonLinkDevice.setOnClickListener {
             val editor = sharedPreferences.edit()
 

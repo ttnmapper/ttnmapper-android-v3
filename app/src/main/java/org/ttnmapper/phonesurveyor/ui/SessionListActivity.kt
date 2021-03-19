@@ -149,19 +149,16 @@ class SessionListActivity : AppCompatActivity() {
     }
 
     private fun refreshUi() {
-
-        // Select new total count
-        val count = AppAggregate.db?.linkDao()?.getSessionCount()
-        runOnUiThread {
-            binding.textViewNumberSessions.text = "Number of recorded sessions: " + count.toString()
+        var sessionLinkCounts: List<SessionLinkCount>? = AppAggregate.db?.linkDao()?.getSessions()
+        if(sessionLinkCounts == null) {
+            sessionLinkCounts = emptyList()
         }
 
-        // Update list in UI
-//        val testList = AppAggregate.db?.linkDao()?.getSessionIDs()
+        // Select new total count and update list
         runOnUiThread {
-//            sessionAdapter.updateDataList(testList!!)
+            binding.textViewNumberSessions.text = "Number of recorded sessions: ${sessionLinkCounts.count()}"
+            sessionAdapter.updateDataList(sessionLinkCounts)
         }
-
     }
 
     private fun exportSession(sessionId: String) {
