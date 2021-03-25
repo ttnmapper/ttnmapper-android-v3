@@ -28,6 +28,7 @@ import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
+import org.ttnmapper.phonesurveyor.databinding.ActivityMainBinding
 import org.ttnmapper.phonesurveyor.databinding.FragmentMapBinding
 import org.ttnmapper.phonesurveyor.room.Gateway
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.getBitmapFromVectorDrawable
@@ -86,10 +87,20 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
         // Inflate the layout for this fragment
         _binding = FragmentMapBinding.inflate(inflater, container, false)
         val view = binding.root
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+
+        // center button
+        binding.centerLocation.setOnClickListener { view ->
+            toggleCenterMap(true)
+        }
+        if (sharedPreferences.getBoolean(getString(R.string.PREF_AUTO_CENTER), true)) {
+            binding.centerLocation.hide()
+        } else {
+            binding.centerLocation.show()
+        }
 
         locationIconBitmap = getBitmapFromVectorDrawable(requireContext(), R.drawable.ic_arrow)
 
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
         when (sharedPreferences.getString(getString(R.string.PREF_BACKGROUND_MAP), getString(R.string.MAP_STAMEN_TONER_LIGHT))) {
             // Stamen Toner Light
             getString(R.string.MAP_STAMEN_TONER_LIGHT) -> {
@@ -231,6 +242,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
                 if (scrollEvent.x == 0 && scrollEvent.y == 0) {
                     //Ignore onScroll that is called onCreate and on screen rotate
                 } else {
+                    toggleCenterMap(false)
                     MapAggregate.latitude = binding.map.mapCenter.latitude
                     MapAggregate.longitude = binding.map.mapCenter.longitude
                 }
@@ -460,4 +472,33 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
         binding.textViewGPSStatus.setTextColor(color)
     }
 
+    fun toggleCenterMap(state: Boolean) {
+        if(_binding == null) {
+            Log.w(TAG, "Binding is null, so fragment does not exist")
+            return
+        }
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        if (state != sharedPreferences.getBoolean(getString(R.string.PREF_AUTO_CENTER), true)) {
+            // save into settings
+            val editor = sharedPreferences.edit()
+            editor.putBoolean(getString(R.string.PREF_AUTO_CENTER), state)
+            editor.apply()
+            // enable or disable FollowLocation
+            for (obj in binding.map.getOverlays()) {
+                if (obj is MyLocationNewOverlay) {
+                    if (state) {
+                        obj.enableFollowLocation()
+                    } else {
+                        obj.disableFollowLocation()
+                    }
+                }
+            }
+            // enable or disbale button
+            if (state) {
+                binding.centerLocation.hide()
+            } else {
+                binding.centerLocation.show()
+            }
+        }
+    }
 }
