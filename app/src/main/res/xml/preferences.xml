@@ -103,17 +103,17 @@
     <PreferenceCategory
         android:key="map_preference_screen"
         android:title="Map settings">
-        <CheckBoxPreference
-            android:key="@string/PREF_AUTO_CENTER"
-            android:title="Auto center"
-            android:summary="Keep the map centred around your location"
-            android:defaultValue="true" />
-        <CheckBoxPreference
-            android:enabled="false"
-            android:key="auto_zoom"
-            android:title="Auto zoom"
-            android:summary="Zoom the map to always keep all points in view"
-            android:defaultValue="true" />
+<!--        <CheckBoxPreference-->
+<!--            android:key="@string/PREF_AUTO_CENTER"-->
+<!--            android:title="Auto center"-->
+<!--            android:summary="Keep the map centred around your location"-->
+<!--            android:defaultValue="true" />-->
+<!--        <CheckBoxPreference-->
+<!--            android:enabled="false"-->
+<!--            android:key="auto_zoom"-->
+<!--            android:title="Auto zoom"-->
+<!--            android:summary="Zoom the map to always keep all points in view"-->
+<!--            android:defaultValue="true" />-->
         <CheckBoxPreference
             android:key="@string/PREF_LORDRIVE"
             android:title="LoRdrive mode"
