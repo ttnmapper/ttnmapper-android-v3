@@ -364,7 +364,7 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
         myLocationNewOverlay.setPersonIcon(locationIconBitmap)
         myLocationNewOverlay.isDrawAccuracyEnabled = true
 
-        myLocationNewOverlay.enableAutoStop = false
+        myLocationNewOverlay.enableAutoStop = true
         if (sharedPreferences.getBoolean(getString(R.string.PREF_AUTO_CENTER), true)) {
             myLocationNewOverlay.enableFollowLocation()
         } else {
