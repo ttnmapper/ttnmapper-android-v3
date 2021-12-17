@@ -1,0 +1,26 @@
+
+# V3LocationSource
+
+## Enum
+
+
+    * `uNKNOWN` (value: `"SOURCE_UNKNOWN"`)
+
+    * `gPS` (value: `"SOURCE_GPS"`)
+
+    * `rEGISTRY` (value: `"SOURCE_REGISTRY"`)
+
+    * `iPGEOLOCATION` (value: `"SOURCE_IP_GEOLOCATION"`)
+
+    * `wIFIRSSIGEOLOCATION` (value: `"SOURCE_WIFI_RSSI_GEOLOCATION"`)
+
+    * `bTRSSIGEOLOCATION` (value: `"SOURCE_BT_RSSI_GEOLOCATION"`)
+
+    * `lORARSSIGEOLOCATION` (value: `"SOURCE_LORA_RSSI_GEOLOCATION"`)
+
+    * `lORATDOAGEOLOCATION` (value: `"SOURCE_LORA_TDOA_GEOLOCATION"`)
+
+    * `cOMBINEDGEOLOCATION` (value: `"SOURCE_COMBINED_GEOLOCATION"`)
+
+
+
