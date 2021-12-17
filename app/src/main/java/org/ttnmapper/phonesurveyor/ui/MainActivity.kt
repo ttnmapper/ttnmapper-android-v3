@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         // Initialize osmdroid
         Configuration.getInstance().load(applicationContext, PreferenceManager.getDefaultSharedPreferences(applicationContext))
 
-        binding.fab.setOnClickListener { view ->
+        binding.fab.setOnClickListener {
             toggleMappingFab()
         }
         initMappingFab()
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     }
 
     fun setScreenAlwaysOn() {
-        var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
         if (sharedPreferences.getBoolean(getString(R.string.PREF_SCREEN_ON), true)) {
             Log.e(TAG, "Screen always on")
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -217,10 +217,12 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     fun updateStartStopButton(running: Boolean) {
         if (running) {
             binding.fab.setImageResource(android.R.drawable.ic_media_pause)
-            binding.fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.colorAccent)))
+            binding.fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.colorAccent))
+            //ColorStateList.valueOf(resources.getColor(R.color.colorAccent))
         } else {
             binding.fab.setImageResource(android.R.drawable.ic_media_play)
-            binding.fab.setBackgroundTintList(ColorStateList.valueOf(resources.getColor(R.color.ttnPrimary)))
+            binding.fab.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(applicationContext, R.color.ttnPrimary))
+            //ColorStateList.valueOf(resources.getColor(R.color.ttnPrimary))
         }
     }
 
@@ -242,7 +244,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-            var packageName = packageName;
+            val packageName = packageName;
 
             val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
 
@@ -253,7 +255,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
                 alertBuilder.setMessage("TTN Mapper needs permission to run in the background.\n\nThis is required to maintain an MQTT connection with TTN and to receive packets even when the app is in the background or your phone's screen is off.")
                 alertBuilder.setPositiveButton(android.R.string.ok, object : DialogInterface.OnClickListener {
                     override fun onClick(dialog: DialogInterface?, which: Int) {
-                        var intent = Intent()
+                        val intent = Intent()
                         intent.action = ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
                         intent.data = Uri.parse("package:" + packageName);
                         startActivity(intent);
@@ -285,12 +287,14 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
             }
         }
 
-        // When location permission is granted the first time, we need to redraw the map fragment so that our location is shwon and auto centering works
+        // When location permission is granted the first time, we need to redraw the map fragment so that our location is shown and auto centering works
         supportFragmentManager
                 .beginTransaction()
                 .detach(mapFragment)
                 .attach(mapFragment)
                 .commit()
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     fun setMQTTStatusMessage(message: String) {

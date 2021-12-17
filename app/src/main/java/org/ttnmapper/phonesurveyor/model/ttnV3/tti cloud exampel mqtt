@@ -244,3 +244,66 @@ TTN only gateway:
       }
    }
 }
+
+2021-12-08
+v3/jpm-crickets@ttn/devices/cricket-002/up:
+{
+   "end_device_ids":{
+      "device_id":"cricket-002",
+      "application_ids":{
+         "application_id":"jpm-crickets"
+      },
+      "dev_addr":"260BEAC2"
+   },
+   "correlation_ids":[
+      "as:up:01FPD44VX5JBK3M9CWPKQVBVCB",
+      "gs:conn:01FP57XXKFMQD9JTFHVC17GG94",
+      "gs:up:host:01FP57XXKPQ23DEKRGRKYSM7HY",
+      "gs:uplink:01FPD44VPFCYECGJ9SKB8PGSBN",
+      "ns:uplink:01FPD44VPHPJHGM2N013JSH8W8",
+      "rpc:/ttn.lorawan.v3.GsNs/HandleUplink:01FPD44VPHA6STQ4DEWE33YEMB",
+      "rpc:/ttn.lorawan.v3.NsAs/HandleUplink:01FPD44VX4KWH7RGRP1RKQ4YES"
+   ],
+   "received_at":"2021-12-08T13:36:24.998294048Z",
+   "uplink_message":{
+      "f_cnt":37121,
+      "rx_metadata":[
+         {
+            "gateway_ids":{
+               "gateway_id":"eui-60c5a8fffe71a964",
+               "eui":"60C5A8FFFE71A964"
+            },
+            "timestamp":2488393588,
+            "rssi":-64,
+            "channel_rssi":-64,
+            "snr":9,
+            "location":{
+               "latitude":-33.936644228282525,
+               "longitude":18.87102216482163,
+               "altitude":190,
+               "source":"SOURCE_REGISTRY"
+            },
+            "uplink_token":"CiIKIAoUZXVpLTYwYzVhOGZmZmU3MWE5NjQSCGDFqP/+calkEPS+x6IJGgwI2OnCjQYQvNTF9QIgoLrD/rWRPA==",
+            "channel_index":6
+         }
+      ],
+      "settings":{
+         "data_rate":{
+            "lora":{
+               "bandwidth":125000,
+               "spreading_factor":7
+            }
+         },
+         "coding_rate":"4/5",
+         "frequency":"868300000",
+         "timestamp":2488393588
+      },
+      "received_at":"2021-12-08T13:36:24.785388931Z",
+      "consumed_airtime":"0.041216s",
+      "network_ids":{
+         "net_id":"000013",
+         "tenant_id":"ttn",
+         "cluster_id":"ttn-eu1"
+      }
+   }
+}

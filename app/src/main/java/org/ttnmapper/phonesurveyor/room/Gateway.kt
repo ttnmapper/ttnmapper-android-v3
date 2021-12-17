@@ -9,9 +9,9 @@ import androidx.room.PrimaryKey
 @Entity
 data class Gateway(
         @PrimaryKey(autoGenerate = true)
-        val uid: Int = 0,
+        var uid: Int = 0,
 
-        val gtwId: String,
+        var gtwId: String,
         var description: String? = null,
         var latitude: Double? = null,
         var longitude: Double? = null,

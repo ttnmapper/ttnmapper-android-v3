@@ -20,11 +20,11 @@ class LinkSelectNetworkActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        binding.buttonTtnV2.setOnClickListener {
-            val intent = Intent(this, LinkTtnV2Activity::class.java)
-            startActivity(intent)
-            finish()
-        }
+//        binding.buttonTtnV2.setOnClickListener {
+//            val intent = Intent(this, LinkTtnV2Activity::class.java)
+//            startActivity(intent)
+//            finish()
+//        }
 
         binding.buttonTtsV3.setOnClickListener {
             val intent = Intent(this, LinkTtsV3Activity::class.java)

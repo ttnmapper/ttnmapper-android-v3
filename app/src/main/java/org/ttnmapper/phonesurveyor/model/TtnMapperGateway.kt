@@ -5,16 +5,15 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class TtnMapperGateway(
+    @Json(name = "network_id")
+    var NetworkId: String? = null,
     @Json(name = "gtw_id")
     var GatewayId: String? = null,
     @Json(name = "gtw_eui")
     var GatewayEui: String? = null,
-
-    @Json(name = "gtw_description")
-    var Description: String? = null,
-
     @Json(name = "antenna_index")
     var AntennaIndex: Int? = null,
+
     @Json(name = "time")
     var Time: Long? = null,
     @Json(name = "timestamp")
@@ -25,6 +24,7 @@ data class TtnMapperGateway(
     var FineTimestampEncrypted: String? = null,
     @Json(name = "encrypted_fine_timestamp_key_id")
     var FineTimestampEncryptedKeyId: String? = null,
+
     @Json(name = "channel")
     var ChannelIndex: Int? = null,
     @Json(name = "rssi")
@@ -47,4 +47,7 @@ data class TtnMapperGateway(
     // See TTNv3 proto definition for more info
     @Json(name = "location_source")
     var LocationSource: String? = null,
+
+    @Json(name = "description")
+    var Description: String? = null,
 )

@@ -13,12 +13,12 @@ import org.ttnmapper.phonesurveyor.ui.SessionRowClickListener
 class SessionAdapter(private var sessionList: List<SessionLinkCount>, private val listener: SessionRowClickListener) : RecyclerView.Adapter<SessionAdapter.ViewHolder>() {
 
     // holder class to hold reference
-    inner class ViewHolder(view: View, listener: SessionRowClickListener) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val binding = ListItemSessionBinding.bind(view)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.list_item_session, parent, false), listener)
+        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.list_item_session, parent, false))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

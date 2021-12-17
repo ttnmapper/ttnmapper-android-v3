@@ -9,9 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.webkit.*
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.aggregates.TtnLoginAggregate
 import org.ttnmapper.phonesurveyor.databinding.ActivityTtnLoginBinding
 import java.util.*
@@ -179,7 +177,7 @@ class TtnLoginActivity : AppCompatActivity() {
         }
     }
 
-    fun onButtonRetryClicked(v: View) {
+    fun onButtonRetryClicked() {
         //TODO: clearCookies(this)
         binding.webviewTtnLogin.visibility = View.VISIBLE
         binding.textViewStatus.visibility = View.GONE
@@ -199,7 +197,7 @@ class TtnLoginActivity : AppCompatActivity() {
 
     fun enableRetryButton() {
         runOnUiThread {
-            binding.buttonRetry.setOnClickListener { onButtonRetryClicked(it) }
+            binding.buttonRetry.setOnClickListener { onButtonRetryClicked() }
             binding.buttonRetry.visibility = View.VISIBLE
             binding.progressBarLogin.visibility = View.GONE
         }

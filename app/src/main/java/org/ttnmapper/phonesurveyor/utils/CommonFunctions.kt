@@ -119,5 +119,8 @@ class CommonFunctions {
             }
         }
 
+        fun ByteArray.toEuiString(): String = joinToString(separator = "") { eachByte -> "%02X".format(eachByte) }.padStart(16, '0')
+        fun ByteArray.toNetIdString(): String = joinToString(separator = "") { eachByte -> "%02X".format(eachByte) }.padStart(6, '0')
+
     }
 }

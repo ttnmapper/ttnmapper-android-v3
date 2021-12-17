@@ -1,0 +1,11 @@
+# docker run --rm -v ${PWD}:/local swaggerapi/swagger-codegen-cli generate -i https://github.com/TheThingsNetwork/lorawan-stack/raw/v3.16/api/api.swagger.json -l kotlin -o /local/models
+
+docker run --rm \
+    -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
+    --additional-properties moshiCodeGen=true \
+    -i https://github.com/TheThingsNetwork/lorawan-stack/raw/v3.16/api/api.swagger.json \
+    -g kotlin \
+    -o /local/models
+
+jpmeijers@jpmeijers-XPS13-9333:~/PhoneSurveyor/app/src/main/java/org/ttnmapper/phonesurveyor/model/ttnV3/models/src/main/kotlin/org/openapitools/client/models$
+chown jpmeijers:jpmeijers *

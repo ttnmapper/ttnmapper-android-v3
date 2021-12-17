@@ -9,10 +9,10 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.*
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import androidx.core.content.ContextCompat
 import android.util.Log
-import org.eclipse.paho.android.service.MqttAndroidClient
+import info.mqtt.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
@@ -45,7 +45,7 @@ class MyService : Service() {
 
     var selfStop = false
 
-    override fun onBind(intent: Intent): IBinder? {
+    override fun onBind(intent: Intent): IBinder {
         return myBinder
     }
 
@@ -72,7 +72,9 @@ class MyService : Service() {
         serverUri = sanitiseMqttUri(sharedPref.getString(getString(R.string.PREF_MQTT_BROKER), serverUri) ?: "")
         clientId = MqttClient.generateClientId()
 
-        mqttAndroidClient = MqttAndroidClient(SurveyorApp.instance, serverUri, clientId)
+        mqttAndroidClient = MqttAndroidClient(SurveyorApp.instance, serverUri, clientId).apply {
+//            mNotification?.let { setForegroundService(it, 1000) }
+        }
         mqttAndroidClient?.setCallback(object : MqttCallbackExtended {
             override fun connectComplete(b: Boolean, s: String) {
                 Log.w("mqtt", s)
@@ -92,12 +94,11 @@ class MyService : Service() {
             }
 
             override fun messageArrived(topic: String, mqttMessage: MqttMessage) {
-                Log.w("Mqtt", topic + ": " + mqttMessage.toString())
+                Log.d("Mqtt", topic + ": " + mqttMessage.toString())
                 setMQTTCountupMessage(Date())
 
-                Log.e(TAG, "Processing new message")
                 thread(start = true) {
-                    AppAggregate.processMessage(topic, mqttMessage.toString())
+                    AppAggregate.processMessage(mqttMessage.toString())
                 }
             }
 
@@ -343,7 +344,7 @@ class MyService : Service() {
 
     private fun stopLocationTracking() {
         Log.e(TAG, "stopLocationTracking()")
-        if (locationManager != null && locationListener != null) {
+        if (locationManager != null) {
             locationManager!!.removeUpdates(locationListener)
 //            setGPSStatusMessage("GPS stopped")
         } else {

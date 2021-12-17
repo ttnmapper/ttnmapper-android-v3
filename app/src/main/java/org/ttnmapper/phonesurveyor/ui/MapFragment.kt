@@ -3,7 +3,7 @@ package org.ttnmapper.phonesurveyor.ui
 import android.graphics.*
 import android.location.LocationManager
 import android.os.Bundle
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -53,7 +53,9 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
 
         tmsSource = object : OnlineTileSourceBase("TTN Mapper TMS", 3, 15, 256, "png", arrayOf("")) {
             override fun getTileURLString(pMapTileIndex: Long): String {
-                return "https://ttnmapper.org/tms/?tile=" + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex) + ""
+                // https://tms.ttnmapper.org/circles/network/NS_TTS_V3%3A%2F%2Fttn%40000013/8/141/153.png
+                return "https://tms.ttnmapper.org/circles/network/NS_TTS_V3%3A%2F%2Fttn%40000013/" + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex)
+//                return "https://ttnmapper.org/tms/?tile=" + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex) + "/" + MapTileIndex.getY(pMapTileIndex) + ""
             }
         }
         tmsProvider = MapTileProviderBasic(activity, tmsSource)
@@ -282,13 +284,13 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
             return
         }
 
-        var sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SurveyorApp.instance)
         if (sharedPreferences.getBoolean(getString(R.string.PREF_LORDRIVE), true)) {
 
             val geoPoints: List<GeoPoint> = listOf(GeoPoint(startLat, startLon), GeoPoint(endLat, endLon))
             val line = Polyline()
-            line.color = colour.toInt()
-            line.width = 2.0f
+            line.outlinePaint.color = colour.toInt()
+            line.outlinePaint.strokeWidth = 2.0f
             line.setPoints(geoPoints)
             binding.map.overlayManager.add(line)
             binding.map.invalidate()

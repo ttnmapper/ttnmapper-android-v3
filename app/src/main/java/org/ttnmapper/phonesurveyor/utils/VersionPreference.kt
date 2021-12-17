@@ -8,7 +8,7 @@ import android.util.AttributeSet
 class VersionPreference(context: Context, attrs: AttributeSet) : Preference(context, attrs) {
 
     init {
-        var versionName = ""
+        var versionName: String
         var versionCode = ""
         val packageManager = context.packageManager
         if (packageManager != null) {
@@ -19,6 +19,7 @@ class VersionPreference(context: Context, attrs: AttributeSet) : Preference(cont
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     versionCode = packageInfo.longVersionCode.toString()
                 } else {
+                    @Suppress("DEPRECATION")
                     versionCode = packageInfo.versionCode.toString()
                 }
             } catch (e: Exception) {

@@ -11,17 +11,18 @@ import android.os.AsyncTask
 import android.os.Build
 import android.util.Log
 import org.ttnmapper.phonesurveyor.R
+import org.ttnmapper.phonesurveyor.SurveyorApp
+import org.ttnmapper.phonesurveyor.aggregates.AppAggregate.mNotification
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.ui.MainActivity
 
 class getBackgroundNotification(private val context: Context, private var myService: MyService?) : AsyncTask<Long, Void, Any>() {
     private val TAG = getBackgroundNotification::class.java.getName()
 
-    private lateinit var mNotification: Notification
     private val mNotificationId: Int = 1000
 
     override fun doInBackground(vararg params: Long?): Any? {
-        Log.e(TAG, "Adding notification in Background")
+        Log.d(TAG, "Adding notification in Background")
 
         //Create Channel
         createChannel(context)
@@ -37,11 +38,18 @@ class getBackgroundNotification(private val context: Context, private var myServ
 
         notifyIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 
-        val pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent: PendingIntent;
+        if (Build.VERSION.SDK_INT >= 23) {
+            // Create a PendingIntent using FLAG_IMMUTABLE.
+            pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        } else {
+            // Existing code that creates a PendingIntent.
+            pendingIntent = PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-            Log.w(TAG, "Building notification for >=O")
+            Log.d(TAG, "Building notification for >=O")
             mNotification = Notification.Builder(context, CHANNEL_ID)
                     // Set the intent that will fire when the user taps the notification
                     .setContentIntent(pendingIntent)
@@ -53,7 +61,8 @@ class getBackgroundNotification(private val context: Context, private var myServ
                     .setContentText(message).build()
         } else {
 
-            Log.w(TAG, "Building notification for <O")
+            Log.d(TAG, "Building notification for <O")
+            @Suppress("DEPRECATION")
             mNotification = Notification.Builder(context)
                     // Set the intent that will fire when the user taps the notification
                     .setContentIntent(pendingIntent)

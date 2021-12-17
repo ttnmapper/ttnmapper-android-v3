@@ -5,14 +5,11 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class TtnMapperUplinkMessage(
-        @Json(name = "network_type")
-        var NetworkType: String? = null,
-        @Json(name = "network_address")
-        var NetworkAddress: String? = null,
+        @Json(name = "network_id")
+        var NetworkId: String? = null,
 
         @Json(name = "app_id")
         var AppID: String? = null,
-
         @Json(name = "dev_id")
         var DevID: String? = null,
         @Json(name = "dev_eui")
@@ -50,7 +47,7 @@ data class TtnMapperUplinkMessage(
         var Altitude: Double? = null,
         @Json(name = "accuracy_meters")
         var AccuracyMeters: Double? = null,
-        @Json(name = "satellties")
+        @Json(name = "satellites")
         var Satellites: Int? = null,
         @Json(name = "hdop")
         var Hdop: Double? = null,

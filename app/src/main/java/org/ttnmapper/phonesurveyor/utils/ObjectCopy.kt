@@ -1,15 +1,17 @@
 package org.ttnmapper.phonesurveyor.utils
 
 import android.util.Base64
-import com.squareup.moshi.Json
 import org.openapitools.client.models.V3ApplicationUp
+import org.ttnmapper.phonesurveyor.R
+import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.model.TtnMapperGateway
 import org.ttnmapper.phonesurveyor.model.TtnMapperUplinkMessage
 import org.ttnmapper.phonesurveyor.model.chirpstack.UplinkEvent
-import org.ttnmapper.phonesurveyor.model.ttnV2.GatewayMetadata
 import org.ttnmapper.phonesurveyor.model.ttnV2.TtnUplinkMessage
 import org.ttnmapper.phonesurveyor.room.Link
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.getDateForISO8601String
+import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.toEuiString
+import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.toNetIdString
 import java.util.*
 
 class ObjectCopy {
@@ -124,7 +126,7 @@ class ObjectCopy {
                     val gateway = TtnMapperGateway()
                     gateway.GatewayId = it.gtwId
                     if (it.gtwId?.startsWith("eui-") == true) {
-                        gateway.GatewayEui = it.gtwId!!.removePrefix("eui-").toUpperCase(Locale.ROOT)
+                        gateway.GatewayEui = it.gtwId!!.removePrefix("eui-").uppercase(Locale.ROOT)
                     }
                     gateway.AntennaIndex = it.antenna
                     if(!it.time.isNullOrBlank()) {
@@ -171,11 +173,17 @@ class ObjectCopy {
         fun ttnV3UplinkToTtnMapperUplink(source: V3ApplicationUp): TtnMapperUplinkMessage {
             val dest = TtnMapperUplinkMessage()
 
+            dest.NetworkId = "NS_TTS_V3://"+source.uplinkMessage?.networkIds?.tenantId + "@" + source.uplinkMessage?.networkIds?.netId?.toNetIdString()
+
             dest.AppID = source.endDeviceIds?.applicationIds?.applicationId
             dest.DevID = source.endDeviceIds?.deviceId
-            dest.DevEui = source.endDeviceIds?.devEui
+
+            if(source.endDeviceIds?.devEui?.toEuiString()?.length == 16) {
+                dest.DevEui = source.endDeviceIds.devEui.toEuiString()
+            }
+
             dest.Time = source.receivedAt?.toInstant()?.toEpochMilli()?.times(1000000) //nanoseconds
-            dest.FPort = source.uplinkMessage?.fPort?.toInt()
+            dest.FPort = source.uplinkMessage?.fPort?.toInt() ?: 0
             dest.FCnt = source.uplinkMessage?.fCnt
             dest.Frequency = source.uplinkMessage?.settings?.frequency?.toLongOrNull()
             if(source.uplinkMessage?.settings?.dataRate?.lora != null) {
@@ -187,6 +195,11 @@ class ObjectCopy {
                 dest.Modulation = "FSK"
                 dest.Bitrate = source.uplinkMessage.settings.dataRate.fsk.bitRate
             }
+            if(source.uplinkMessage?.settings?.dataRate?.lrfhss != null) {
+                dest.Modulation = "LR_FHSS"
+                dest.Bandwidth = source.uplinkMessage.settings.dataRate.lrfhss.operatingChannelWidth
+                // TODO: grid step, code rate
+            }
             dest.CodingRate = source.uplinkMessage?.settings?.codingRate
 
             val gateways = mutableListOf<TtnMapperGateway>()
@@ -195,22 +208,70 @@ class ObjectCopy {
                 val gateway = TtnMapperGateway()
 
                 gateway.GatewayId = it.gatewayIds?.gatewayId
-                gateway.GatewayEui = it.gatewayIds?.eui
-                //                gateway.Description =
-                gateway.AntennaIndex = it.antennaIndex?.toInt()
-                gateway.Time = it.time?.toInstant()?.toEpochMilli()?.times(1000000) //nanoseconds
+                println(it.gatewayIds?.eui?.toEuiString())
+                gateway.GatewayEui = it.gatewayIds?.eui?.toEuiString()
+
+                if (it.packetBroker != null) {
+                    /*
+                        ttsDomain = forwrder_tenant_id@forwarder_net_id // "ttn@000013"
+                    */
+                    val forwarderTenantId = it.packetBroker.forwarderTenantId
+                    val forwarderNetId = it.packetBroker.forwarderNetId
+                    if (forwarderTenantId == "ttnv2") {
+                        gateway.NetworkId = "thethingsnetwork.org"
+                    } else {
+                        gateway.NetworkId = "NS_TTS_V3://"+forwarderTenantId + "@" + forwarderNetId?.toNetIdString()
+                    }
+
+                    /*
+                        Use GatewayId and EUI if reported by PacketBroker
+                    */
+                    if (it.packetBroker.forwarderGatewayEui != null) {
+                        gateway.GatewayEui = it.packetBroker.forwarderGatewayEui.toEuiString()
+                    }
+                    if (it.packetBroker.forwarderGatewayId != null) {
+                        gateway.GatewayId = it.packetBroker.forwarderGatewayId
+                    }
+
+                } else {
+                    gateway.NetworkId = dest.NetworkId
+                }
+
+                if (gateway.GatewayId == null) {
+                    return@forEach
+                }
+
+                if (gateway.GatewayId.equals("packetbroker")) {
+                    return@forEach // like a continue in a for loop
+                }
+
+                if (gateway.GatewayEui.isNullOrEmpty() && gateway.GatewayId!!.startsWith("eui-") && gateway.GatewayId!!.length == 20) {
+                    var eui = gateway.GatewayId!!.removePrefix("eui-")
+                    eui = eui.uppercase()
+                    gateway.GatewayEui = eui
+                }
+
                 gateway.Timestamp = it.timestamp
+                if(it.time != null) {
+                    gateway.Time =
+                        it.time.toInstant()?.toEpochMilli()?.times(1000000) //nanoseconds
+                } else {
+                    gateway.Time = System.currentTimeMillis() * 1000000
+                }
                 gateway.FineTimestamp = it.fineTimestamp?.toLongOrNull()
-                gateway.FineTimestampEncrypted = it.encryptedFineTimestamp
+                gateway.FineTimestampEncrypted = it.encryptedFineTimestamp?.toString()
                 gateway.FineTimestampEncryptedKeyId = it.encryptedFineTimestampKeyId
+
                 gateway.ChannelIndex = it.channelIndex?.toInt()
-                gateway.Rssi = it.rssi
-                gateway.SignalRssi = it.signalRssi
-                gateway.Snr = it.snr
-                gateway.Latitude = it.location?.latitude
-                gateway.Longitude = it.location?.longitude
-                gateway.Altitude = it.location?.altitude
-                gateway.LocationAccuracy = it.location?.accuracy
+                gateway.Rssi = it.rssi?.toDouble()
+                gateway.SignalRssi = it.signalRssi?.toDouble()
+                gateway.Snr = it.snr?.toDouble()
+
+                gateway.AntennaIndex = it.antennaIndex?.toInt() ?: 0
+                gateway.Latitude = it.location?.latitude ?: 0.0
+                gateway.Longitude = it.location?.longitude ?: 0.0
+                gateway.Altitude = it.location?.altitude ?: 0
+                gateway.LocationAccuracy = it.location?.accuracy ?: 0
                 if(it.location?.source != null) {
                     gateway.LocationSource = it.location.source.toString()
                 }
@@ -232,7 +293,7 @@ class ObjectCopy {
 
             dest.AppID = source.applicationName
             dest.DevID = source.deviceName
-            dest.DevEui = source.devEUI?.toUpperCase(Locale.ROOT)
+            dest.DevEui = source.devEUI?.uppercase(Locale.ROOT)
 
             dest.FPort = source.fPort
             dest.FCnt = source.fCnt?.toLong()
@@ -302,9 +363,9 @@ class ObjectCopy {
                 }
 
                 if(it.gatewayID != null) {
-                    gateway.GatewayId = "eui-" + it.gatewayID!!.toLowerCase(Locale.ROOT)
+                    gateway.GatewayId = "eui-" + it.gatewayID!!.lowercase(Locale.ROOT)
                 }
-                gateway.GatewayEui = it.gatewayID?.toUpperCase(Locale.ROOT)
+                gateway.GatewayEui = it.gatewayID?.uppercase(Locale.ROOT)
                 gateway.Description = it.name
 
                 gateway.AntennaIndex = it.antenna

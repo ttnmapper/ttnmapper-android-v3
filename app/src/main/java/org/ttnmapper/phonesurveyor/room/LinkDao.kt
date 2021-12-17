@@ -41,7 +41,7 @@ interface LinkDao {
         val links: MutableList<Link> = mutableListOf()
 
         for (gateway in ttnMessage.Gateways.orEmpty()) {
-            val link = copyTtnToLink(sessionStart, ttnMessage, gateway!!)
+            val link = copyTtnToLink(sessionStart, ttnMessage, gateway)
             links.add(link)
         }
         insertAll(*links.toTypedArray())

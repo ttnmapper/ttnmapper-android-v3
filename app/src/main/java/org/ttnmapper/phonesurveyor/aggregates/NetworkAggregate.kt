@@ -7,6 +7,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONException
 import org.json.JSONObject
 import org.ttnmapper.phonesurveyor.R
@@ -55,18 +56,28 @@ object NetworkAggregate {
 
         val request = Request.Builder()
                 .url(url)
-                .post(RequestBody.create(MEDIA_TYPE_JSON, postBody))
+                .post(postBody.toRequestBody(MEDIA_TYPE_JSON))
                 .build()
 
         try {
             client.newCall(request).execute().use { response ->
                 val body = response.body
                 if (body != null) {
-                    Log.e(TAG, body.string())
+                    val bodyString = body.string();
+                    Log.e(TAG, bodyString)
+                    val jsonObj = JSONObject(bodyString)
+                    val success = jsonObj.getBoolean("success")
+                    if(!success) {
+                        val message = jsonObj.getString("message")
+                        if (!message.isNullOrEmpty()) {
+                            // Find a better place to show this message
+//                            AppAggregate.setGPSStatusMessage(message)
+                        }
+                    }
                 }
             }
-        } catch (e: IOException) {
-            Log.e(TAG, "Timeout posting to server " + url)
+        } catch (e: Exception) {
+            Log.e(TAG, e.toString())
         }
     }
 

@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity(indices = arrayOf(Index(value = ["Session"])))
 data class Link(
         @PrimaryKey(autoGenerate = true)
-        val uid: Int = 0,
+        var uid: Int = 0,
 
         var Session: String = "",
 

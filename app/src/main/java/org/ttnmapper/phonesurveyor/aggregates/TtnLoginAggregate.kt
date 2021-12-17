@@ -6,6 +6,7 @@ import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONException
 import org.json.JSONObject
 import org.ttnmapper.phonesurveyor.model.ttnV2.Device
@@ -42,7 +43,7 @@ object TtnLoginAggregate {
         NetworkAggregate.client.newCall(request).execute().use { response ->
 
             try {
-                val responseString = response.body?.string()
+                val responseString = response.body!!.string()
 //            Log.e(TAG, "Token received: " + responseString)
                 accessToken = JSONObject(responseString).getString("access_token")
                 return true
@@ -115,7 +116,7 @@ object TtnLoginAggregate {
         try {
         NetworkAggregate.client.newCall(request).execute().use { response ->
 
-            val responseString = response.body?.string()
+            val responseString = response.body!!.string()
 //            Log.e(TAG, responseString)
 
             try {
@@ -178,10 +179,12 @@ object TtnLoginAggregate {
     }
 
     fun getListOfDevices(): Boolean {
-        var restrictedToken: String = ""
+        var restrictedToken = ""
 
         //get restricted token
-        val body = RequestBody.create(NetworkAggregate.MEDIA_TYPE_JSON, "{\"scope\": [ \"apps:" + selectedApplication!!.id + "\" ]}")
+        val body = ("{\"scope\": [ \"apps:" + selectedApplication!!.id + "\" ]}").toRequestBody(
+            NetworkAggregate.MEDIA_TYPE_JSON
+        )
 
         val request = Request.Builder()
                 .addHeader("Accept", "application/json")
@@ -192,7 +195,7 @@ object TtnLoginAggregate {
 
         NetworkAggregate.client.newCall(request).execute().use { response ->
 
-            val responseString = response.body?.string()
+            val responseString = response.body!!.string()
 //            Log.e(TAG, responseString)
             try {
                 restrictedToken = JSONObject(responseString).getString("access_token")
@@ -240,15 +243,15 @@ object TtnLoginAggregate {
                 val moshi = Moshi.Builder()
                         .add(KotlinJsonAdapterFactory())
                         .build()
-                val jsonAdapter = moshi.adapter<TtnDevices>(TtnDevices::class.java)
-                try {
+                val jsonAdapter = moshi.adapter(TtnDevices::class.java)
+                return try {
                     Log.e(TAG, responseString!!)
-                    val devices = jsonAdapter.fromJson(responseString!!)
-    //                Log.e(TAG, devices.toString())
+                    val devices = jsonAdapter.fromJson(responseString)
+                    //                Log.e(TAG, devices.toString())
                     selectedApplication?.devices = devices?.devices
-                    return true
+                    true
                 } catch (e: Exception) {
-                    return false
+                    false
                 }
             }
 
