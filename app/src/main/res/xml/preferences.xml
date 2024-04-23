@@ -125,12 +125,12 @@
             android:summary="Show all previously mapped coverage from ttnmapper.org"
             android:defaultValue="true" />
         <ListPreference
-            android:title="Background map"
-            android:summary="Select which map service to use as the background map"
-            android:key="@string/PREF_BACKGROUND_MAP"
-            android:defaultValue="@string/MAP_STAMEN_TONER_LIGHT"
+            android:defaultValue="@string/MAP_OSM_MAPNIK_GREYSCALE"
             android:entries="@array/backgroundMapTitles"
-            android:entryValues="@array/backgroundMapKeys" />
+            android:entryValues="@array/backgroundMapKeys"
+            android:key="@string/PREF_BACKGROUND_MAP"
+            android:summary="Select which map service to use as the background map"
+            android:title="Background map" />
     </PreferenceCategory>
 
     <PreferenceCategory

@@ -2,21 +2,19 @@
 <resources>
 
     <string-array name="backgroundMapTitles">
-        <item>Stamen Toner Light</item>
+        <item>OSM Mapnik greyscale</item>
+        <item>OSM Mapnik</item>
+        <item>OSM Mapnik night mode</item>
         <item>Terrain</item>
         <item>Satellite</item>
-        <item>OSM Mapnik</item>
-        <item>OSM Mapnik greyscale</item>
-        <item>OSM Mapnik night mode</item>
     </string-array>
 
     <string-array name="backgroundMapKeys">
-        <item>@string/MAP_STAMEN_TONER_LIGHT</item>
+        <item>@string/MAP_OSM_MAPNIK_GREYSCALE</item>
+        <item>@string/MAP_OSM_MAPNIK</item>
+        <item>@string/MAP_OSM_MAPNIK_NIGHTMODE</item>
         <item>@string/MAP_TERRAIN</item>
         <item>@string/MAP_SATELLITE</item>
-        <item>@string/MAP_OSM_MAPNIK</item>
-        <item>@string/MAP_OSM_MAPNIK_GREYSCALE</item>
-        <item>@string/MAP_OSM_MAPNIK_NIGHTMODE</item>
     </string-array>
 
     <string-array name="networkServerTypes">

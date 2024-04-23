@@ -103,85 +103,9 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
 
         locationIconBitmap = getBitmapFromVectorDrawable(requireContext(), R.drawable.ic_arrow)
 
-        when (sharedPreferences.getString(getString(R.string.PREF_BACKGROUND_MAP), getString(R.string.MAP_STAMEN_TONER_LIGHT))) {
-            // Stamen Toner Light
-            getString(R.string.MAP_STAMEN_TONER_LIGHT) -> {
-                Log.d(TAG, "Stamen toner light")
-                binding.map.setTileSource(object : OnlineTileSourceBase("Stamen Toner Light",
-                        0, 20, 256, ".png",
-                        arrayOf("https://stamen-tiles-a.a.ssl.fastly.net/toner-lite/",
-                                "https://stamen-tiles-b.a.ssl.fastly.net/toner-lite/",
-                                "https://stamen-tiles-c.a.ssl.fastly.net/toner-lite/",
-                                "https://stamen-tiles-d.a.ssl.fastly.net/toner-lite/")) {
-                    override fun getTileURLString(pMapTileIndex: Long): String {
-                        return (baseUrl
-                                + MapTileIndex.getZoom(pMapTileIndex)
-                                + "/" + MapTileIndex.getX(pMapTileIndex)
-                                + "/" + MapTileIndex.getY(pMapTileIndex)
-                                + "@2x"
-                                + mImageFilenameEnding)
-                    }
-                })
-                this.setStatusMessageColor(Color.BLACK)
-            }
-
-            // Terrain
-            getString(R.string.MAP_TERRAIN) -> {
-                Log.d(TAG, "Map terrain")
-                binding.map.setTileSource(object : OnlineTileSourceBase("Arcgis World Shaded Relief",
-                        0, 14, 256, "",
-                        arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/")) {
-                    override fun getTileURLString(pMapTileIndex: Long): String {
-                        return (baseUrl
-                                + MapTileIndex.getZoom(pMapTileIndex)
-                                + "/" + MapTileIndex.getY(pMapTileIndex)
-                                + "/" + MapTileIndex.getX(pMapTileIndex)
-                                + "@2x"
-                                + mImageFilenameEnding)
-                    }
-                })
-                this.setStatusMessageColor(Color.BLACK)
-            }
-
-            // Satellite
-            getString(R.string.MAP_SATELLITE) -> {
-                Log.d(TAG, "Map satellite")
-                binding.map.setTileSource(object : OnlineTileSourceBase("Arcgis World Imagery",
-                        0, 20, 256, "",
-                        arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/")) {
-                    override fun getTileURLString(pMapTileIndex: Long): String {
-                        return (baseUrl
-                                + MapTileIndex.getZoom(pMapTileIndex)
-                                + "/" + MapTileIndex.getY(pMapTileIndex)
-                                + "/" + MapTileIndex.getX(pMapTileIndex)
-                                + "@2x"
-                                + mImageFilenameEnding)
-                    }
-                })
-                this.setStatusMessageColor(Color.WHITE)
-            }
-
-            // OSM Mapnik
-            getString(R.string.MAP_OSM_MAPNIK) -> {
-                Log.d(TAG, "Map osm mapnik")
-                binding.map.setTileSource(object : OnlineTileSourceBase("Open Street Map Mapnik",
-                        0, 20, 256, ".png",
-                        arrayOf("https://a.tile.openstreetmap.org/",
-                                "https://b.tile.openstreetmap.org/",
-                                "https://c.tile.openstreetmap.org/")) {
-                    override fun getTileURLString(pMapTileIndex: Long): String {
-                        return (baseUrl
-                                + MapTileIndex.getZoom(pMapTileIndex)
-                                + "/" + MapTileIndex.getX(pMapTileIndex)
-                                + "/" + MapTileIndex.getY(pMapTileIndex)
-                                + mImageFilenameEnding)
-                    }
-                })
-                this.setStatusMessageColor(Color.BLACK)
-            }
-
-            // OSM Mapnik greyscale
-            getString(R.string.MAP_OSM_MAPNIK_GREYSCALE) -> {
+        when (sharedPreferences.getString(getString(R.string.PREF_BACKGROUND_MAP), getString(R.string.MAP_OSM_MAPNIK_GREYSCALE))) {
+            // OSM Mapnik greyscale, and reverse compatible with old Stamen Toner Light
+            getString(R.string.MAP_OSM_MAPNIK_GREYSCALE), getString(R.string.MAP_STAMEN_TONER_LIGHT) -> {
                 Log.d(TAG, "Map osm mapnik greyscale")
                 binding.map.setTileSource(object : OnlineTileSourceBase("Open Street Map Mapnik",
                         0, 20, 256, ".png",
@@ -202,7 +126,26 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
                 matrix.setSaturation(0.0f)
                 val filter = ColorMatrixColorFilter(matrix)
                 //map.getOverlayManager().getTilesOverlay().setColorFilter(TilesOverlay.INVERT_COLORS) //night mode
-                binding.map.getOverlayManager().getTilesOverlay().setColorFilter(filter)
+                binding.map.overlayManager.tilesOverlay.setColorFilter(filter)
+                this.setStatusMessageColor(Color.BLACK)
+            }
+
+            // OSM Mapnik
+            getString(R.string.MAP_OSM_MAPNIK) -> {
+                Log.d(TAG, "Map osm mapnik")
+                binding.map.setTileSource(object : OnlineTileSourceBase("Open Street Map Mapnik",
+                    0, 20, 256, ".png",
+                    arrayOf("https://a.tile.openstreetmap.org/",
+                        "https://b.tile.openstreetmap.org/",
+                        "https://c.tile.openstreetmap.org/")) {
+                    override fun getTileURLString(pMapTileIndex: Long): String {
+                        return (baseUrl
+                                + MapTileIndex.getZoom(pMapTileIndex)
+                                + "/" + MapTileIndex.getX(pMapTileIndex)
+                                + "/" + MapTileIndex.getY(pMapTileIndex)
+                                + mImageFilenameEnding)
+                    }
+                })
                 this.setStatusMessageColor(Color.BLACK)
             }
 
@@ -224,14 +167,50 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
                 })
 
                 // Apply grayscale filter
-                binding.map.getOverlayManager().getTilesOverlay().setColorFilter(TilesOverlay.INVERT_COLORS) //night mode
+                binding.map.overlayManager.tilesOverlay.setColorFilter(TilesOverlay.INVERT_COLORS) //night mode
+                this.setStatusMessageColor(Color.WHITE)
+            }
+
+            // Terrain
+            getString(R.string.MAP_TERRAIN) -> {
+                Log.d(TAG, "Map terrain")
+                binding.map.setTileSource(object : OnlineTileSourceBase("Arcgis World Shaded Relief",
+                    0, 14, 256, "",
+                    arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/")) {
+                    override fun getTileURLString(pMapTileIndex: Long): String {
+                        return (baseUrl
+                                + MapTileIndex.getZoom(pMapTileIndex)
+                                + "/" + MapTileIndex.getY(pMapTileIndex)
+                                + "/" + MapTileIndex.getX(pMapTileIndex)
+                                + "@2x"
+                                + mImageFilenameEnding)
+                    }
+                })
+                this.setStatusMessageColor(Color.BLACK)
+            }
+
+            // Satellite
+            getString(R.string.MAP_SATELLITE) -> {
+                Log.d(TAG, "Map satellite")
+                binding.map.setTileSource(object : OnlineTileSourceBase("Arcgis World Imagery",
+                    0, 20, 256, "",
+                    arrayOf("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/")) {
+                    override fun getTileURLString(pMapTileIndex: Long): String {
+                        return (baseUrl
+                                + MapTileIndex.getZoom(pMapTileIndex)
+                                + "/" + MapTileIndex.getY(pMapTileIndex)
+                                + "/" + MapTileIndex.getX(pMapTileIndex)
+                                + "@2x"
+                                + mImageFilenameEnding)
+                    }
+                })
                 this.setStatusMessageColor(Color.WHITE)
             }
         }
 
 
 
-        binding.map.setTilesScaledToDpi(true)
+        binding.map.isTilesScaledToDpi = true
         binding.map.setMultiTouchControls(true)
 
         binding.map.addMapListener(object : MapListener {
