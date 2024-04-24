@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
     private lateinit var binding: ActivityMainBinding
 
-    val PERMISSIONS = listOf(android.Manifest.permission.WAKE_LOCK, android.Manifest.permission.ACCESS_FINE_LOCATION)
+    var PERMISSIONS = listOf(android.Manifest.permission.WAKE_LOCK, android.Manifest.permission.ACCESS_FINE_LOCATION)
 
     private val RECORD_REQUEST_CODE = 101
     val PERMISSION_ALL = 1
@@ -238,6 +238,11 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     }
 
     private fun setupPermissions() {
+        // API level 33 added requirement for POST_NOTIFICATIONS permission
+        if (Build.VERSION.SDK_INT >= 33) {
+            PERMISSIONS += android.Manifest.permission.POST_NOTIFICATIONS
+        }
+
         if (!hasPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS.toTypedArray(), PERMISSION_ALL)
         }

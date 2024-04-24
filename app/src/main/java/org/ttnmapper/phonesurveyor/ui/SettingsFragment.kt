@@ -36,19 +36,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val sharedPreferences = preferenceManager.sharedPreferences
 
         val editTextMqttUsername = findPreference<EditTextPreference>(activity?.getString(R.string.PREF_MQTT_USERNAME).toString())
-        editTextMqttUsername!!.summary = sharedPreferences.getString(editTextMqttUsername.key, "<not set>")
+        editTextMqttUsername!!.summary = sharedPreferences?.getString(editTextMqttUsername.key, "<not set>")
 
         val editTextMqttPassword = findPreference<EditTextPreference>(activity?.getString(R.string.PREF_MQTT_PASSWORD).toString())
-        editTextMqttPassword!!.summary = sharedPreferences.getString(editTextMqttPassword.key, "<not set>")
+        editTextMqttPassword!!.summary = sharedPreferences?.getString(editTextMqttPassword.key, "<not set>")
 
         val editTextMqttTopic = findPreference<EditTextPreference>(activity?.getString(R.string.PREF_MQTT_TOPIC).toString())
-        editTextMqttTopic!!.summary = sharedPreferences.getString(editTextMqttTopic.key, "<not set>")
+        editTextMqttTopic!!.summary = sharedPreferences?.getString(editTextMqttTopic.key, "<not set>")
 
         val editTextMqttBroker = findPreference<EditTextPreference>(activity?.getString(R.string.PREF_MQTT_BROKER).toString())
-        editTextMqttBroker!!.summary = sharedPreferences.getString(editTextMqttBroker.key, "<not set>")
+        editTextMqttBroker!!.summary = sharedPreferences?.getString(editTextMqttBroker.key, "<not set>")
 
         val listNetwork = findPreference<ListPreference>(activity?.getString(R.string.PREF_NETWORK_SERVER).toString())
-        listNetwork!!.summary = sharedPreferences.getString(listNetwork.key, "<not set>")
+        listNetwork!!.summary = sharedPreferences?.getString(listNetwork.key, "<not set>")
 
         val prefBugReport = findPreference("bugreport") as Preference?
         prefBugReport!!.onPreferenceClickListener = Preference.OnPreferenceClickListener { //open browser or intent here
@@ -125,15 +125,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
     val REQUEST_CODE_ALERT_RINGTONE = 3
 
     fun getRingtonePreferenceValue(): String? {
-        return preferenceManager.sharedPreferences.getString(getString(R.string.PREF_SOUND_URI), null)
+        return preferenceManager.sharedPreferences?.getString(getString(R.string.PREF_SOUND_URI), null)
     }
 
     fun setRingtonPreferenceValue(value: String) {
         Log.d(TAG, "Ringtone uri = " + value)
 
-        val editor = preferenceManager.sharedPreferences.edit()
-        editor.putString(getString(R.string.PREF_SOUND_URI), value) //This is just an example, you could also put boolean, long, int or floats
-        editor.apply()
+        val editor = preferenceManager.sharedPreferences?.edit()
+        editor?.putString(getString(R.string.PREF_SOUND_URI), value) //This is just an example, you could also put boolean, long, int or floats
+        editor?.apply()
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {

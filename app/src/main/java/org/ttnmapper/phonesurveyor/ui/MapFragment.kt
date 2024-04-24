@@ -3,13 +3,13 @@ package org.ttnmapper.phonesurveyor.ui
 import android.graphics.*
 import android.location.LocationManager
 import android.os.Bundle
-import androidx.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import org.osmdroid.events.MapListener
 import org.osmdroid.events.ScrollEvent
 import org.osmdroid.events.ZoomEvent
@@ -28,7 +28,6 @@ import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.MapAggregate
-import org.ttnmapper.phonesurveyor.databinding.ActivityMainBinding
 import org.ttnmapper.phonesurveyor.databinding.FragmentMapBinding
 import org.ttnmapper.phonesurveyor.room.Gateway
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.getBitmapFromVectorDrawable
@@ -432,7 +431,9 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
             return
         }
         MapAggregate.mqttStatusMessage = message
-        binding.textViewMQTTStatus.setText(message)
+        activity?.runOnUiThread {
+            binding.textViewMQTTStatus.text = message
+        }
     }
 
     fun setGPSStatusMessage(message: String) {
@@ -441,7 +442,9 @@ class MapFragment : Fragment()/*, View.OnTouchListener*/ {
             return
         }
         MapAggregate.gpsStatusMessage = message
-        binding.textViewGPSStatus.setText(message)
+        activity?.runOnUiThread {
+            binding.textViewGPSStatus.text = message
+        }
     }
 
     fun setStatusMessageColor(color: Int) {

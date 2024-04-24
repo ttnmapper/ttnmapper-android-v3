@@ -11,7 +11,6 @@ import android.os.AsyncTask
 import android.os.Build
 import android.util.Log
 import org.ttnmapper.phonesurveyor.R
-import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate.mNotification
 import org.ttnmapper.phonesurveyor.services.MyService
 import org.ttnmapper.phonesurveyor.ui.MainActivity

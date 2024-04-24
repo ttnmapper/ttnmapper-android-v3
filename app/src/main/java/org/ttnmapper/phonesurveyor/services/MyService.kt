@@ -8,18 +8,30 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.*
-import androidx.preference.PreferenceManager
-import androidx.core.content.ContextCompat
+import android.os.Binder
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.IBinder
 import android.util.Log
+import androidx.core.content.ContextCompat
+import androidx.preference.PreferenceManager
 import info.mqtt.android.service.MqttAndroidClient
-import org.eclipse.paho.client.mqttv3.*
+import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions
+import org.eclipse.paho.client.mqttv3.IMqttActionListener
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
+import org.eclipse.paho.client.mqttv3.IMqttToken
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
+import org.eclipse.paho.client.mqttv3.MqttClient
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions
+import org.eclipse.paho.client.mqttv3.MqttException
+import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.ttnmapper.phonesurveyor.R
 import org.ttnmapper.phonesurveyor.SurveyorApp
 import org.ttnmapper.phonesurveyor.aggregates.AppAggregate
 import org.ttnmapper.phonesurveyor.utils.AppConstants
 import org.ttnmapper.phonesurveyor.utils.CommonFunctions.Companion.sanitiseMqttUri
-import java.util.*
+import java.util.Date
 import kotlin.concurrent.thread
 
 
@@ -51,6 +63,7 @@ class MyService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
         if(startLocationTracking()) {
             startMQTTConnection()
