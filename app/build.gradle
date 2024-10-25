@@ -20,8 +20,8 @@ android {
         applicationId "org.ttnmapper.phonesurveyor"
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 34
-        versionName "2021.12.17"
+        versionCode 36
+        versionName "2024.10.25"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
@@ -64,19 +64,19 @@ repositories {
 }
 
 dependencies {
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.2'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
 
     implementation 'org.osmdroid:osmdroid-android:6.1.18'
 
-    implementation 'com.github.hannesa2:paho.mqtt.android:4.2.4'
+    implementation 'com.github.hannesa2:paho.mqtt.android:4.3.beta5'
 
     implementation 'com.squareup.moshi:moshi-kotlin:1.15.1'
     ksp('com.squareup.moshi:moshi-kotlin-codegen:1.15.1')
@@ -84,13 +84,12 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 
     // Room database
-    def room_version = '2.6.1' // check latest version from docs
-    implementation "androidx.room:room-ktx:$room_version"
-    ksp "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-ktx:2.6.1"
+    ksp "androidx.room:room-compiler:2.6.1"
 
     // Tests
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test:rules:1.5.0'
-    androidTestImplementation "androidx.room:room-testing:$room_version"
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test:rules:1.6.1'
+    androidTestImplementation "androidx.room:room-testing:2.6.1"
 }

@@ -52,7 +52,7 @@ class TtnLoginActivity : AppCompatActivity() {
                     val uri = request.url
                     val url = uri.toString()
 
-                    if (url.startsWith(TtnLoginAggregate.redirectURI) == true) {
+                    if (url.startsWith(TtnLoginAggregate.redirectURI)) {
                         setStatusMessage("Logged in")
                         binding.webviewTtnLogin.loadUrl("about:blank")
                         checkCallbackURL(url)
@@ -66,10 +66,10 @@ class TtnLoginActivity : AppCompatActivity() {
         } else {
 
             binding.webviewTtnLogin.webViewClient = object : WebViewClient() {
-                @Suppress("OverridingDeprecatedMember")
+                @Deprecated("Deprecated in Java")
                 override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
 
-                    if (url.startsWith(TtnLoginAggregate.redirectURI) == true) {
+                    if (url.startsWith(TtnLoginAggregate.redirectURI)) {
                         setStatusMessage("Logged in")
                         binding.webviewTtnLogin.loadUrl("about:blank")
                         checkCallbackURL(url)
@@ -85,7 +85,7 @@ class TtnLoginActivity : AppCompatActivity() {
         binding.webviewTtnLogin.loadUrl(TtnLoginAggregate.authorizationUrl + "&state=" + TtnLoginAggregate.secretState)
     }
 
-    fun clearCookies(context: Context) {
+    private fun clearCookies(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             CookieManager.getInstance().removeAllCookies(null)
             CookieManager.getInstance().flush()
@@ -140,7 +140,7 @@ class TtnLoginActivity : AppCompatActivity() {
         }
     }
 
-    fun getTokenWithCode() {
+    private fun getTokenWithCode() {
         setStatusMessage("Logged in successfully. Exchanging code for token.")
         thread(start = true) {
             if (TtnLoginAggregate.exchangeCodeForToken()) {
@@ -153,7 +153,7 @@ class TtnLoginActivity : AppCompatActivity() {
         }
     }
 
-    fun getApplications() {
+    private fun getApplications() {
         setStatusMessage("Getting list of your applications.")
         if (TtnLoginAggregate.getListOfApplications()) {
             setStatusMessage("List of Applications retrieved")
@@ -164,7 +164,7 @@ class TtnLoginActivity : AppCompatActivity() {
         }
     }
 
-    fun getHandlers() {
+    private fun getHandlers() {
         setStatusMessage("Discovering handlers for all applications.")
         if (TtnLoginAggregate.getHandlers()) {
             setStatusMessage("Handlers retrieved")
@@ -177,7 +177,7 @@ class TtnLoginActivity : AppCompatActivity() {
         }
     }
 
-    fun onButtonRetryClicked() {
+    private fun onButtonRetryClicked() {
         //TODO: clearCookies(this)
         binding.webviewTtnLogin.visibility = View.VISIBLE
         binding.textViewStatus.visibility = View.GONE
@@ -195,7 +195,7 @@ class TtnLoginActivity : AppCompatActivity() {
         }
     }
 
-    fun enableRetryButton() {
+    private fun enableRetryButton() {
         runOnUiThread {
             binding.buttonRetry.setOnClickListener { onButtonRetryClicked() }
             binding.buttonRetry.visibility = View.VISIBLE

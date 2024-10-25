@@ -20,6 +20,8 @@ class getBackgroundNotification(private val context: Context, private var myServ
 
     private val mNotificationId: Int = 1000
 
+
+    @Deprecated("Deprecated in Java")
     override fun doInBackground(vararg params: Long?): Any? {
         Log.d(TAG, "Adding notification in Background")
 

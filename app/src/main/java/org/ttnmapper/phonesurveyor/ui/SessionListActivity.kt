@@ -90,6 +90,7 @@ class SessionListActivity : AppCompatActivity() {
 
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int,
                                   resultData: Intent?) {
         super.onActivityResult(requestCode, resultCode, resultData)

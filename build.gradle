@@ -1,27 +1,25 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.9.23'
+    ext.kotlin_version = '2.0.21'
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.3.2'
+        classpath 'com.android.tools.build:gradle:8.7.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
 plugins {
-    id 'com.google.devtools.ksp' version '1.9.23-1.0.20' apply false
+    id("com.google.devtools.ksp") version "2.0.21-1.0.25"
 }
 
 allprojects {
     repositories {
         google()
-        maven {
-            url "https://repo.eclipse.org/content/repositories/paho-snapshots/"
-        }
+        maven { url 'https://jitpack.io' }
     }
 
 
